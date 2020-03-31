@@ -1,10 +1,10 @@
-from Tkinter import *  # from x import * is bad practice
-from ttk import *
+from tkinter import *  # from x import * is bad practice
+from tkinter.ttk import *
 from PIL import ImageTk, Image
-from proWrd import Filter
-from tkMessageBox import showinfo
-from tkFileDialog import askopenfilename
-from tkFileDialog import asksaveasfilename
+from Src.Cython.proWrd1 import Filter
+from tkinter.messagebox import showinfo
+from tkinter.filedialog import askopenfilename
+from tkinter.filedialog import asksaveasfilename
 
 
 # http://tkinter.unpythonic.net/wiki/VerticalScrolledFrame
@@ -189,10 +189,10 @@ class SampleApp:
         self.pics = Label(app1)
         self.pics.grid(row=13, column=1, columnspan=2, rowspan=10, sticky=NE, padx=10, pady=10)
 
-        self.s1ico = Image.open("Data/floppy_disk_blue.png").resize((25, 25), Image.ANTIALIAS)
+        self.s1ico = Image.open("data/floppy_disk_blue.png").resize((25, 25), Image.ANTIALIAS)
         self.s1ico = ImageTk.PhotoImage(image=self.s1ico)
 
-        self.save = Button(app1, text="Save",command=lambda: self.De_Save(), width=30, image=self.s1ico,compound=LEFT)
+        self.save = Button(app1, text="save",command=lambda: self.De_Save(), width=30, image=self.s1ico,compound=LEFT)
         self.save.grid(row=24, column=1, sticky=N + E + W + S, padx=10, pady=10)
 
     def De_Save(self):

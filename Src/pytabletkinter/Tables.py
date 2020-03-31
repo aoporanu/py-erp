@@ -112,7 +112,7 @@ class TableCanvas(Canvas):
         
         self.bind("<Control-x>", self.delete_Row)
         self.bind("<Control-n>", self.add_Row)
-        self.bind("<Delete>", self.delete_Cell)
+        self.bind("<delete>", self.delete_Cell)
         
         if not hasattr(self,'parentapp'):
             self.parentapp = self.parentframe
@@ -404,10 +404,10 @@ class TableCanvas(Canvas):
         return
 
     def delete_Row(self):
-        """Delete a row"""
+        """delete a row"""
         if len(self.multiplerowlist)>1:
-            n = tkMessageBox.askyesno("Delete",
-                                      "Delete Selected Records?",
+            n = tkMessageBox.askyesno("delete",
+                                      "delete Selected Records?",
                                       parent=self.parentframe) 
             if n:            
                 rows = self.multiplerowlist
@@ -416,8 +416,8 @@ class TableCanvas(Canvas):
                 self.multiplerowlist = []
                 self.redrawTable() 
         else:     
-            n = tkMessageBox.askyesno("Delete",
-                                      "Delete This Record?",
+            n = tkMessageBox.askyesno("delete",
+                                      "delete This Record?",
                                       parent=self.parentframe)
             if n:            
                 row = self.getSelectedRow()
@@ -427,9 +427,9 @@ class TableCanvas(Canvas):
         return
 
     def delete_Column(self):
-        """Delete currently selected column"""
-        n =  tkMessageBox.askyesno("Delete",
-                                   "Delete This Column?",
+        """delete currently selected column"""
+        n =  tkMessageBox.askyesno("delete",
+                                   "delete This Column?",
                                    parent=self.parentframe)
         if n:
             col = self.getSelectedColumn()
@@ -1440,7 +1440,7 @@ class TableCanvas(Canvas):
         return
         
     def savePrefs(self):
-        """Save and set the prefs"""
+        """save and set the prefs"""
         try:
             self.prefs.set('horizlines', self.horizlinesvar.get())
             self.horizlines = self.horizlinesvar.get()
@@ -1709,7 +1709,7 @@ class ColumnHeader(Canvas):
         popupmenu.add_command(label="Rename Column", command=self.relabel_Column)
         popupmenu.add_command(label="Sort by "+ collabel, command=self.table.sortTable)
         popupmenu.add_command(label="Sort by "+ collabel +' (descending)', command=lambda : self.table.sortTable(reverse=1))
-        popupmenu.add_command(label="Delete This Column", command=self.table.delete_Column)
+        popupmenu.add_command(label="delete This Column", command=self.table.delete_Column)
         popupmenu.add_command(label="Add New Column", command=self.table.add_Column)
         popupmenu.bind("<FocusOut>", popupFocusOut)
         #self.bind("<Button-3>", popupFocusOut)

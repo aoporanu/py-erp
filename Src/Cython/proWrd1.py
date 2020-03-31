@@ -1,3 +1,6 @@
+import time
+
+
 def Filter(item):
     lists = []
     item = str(item).split(" ")
@@ -43,4 +46,22 @@ def Filter(item):
             wrd = wrd + lists[i] +" "
     wrd = wrd[:(len(wrd)-1)]
     return wrd
+def getTimetuple(stamp = None):
+    if stamp == None :
+        return time.localtime()
+    return time.strptime(stamp)
+
+def getTimeStamp(tuple = None):
+    if tuple == None :
+        return time.asctime()
+    return time.asctime(tuple)
+
+def InvoiceSplit(item):
+    invoices = item.split(",")
+    length = len(invoices)
+    l = []
+    for i in range(0, len(length)) :
+        if invoices[i].isdigit() == True :
+            l.append(invoices[i])
+    return l
 

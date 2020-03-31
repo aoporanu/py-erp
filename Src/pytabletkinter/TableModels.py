@@ -251,7 +251,7 @@ class TableModel(object):
         return
 
     def deleteRow(self, rowIndex):
-        """Delete a row"""
+        """delete a row"""
                 
         name = self.reclist[rowIndex]
         del self.data[name]

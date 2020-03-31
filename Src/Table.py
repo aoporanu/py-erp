@@ -1,6 +1,7 @@
 from reportlab.lib import colors
 from reportlab.pdfgen import canvas
 from reportlab.lib.units import inch, mm
+import sys
 
 data = [['No', 'Product', 'Unit Price', 'Qty', 'Amount']]
 N = 'n'
@@ -118,6 +119,8 @@ class Table:
                 master.setFillColor(self.__table[row][cell]['bg'])
                 x, y = self.__table[row][cell]['origin']
                 width, height = self.__table[0][cell]['cellspan'][0], self.__table[row][cell]['cellspan'][1]
+                if sys.version_info[0] >= 3:
+                    unicode = str
                 text = unicode(self.__table[row][cell]['text'])
                 fname, fsize = self.__table[row][cell]['font']
                 rpad = self.__table[row][cell]['rightpadding']

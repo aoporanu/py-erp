@@ -1,5 +1,6 @@
-from Tkinter import *
-from ttk import *
+import tkinter as tk
+from tkinter import N, S, E, W, FLAT, VERTICAL, X, Y, YES, NO, END
+from tkinter.ttk import *
 
 
 class MultiListbox(Frame):
@@ -28,7 +29,7 @@ class MultiListbox(Frame):
         for l, w in lists:
             tree.column(l, width=w * 5)
             tree.heading(l, text=l)
-        frame = Frame(self);
+        frame = Frame(self)
         frame.grid(row=0, column=1, sticky=N + S + E + W)
         bn = Label(frame, width=1, relief=FLAT);
         bn.pack(fill=X)
@@ -37,7 +38,7 @@ class MultiListbox(Frame):
         self.tree['yscrollcommand'] = sb.set
         self.firstcolumn("No", width=60)
         self.tree.bind('<1>', self.rowselect)
-        self.V = StringVar()
+        self.V = tk.StringVar()
         lbl = Label(self, relief=FLAT, textvariable=self.V, anchor=E, font=("Ebrima", 8))
         lbl.grid(row=1, column=0, columnspan=2, sticky=N + E + S + W, pady=0, padx=15)
         self.V.set("Number of Entries - %d" % (len(self.lists)))

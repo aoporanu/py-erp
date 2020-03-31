@@ -1,10 +1,13 @@
-from ttkcalendar import Calendar
+from tkinter import TclError, NORMAL
+
+from imath import cmp
+from tkcalendar import Calendar
 import calendar
-from Tkinter import *
-from ttk import *
+from tkinter import *
+from tkinter.ttk import *
 import time as t
 import datetime
-from proWrd import Filter,InvoiceSplit
+from Src.Cython.proWrd1 import Filter,InvoiceSplit
 
 class CalendarButton(Frame):
     def __init__(self,master,**kw):
@@ -45,7 +48,7 @@ class CalendarButton(Frame):
             try:
                 self.btn['state'] = NORMAL
             except(TclError) :
-                print "calenbutt"
+                print("calenbutt")
 
     def getTimetuple(self,stamp = None):
         if stamp == None :

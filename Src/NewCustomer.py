@@ -1,18 +1,25 @@
-from Tkinter import *
-from ttk import *
-import tkFont as F
-from proWrd import Filter, InvoiceSplit
-from tkMessageBox import showinfo
-from tkMessageBox import askokcancel
-from TableTree import MultiListbox
-import UniqueIdGenerator as uig
-from buttoncalender import CalendarButton
+import tkinter as tk
+from tkinter import FLAT, N, E, S, W
+
+from tkinter.ttk import *
+import tkinter.font as F
+
+from reportlab import xrange
+
+from Src.Cython.proWrd1 import Filter, InvoiceSplit
+from tkinter.messagebox import showinfo
+from tkinter.messagebox import askokcancel
+
+from Src.Cython.proWrd1 import Filter
+from Src.TableTree import MultiListbox
+from Src.buttoncalender import CalendarButton, END, DISABLED, Toplevel, WORD
 
 sty = N + W + S + E
 
 
 class NewCustomer(Frame):
     def __init__(self, master, modify, tup, db):
+        # print(tup)
         Frame.__init__(self, master)
         self.master = master
         self.db = db
@@ -24,7 +31,7 @@ class NewCustomer(Frame):
         self.app.grid(row=0, column=0, sticky=sty)
         self.app.rowconfigure(1, weight=1)
         self.app.columnconfigure(0, weight=1)
-        if modify == True:
+        if modify:
             value = tup[1]
             self.ctmid = tup[0]
         else:
@@ -38,7 +45,7 @@ class NewCustomer(Frame):
         note.rowconfigure(0, weight=1)
         note.columnconfigure(0, weight=1)
         self.notepage1(note, modify, tup)
-        if modify == True:
+        if modify:
             self.notepage2(note)
 
     def update_name(self, event):
@@ -97,7 +104,7 @@ class NewCustomer(Frame):
         self.cusphn.delete(0, END)
         self.cusphn.insert(0, r[3])
 
-        Button(lf, text="Save", command=lambda: self.invoicesave()).grid(row=5, column=1, sticky=sty, pady=8, padx=7)
+        Button(lf, text="save", command=lambda: self.invoicesave()).grid(row=5, column=1, sticky=sty, pady=8, padx=7)
         root13.wait_window()
         return 1
 
@@ -122,7 +129,7 @@ class NewCustomer(Frame):
             return showinfo("Message", "No Item Selected", parent=self.master)
         r = self.mlb21.get(i)
         self.invid = r[0]
-        ans = askokcancel("Message", "Sure You Want To Delete %s ?" % (self.invid), parent=self.master)
+        ans = askokcancel("Message", "Sure You Want To delete %s ?" % (self.invid), parent=self.master)
         if ans == True:
             b = self.db.deleteinvoice(self.invid)
             if b == True:
@@ -151,7 +158,7 @@ class NewCustomer(Frame):
                                   (("Invoice ID", 30), ("Invoice Number", 25), ("Invoice Date", 35), ("Paid", 20)))
         self.mlb21.grid(row=1, column=0, columnspan=3, sticky=sty)
         Button(app1, text="Edit Invoice", command=lambda: self.editinvoice()).grid(row=0, column=1, sticky=sty, pady=20)
-        Button(app1, text="Delete Invoice", command=lambda: self.deleteinvoice()).grid(row=0, column=2, sticky=sty,
+        Button(app1, text="delete Invoice", command=lambda: self.deleteinvoice()).grid(row=0, column=2, sticky=sty,
                                                                                        pady=20, padx=5)
         self.lbl1 = Label(app1, text="Total Amount Earned - 0 ")
         self.lbl1.grid(row=2, column=0, sticky=sty, padx=5, pady=5)
@@ -176,7 +183,8 @@ class NewCustomer(Frame):
             paid = i[3]
             tp = tp + float(paid)
             iid = self.mlb21.insert(END, i)
-            tup1 = self.db.sqldb.execute(""" SELECT  product_name,cost,sold_price,QTY  FROM  (SELECT * FROM sells JOIN costs USING (cost_id) JOIN products USING (product_id) )
+            tup1 = self.db.sqldb.execute(""" SELECT  product_name,cost,sold_price,QTY  FROM  (SELECT * FROM sells 
+            JOIN costs USING (cost_id) JOIN products USING (product_id) )
                     JOIN invoices USING (invoice_id) WHERE invoice_id = "%s" ORDER BY product_name """ % (
                 invid)).fetchall()
             self.mlb21.insert(END, ["Product Name", "Cost Price", "Selling Price", "Qty"], parent=iid, rowname="+",
@@ -214,7 +222,7 @@ class NewCustomer(Frame):
         Label(self.t, text="Contact Number", background='white').grid(row=1, column=0, padx=5, pady=5)
         self.e = Entry(self.t)
         self.e.grid(row=1, column=1, sticky=E + S + W + N, padx=5, pady=5)
-        btn = Button(self.t, text="Save Phone", command=lambda: self.Savephone(edit, tup))
+        btn = Button(self.t, text="save Phone", command=lambda: self.Savephone(edit, tup))
         btn.grid(row=2, column=1, sticky=E + S + W + N, padx=5, pady=5)
         if edit == True:
             Label(self.t, text="Phone ID : ", background='white').grid(row=0, column=0, padx=5, pady=5)
@@ -251,8 +259,8 @@ class NewCustomer(Frame):
                 return showinfo('Select Error', 'Noting Is Selected', parent=self.master)
             piid = self.mlb2221.trueparent(self.mlb2221.Select_iid)
             index = self.mlb2221.index(piid)
-            self.mlb2221.setvalue(index,0,phone)
-        else :
+            self.mlb2221.setvalue(index, 0, phone)
+        else:
             self.mlb2221.insert(END, phone)
         self.t.destroy()
         return None
@@ -303,9 +311,14 @@ class NewCustomer(Frame):
 
         lbl1 = Label(app, text="Customer Address ", anchor=N)
         lbl1.grid(row=3, column=0, sticky=sty, padx=5, pady=5)
-        self.text = Text(app, width=26, height=5, wrap=WORD, relief=FLAT)
+        self.text = tk.Text(app, width=26, height=5, wrap=WORD, relief=FLAT)
         self.text.grid(row=3, column=1, sticky=sty, padx=5, pady=5)
         self.text.configure(highlightthickness=1, highlightbackground="Grey")
+
+        lbl2 = Label(app, text="Customer RO ")
+        lbl2.grid(row=4, column=0, sticky=sty, padx=5, pady=5)
+        self.entry4 = Entry(app, width=35)
+        self.entry4.grid(row=4, column=1, sticky=sty, padx=5, pady=5)
 
         tmpapp = Frame(app)
         tmpapp.grid(row=1, column=2, rowspan=4, sticky=sty, padx=0, pady=0)
@@ -324,18 +337,18 @@ class NewCustomer(Frame):
                                                                                pady=5)
         Button(tmpapp, text='Edit', command=lambda: self.phoneedit(True)).grid(row=0, column=1, sticky=sty, padx=5,
                                                                                pady=5)
-        Button(tmpapp, text='Delete', command=lambda: self.phonedelete()).grid(row=0, column=2, sticky=sty, padx=5,
+        Button(tmpapp, text='delete', command=lambda: self.phonedelete()).grid(row=0, column=2, sticky=sty, padx=5,
                                                                                pady=5)
 
         tmpapp = Frame(app)
-        tmpapp.grid(row=4, column=1, sticky=sty, padx=0, pady=0)
+        tmpapp.grid(row=5, column=1, sticky=sty, padx=0, pady=0)
         tmpapp.columnconfigure(0, weight=1)
         tmpapp.columnconfigure(1, weight=1)
         tmpapp.rowconfigure(0, weight=1)
 
-        btn = Button(tmpapp, text='Save', width=12, command=lambda: self.Save(modify, tup))
+        btn = Button(tmpapp, text='save', width=12, command=lambda: self.Save(modify, tup))
         btn.grid(row=0, column=0, sticky=sty, padx=5, pady=5)
-        copy = Button(tmpapp, text='Save As Copy', width=12, command=lambda: self.Save(False, tup))
+        copy = Button(tmpapp, text='save As Copy', width=12, command=lambda: self.Save(False, tup))
         copy.grid(row=0, column=1, sticky=sty, padx=5, pady=5)
         if modify == False:
             copy['state'] = DISABLED
@@ -343,11 +356,13 @@ class NewCustomer(Frame):
         if modify == True:
             ctmid = self.tup[0]
             d = self.db.sqldb.execute(
-                """ SELECT customer_name,customer_address,customer_email FROM customers WHERE customer_id = "%s" """ % (
+                """ SELECT customer_name,customer_address,customer_email, customer_ro FROM customers WHERE 
+                customer_id = "%s" """ % (
                     ctmid)).fetchone()
             name = d[0]
             add = d[1]
             email = d[2]
+            ro = d[3]
             self.phnrefresh(ctmid)
             self.entry5.delete(0, END)
             self.entry5.insert(0, name)
@@ -355,6 +370,8 @@ class NewCustomer(Frame):
             self.text.insert(0.0, add)
             self.entry3.delete(0, END)
             self.entry3.insert(0, email)
+            self.entry4.delete(0, END)
+            self.entry4.insert(0, ro)
 
     def Save(self, modify, tup):
         """
@@ -381,11 +398,11 @@ class NewCustomer(Frame):
             if not ask:
                 return 1
             self.db.editcustomer(ctmid, name, add, email)
-        if ctmid is not  None :
-            for i in xrange(self.mlb2221.size()):
-                tup = self.mlb2221.get(i)
-                phnid = self.db.sqldb.getphoneID(tup[0])
+        if ctmid is not None:
+            for i in self.mlb2221.tree.get_children():
+                tup = self.mlb2221.tree.item(i)
+                phnid = self.db.sqldb.getphoneID(tup['values'][0])
                 if phnid is None:
-                    self.db.addphone(tup[0],ctmid)
+                    self.db.addphone(tup['values'][0], ctmid)
         self.master.destroy()
         return showinfo("ADDED", 'Saved Successfully')

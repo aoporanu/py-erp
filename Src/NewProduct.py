@@ -1,12 +1,10 @@
-from Tkinter import *
-from ttk import *
-import tkFont as F
-from PIL import ImageTk, Image
-from proWrd import Filter
-from tkMessageBox import showinfo
-from tkMessageBox import askokcancel, askyesno
-from TableTree import MultiListbox
-from buttoncalender import CalendarButton
+from tkinter import *
+from tkinter.ttk import *
+from Src.Cython.proWrd1 import Filter
+from tkinter.messagebox import showinfo
+from tkinter.messagebox import askokcancel, askyesno
+from Src.TableTree import MultiListbox
+from Src.Cython.buttoncalender import CalendarButton
 
 sty = N + W + S + E
 
@@ -16,8 +14,9 @@ def selectfirst(item):
 
 
 class NewProduct(Frame):
-    def __init__(self, master, tup, modify, db):
+    def __init__(self, master, tup, modify, db, id):
         Frame.__init__(self, master)
+        self.id = id
         self.db = db
         self.tup = tup
         self.modify = modify
@@ -28,8 +27,8 @@ class NewProduct(Frame):
         self.f.grid(row=0, column=0, sticky=sty)
         self.f.rowconfigure(1, weight=3)
         self.f.columnconfigure(0, weight=1)
-        if modify == True:
-            value = tup[1]
+        if modify:
+            value = id
         else:
             value = "Product Name"
         self.name = Label(self.f, text=value, font=('Berlin Sans FB Demi', 40), foreground=fg)
@@ -38,8 +37,8 @@ class NewProduct(Frame):
         note.grid(row=1, column=0, sticky=sty)
         note.rowconfigure(0, weight=1)
         note.columnconfigure(0, weight=1)
-        self.notepage1(note, modify, tup)
-        if modify == True:
+        self.notepage1(note, modify, tup, id)
+        if modify:
             self.notepage15(note)
             self.notepage2(note)
             self.notepage3(note)
@@ -50,14 +49,14 @@ class NewProduct(Frame):
             name = "Product Name"
         self.name.configure(text=name)
 
-    def Load_Percent(self, cost, price):
+    def load_percent(self, cost, price):
         if float(cost) == 0.0:
             return 0
         profit = float(price) - float(cost)
         percent = (100 * profit) / float(cost)
         return round(percent, 2)
 
-    def notepage1(self, note, modify, tup):
+    def notepage1(self, note, modify, tup, id):
         app = Frame(note)
         app.grid(row=0, column=0)
         self.f.rowconfigure(0, weight=1)
@@ -70,18 +69,22 @@ class NewProduct(Frame):
         Label(app, text='Product Detail', font=('Berlin Sans FB Demi', 23), foreground="#3496ff").grid(row=0, column=0,
                                                                                                        columnspan=2,
                                                                                                        sticky=sty)
+
         Label(app, text='Product Name').grid(row=1, column=0, sticky=E, padx=10, pady=4)
         self.entry5 = Entry(app, width=65)
         self.entry5.grid(row=1, column=1, columnspan=2, sticky=sty, padx=10, pady=10)
         self.entry5.bind('<Any-KeyRelease>', self.update_name)
+
         Label(app, text="Product Category").grid(row=2, column=0, sticky=E, padx=10, pady=10)
         self.entry = Combobox(app, width=35)
         self.entry.grid(row=2, column=1, columnspan=2, sticky=sty, padx=10, pady=10)
+
         Label(app, text="Product Description").grid(row=3, column=0, sticky=N + E, padx=10, pady=10)
         self.text = Text(app, width=26, height=5, wrap=WORD, relief=FLAT)
         self.text.grid(row=3, column=1, columnspan=2, sticky=sty, padx=10, pady=10)
         self.text.configure(highlightthickness=1, highlightbackground="Grey")
         self.df = self.text.configure()
+
         Label(app, text="Product QTY").grid(row=4, column=0, sticky=E, padx=10, pady=10)
         self.qty = StringVar()
         self.entry3 = Entry(app, width=35, textvariable=self.qty)
@@ -90,24 +93,38 @@ class NewProduct(Frame):
         Label(app, text=" Product ID ").grid(row=5, column=0, sticky=E)
         self.entry6 = Entry(app, width=35)
         self.entry6.grid(row=5, column=1, columnspan=2, sticky=sty, padx=10, pady=10)
-        btn = Button(app, text='Save', width=12, command=lambda: self.Save(modify, self.tup), style='new.TButton')
-        btn.grid(row=6, column=1, sticky=sty, padx=10, pady=10)
-        copy = Button(app, text='Save As Copy', command=lambda: self.Save(False, self.tup), style='new.TButton')
-        copy.grid(row=6, column=2, sticky=sty, padx=10, pady=10)
+
+        Label(app, text=" Unit of Measure").grid(row=6, column=0, sticky=E)
+        self.entry7 = Combobox(app, width=35)
+        self.entry7.grid(row=6, column=1, columnspan=2, sticky=sty, padx=10, pady=10)
+
+        btn = Button(app, text='save', width=12, command=lambda: self.save(modify, self.tup), style='new.TButton')
+        btn.grid(row=7, column=1, sticky=sty, padx=10, pady=10)
+        copy = Button(app, text='save As Copy', command=lambda: self.save(False, self.tup), style='new.TButton')
+        copy.grid(row=7, column=2, sticky=sty, padx=10, pady=10)
         keys = self.db.sqldb.execute("SELECT category_name FROM category").fetchall()
-        keys = map(selectfirst, keys)
+        keys_um = self.db.sqldb.execute("select name from units_of_measure").fetchall()
+        keys_um = sorted(map(selectfirst, keys))
+        keys_um.sort()
+        keys = sorted(map(selectfirst, keys))
         keys.sort()
         self.entry['value'] = keys
+        self.entry7["value"] = keys_um
         del keys
-        if modify == False:
+        del keys_um
+        if not modify:
             copy['state'] = DISABLED
-        if modify == True:
-            d = self.db.sqldb.execute(""" SELECT product_name,category_name,product_description FROM  products 
-                        JOIN category USING (category_id) WHERE product_id = "%s" """ % (tup[0])).fetchone()
+        if modify:
+            d = self.db.sqldb.execute(""" SELECT product_name,category_name,product_description,product_lot FROM  
+            products 
+                        JOIN category USING (category_id) WHERE product_id = "%s" JOIN units_of_measure USING (
+                        uom_id) WHERE uom_id="%s" """ %
+                                      (id, id)).fetchone()
             name = d[0]
             category = d[1]
             Des = d[2]
             no = tup[0]
+            lot = d[3]
             qty = self.db.sqldb.getquantity(tup[0])
             self.entry5.delete(0, END)
             self.entry5.insert(0, name)
@@ -119,8 +136,10 @@ class NewProduct(Frame):
             self.qty.set(qty)
             self.entry6.delete(0, END)
             self.entry6.insert(0, no)
+            self.entry7.delete(0, END)
+            self.entry7.insert(0, lot)
         self.entry6['state'] = "readonly"
-        self.entry3['state'] = "readonly"
+        self.entry3['state'] = "readwrite"
 
     def Percent(self, event):
         cost = Filter(self.entry4.get())
@@ -148,7 +167,7 @@ class NewProduct(Frame):
         self.entry2.insert(0, price)
         return 1
 
-    def Save(self, modify, tup):
+    def save(self, modify, tup):
         """Objects of Tup
            tup[0] ->  ID No
            tup[1] ->  Product name
@@ -160,38 +179,41 @@ class NewProduct(Frame):
         name = Filter(self.entry5.get()).title()
         category = Filter(self.entry.get()).title()
         description = Filter(self.text.get(0.0, END)).title()
+        um = Filter(self.entry7.get()).title()
         if len(name.split()) == 0:
             return showinfo(title="Error", message='Product Name Must Be Specified', parent=self.master)
         if len(category.split()) == 0:
             return showinfo(title="Error", message='Product Category Must Be Specified', parent=self.master)
+        if len(um.split()) == 0:
+            return showinfo(title="Error", message='Product Category Must Be Specified', parent=self.master)
         vre = self.db.sqldb.getproductID(name)
-        if modify == False:
-            if vre != None:
-                return showinfo(title="Error", message='Product Name is Already Listed Change Name To Save As Copy',
+        if not modify:
+            if vre is not None:
+                return showinfo(title="Error", message='Product Name is Already Listed Change Name To save As Copy',
                                 parent=self.master)
-            PID = self.db.addproduct(name, category, description)
-        elif modify == True:
+            PID = self.db.addproduct(name, category, description, um)
+        elif modify:
             PID = tup[0]
             previousname = tup[1]
             previouscategory = tup[2]
             pdescription = tup[3]
             if previousname != name:
-                if vre != None:
+                if vre is not None:
                     return showinfo(title="Error", message='Product Name is Already Listed', parent=self.master)
                 s = askokcancel("Name Mismatch",
                                 "Are You Sure You Want to Change\n\n%s to %s\n\n%s to %s\n\n%s to %s" % (
                                     previousname, name, previouscategory,
                                     category, pdescription, description), parent=self.master)
-                if s == False:
+                if not s:
                     return False
-            self.db.editproduct(PID, name, category, description)
+            self.db.editproduct(PID, name, category, description, um)
         self.master.destroy()
         return showinfo("ADDED", 'Saved Successfully')
 
-    def Add2Mlb15(self):
+    def add2mlb15(self):
         self.mlb11.delete(0, END)
         ins = self.mlb11.insert
-        if self.modify == True:
+        if self.modify:
             row = self.db.sqldb.execute(""" SELECT cost_id,cost,price FROM costs
                                           JOIN products USING (product_id)  WHERE product_id = "%s"  """ % (
                 self.tup[0])).fetchall()
@@ -210,7 +232,7 @@ class NewProduct(Frame):
     def addcost(self, edit=False):
         try:
             PID = self.tup[0]
-        except(IndexError):
+        except IndexError:
             return showinfo(title="ERROR", message='Product Not Yet Saved', parent=self.master)
         try:
             newcost = float(Filter(self.ncost.get()))
@@ -218,32 +240,32 @@ class NewProduct(Frame):
         except:
             return showinfo(title="ERROR", message='costs and price must be numbers', parent=self.master)
         costid = self.db.sqldb.getcostID(PID, newcost, newprice)
-        if costid != None:
+        if costid is not None:
             return showinfo("Message", "Cost and Price Already Listed", parent=self.master)
-        if edit == False:
+        if not edit:
             self.db.sqldb.addnewcost(PID, newcost, newprice)
         else:
             i = self.mlb11.Select_index
-            if i == None:
+            if i is None:
                 return showinfo("Message", "Select a Cost Or Price To Edit", parent=self.master)
             r = self.mlb11.get(i)
             pcostid = r[0]
             self.db.editcosts(pcostid, PID, newcost, newprice)
-        self.Add2Mlb15()
+        self.add2mlb15()
         self.ncost.delete(0, END)
         self.nprice.delete(0, END)
 
-    def deletecost(self):
+    def delete_cost(self):
         PID = self.tup[0]
         costid = self.pcostid
-        if costid == None:
-            return showinfo("Message", "Select a Cost Or Price To Delete", parent=self.master)
-        ans = self.db.sqldb.deletecost(costid)
-        if ans == True:
+        if costid is None:
+            return showinfo("Message", "Select a Cost Or Price To delete", parent=self.master)
+        ans = self.db.sqldb.delete_cost(costid)
+        if ans:
             return showinfo("Message", "%s Has Been Successfully Deleted" % (costid),
-                            parent=self.master), self.Add2Mlb15()
+                            parent=self.master), self.add2mlb15()
         else:
-            return showinfo("Message", "Cannot Delete %s It Is Associated With Purchase And Sells" % (costid),
+            return showinfo("Message", "Cannot delete %s It Is Associated With Purchase And Sells" % (costid),
                             parent=self.master)
 
     def setcostid(self, event):
@@ -267,7 +289,7 @@ class NewProduct(Frame):
                                                                                                         columnspan=1,
                                                                                                         sticky=sty,
                                                                                                         pady=9)
-        self.btn12 = Button(app15, text="Delete costs", command=lambda: self.deletecost())
+        self.btn12 = Button(app15, text="delete costs", command=lambda: self.delete_cost())
         self.btn12.grid(row=0, column=2, sticky=sty, pady=20, padx=10)
         self.mlb11 = MultiListbox(app15, (("Cost ID", 25), ("Cost Price", 30), ("Selling Price", 30), ("Qty", 15)))
         self.mlb11.grid(row=1, column=0, columnspan=3, sticky=sty)
@@ -289,7 +311,7 @@ class NewProduct(Frame):
         self.btn13.grid(row=2, column=1, sticky=sty, pady=5, padx=5)
         self.btn14 = Button(lf, text="Edit Cost", command=lambda: self.addcost(True))
         self.btn14.grid(row=2, column=0, sticky=sty, pady=5, padx=5)
-        self.Add2Mlb15()
+        self.add2mlb15()
 
     def Add2Mlb21(self):
         self.mlb21.delete(0, END)
@@ -297,9 +319,9 @@ class NewProduct(Frame):
         cap = 0
         brou = 0
         ins = self.mlb21.insert
-        if self.modify == True:
-            row = self.db.sqldb.execute(""" SELECT purchase_id,purchase_date,cost,price,QTY FROM purchase
-                                            JOIN costs USING (cost_id) JOIN products USING (product_id)  WHERE product_id = "%s"  """ % (
+        if self.modify:
+            row = self.db.sqldb.execute("""SELECT purchase_id,purchase_date,cost,price,QTY FROM purchase JOIN costs 
+            USING (cost_id) JOIN products USING (product_id)  WHERE product_id = "%s"  """ % (
                 self.tup[0])).fetchall()
             for i in row:
                 i = list(i)
@@ -339,7 +361,8 @@ class NewProduct(Frame):
             row=0, column=0, columnspan=2, sticky=sty, pady=8, padx=7)
 
         r = self.db.sqldb.execute(
-            """ SELECT purchase_date,QTY,cost,price FROM purchase JOIN costs USING (cost_id) WHERE purchase_id = "%s" """ % (
+            """ SELECT purchase_date,QTY,cost,price FROM purchase JOIN costs USING (cost_id) WHERE purchase_id = "%s" 
+            """ % (
                 self.purid)).fetchone()
         Label(lf, text="Purchase Date").grid(row=1, column=0, sticky=sty, pady=8, padx=2)
         Label(lf, text="Quantity").grid(row=2, column=0, sticky=sty, pady=8, padx=7)
@@ -363,7 +386,7 @@ class NewProduct(Frame):
         self.purprice.grid(row=4, column=1, sticky=sty, pady=8, padx=7)
         self.purprice.delete(0, END)
         self.purprice.insert(0, r[3])
-        Button(lf, text="Save", command=lambda: self.purchasesave()).grid(row=5, column=1, sticky=sty, pady=8, padx=7)
+        Button(lf, text="save", command=lambda: self.purchasesave()).grid(row=5, column=1, sticky=sty, pady=8, padx=7)
         root13.wait_window()
         return 1
 
@@ -391,7 +414,7 @@ class NewProduct(Frame):
             return showinfo("Message", "No Item Selected", parent=self.master)
         r = self.mlb21.get(i)
         self.purid = r[0]
-        ans = askokcancel("Message", "Sure You Want To Delete %s ?" % (self.purid), parent=self.master)
+        ans = askokcancel("Message", "Sure You Want To delete %s ?" % (self.purid), parent=self.master)
         if ans == True:
             self.db.deletepurchase(self.purid)
             return showinfo("Message", "%s Has Been Successfully Deleted" % (self.purid),
@@ -415,7 +438,7 @@ class NewProduct(Frame):
                                                                                                           pady=9)
         self.btn21 = Button(app1, text="Edit Purchase Records", command=lambda: self.purchaseedit(None))
         self.btn21.grid(row=0, column=1, sticky=sty, pady=20)
-        self.btn22 = Button(app1, text="Delete Purchase Records", command=lambda: self.deletepurchase())
+        self.btn22 = Button(app1, text="delete Purchase Records", command=lambda: self.deletepurchase())
         self.btn22.grid(row=0, column=2, sticky=sty, pady=20, padx=10)
         self.mlb21 = MultiListbox(app1, (
             ("Purchase ID", 25), ("Purchase Date", 35), ("Cost Price", 25), ("Selling Price", 25), ("Qty", 10),
@@ -441,9 +464,11 @@ class NewProduct(Frame):
         pg = 0
         tis = 0
         ins = self.mlb22.insert
-        if self.modify == True:
-            row = self.db.sqldb.execute(""" SELECT selling_id,invoice_date,cost,sold_price,QTY FROM (SELECT * FROM sells JOIN invoices USING (invoice_id) )
-                                            JOIN costs USING (cost_id) JOIN products USING (product_id) WHERE product_id = "%s" """ % (
+        if self.modify:
+            row = self.db.sqldb.execute(""" SELECT selling_id,invoice_date,cost,sold_price,QTY FROM (SELECT * FROM 
+            sells JOIN invoices USING (invoice_id) )
+                                            JOIN costs USING (cost_id) JOIN products USING (product_id) WHERE 
+                                            product_id = "%s" """ % (
                 self.tup[0])).fetchall()
             for i in row:
                 i = list(i)
@@ -481,8 +506,10 @@ class NewProduct(Frame):
         Label(lf, text="Selling ID : %s" % (self.selid), foreground="#3496ff", font=('Berlin Sans FB Demi', 18)).grid(
             row=0, column=0, columnspan=2, sticky=sty, pady=8, padx=7)
 
-        r = self.db.sqldb.execute(""" SELECT invoice_date,invoice_no,QTY,cost,price,sold_price FROM (SELECT * FROM sells JOIN invoices USING (invoice_id) )
-                                            JOIN costs USING (cost_id) JOIN products USING (product_id) WHERE selling_id = "%s" """ % (
+        r = self.db.sqldb.execute(""" SELECT invoice_date,invoice_no,QTY,cost,price,sold_price FROM (SELECT * FROM 
+        sells JOIN invoices USING (invoice_id) )
+                                            JOIN costs USING (cost_id) JOIN products USING (product_id) WHERE 
+                                            selling_id = "%s" """ % (
             self.selid)).fetchone()
         Label(lf, text="Selling Date", width=15).grid(row=1, column=0, sticky=sty, pady=8, padx=2)
         Label(lf, text="Invoice No").grid(row=2, column=0, sticky=sty, pady=8, padx=7)
@@ -522,7 +549,7 @@ class NewProduct(Frame):
         self.selsold.delete(0, END)
         self.selsold.insert(0, r[5])
 
-        Button(lf, text="Save", command=lambda: self.salesave()).grid(row=7, column=1, sticky=sty, pady=8, padx=7)
+        Button(lf, text="save", command=lambda: self.salesave()).grid(row=7, column=1, sticky=sty, pady=8, padx=7)
         root13.wait_window()
         return 1
 
@@ -544,7 +571,7 @@ class NewProduct(Frame):
         invid = self.db.sqldb.getinvoiceID(invno)
         if invid == None:
             return showinfo(title="ERROR", message='Invoice In That Number Dsn\'t Exsist', parent=self.master)
-        print (self.selid, sold, qty, costid)
+        print(self.selid, sold, qty, costid)
         self.db.editsells(self.selid, sold, qty, costid)
         self.salegui.destroy()
         self.Add2Mlb22()
@@ -556,7 +583,7 @@ class NewProduct(Frame):
             return showinfo("Message", "No Item Selected", parent=self.master)
         r = self.mlb22.get(i)
         self.selid = r[0]
-        ans = askokcancel("Message", "Sure You Want To Delete %s ?" % (self.selid), parent=self.master)
+        ans = askokcancel("Message", "Sure You Want To delete %s ?" % (self.selid), parent=self.master)
         if ans == True:
             self.db.deletesells(self.selid)
             return showinfo("Message", "%s Has Been Successfully Deleted" % (self.selid),
@@ -577,7 +604,7 @@ class NewProduct(Frame):
                                                                                                        pady=9)
         self.btn31 = Button(app2, text="Edit Selling Records", command=lambda: self.sellsedit(None))
         self.btn31.grid(row=0, column=1, sticky=sty, pady=20)
-        self.btn32 = Button(app2, text="Delete Selling Records", command=lambda: self.deletesells())
+        self.btn32 = Button(app2, text="delete Selling Records", command=lambda: self.deletesells())
         self.btn32.grid(row=0, column=2, sticky=sty, pady=20, padx=10)
 
         self.mlb22 = MultiListbox(app2, (

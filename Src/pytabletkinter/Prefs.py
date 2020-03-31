@@ -187,7 +187,7 @@ class Preferences:
 
     def save_prefs(self):
         #
-        # Save prefs
+        # save prefs
         #
         import pickle
 

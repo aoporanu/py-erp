@@ -1,10 +1,11 @@
-from ttkcalendar import Calendar
+from imath import cmp
+from tkcalendar import Calendar
 import calendar
-from Tkinter import *
-from ttk import *
+from tkinter import *
+from tkinter.ttk import *
 import time as t
 import datetime
-from proWrd import Filter, InvoiceSplit
+from Src.Cython.proWrd1 import Filter, InvoiceSplit
 from PIL import ImageTk, Image
 
 
@@ -13,7 +14,7 @@ class CalendarButton(Frame):
         self.datevar = StringVar()
         self.master = master
         Frame.__init__(self, master, **kw)
-        self.tmp = Image.open("Data/calender.png").resize((30, 30), Image.ANTIALIAS)
+        self.tmp = Image.open("data/calender.png").resize((30, 30), Image.ANTIALIAS)
         self.tmp = ImageTk.PhotoImage(image=self.tmp)
         self.btn = Button(self, textvariable=self.datevar,
                           image=self.tmp, compound=RIGHT,
@@ -55,7 +56,7 @@ class CalendarButton(Frame):
             try:
                 self.btn['state'] = NORMAL
             except(TclError):
-                print "calenbutt"
+                print("calenbutt")
 
     def getTimetuple(self, stamp=None):
         if stamp == None:
@@ -102,7 +103,7 @@ class CalendarButton(Frame):
         if w < 260:
             w = 260
         self.rootc1 = Toplevel()
-        self.rootc1.wm_attributes("-transparentcolor", 'gray98')
+        self.rootc1.wm_attributes("-alpha", 'gray98')
         self.rootc1.bind_all('<Button-1>', self.coor, "+")
         self.rootc1.title('Ttk Calendar')
         self.rootc1.columnconfigure(0, weight=1)

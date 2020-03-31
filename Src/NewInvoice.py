@@ -1,12 +1,15 @@
-from Tkinter import *
+from tkinter import *
 from TableTree import MultiListbox
-from ttk import *
-from tkMessageBox import showinfo
-from tkMessageBox import askokcancel
-from proWrd import Filter,InvoiceSplit
+from tkinter.ttk import *
+from tkinter.messagebox import showinfo
+from tkinter.messagebox import askokcancel
+
+from reportlab import xrange
+
+from Src.Cython.proWrd1 import Filter, InvoiceSplit
+
 import time as t
-import UniqueIdGenerator as uig
-from buttoncalender import CalendarButton
+from Src.Cython.buttoncalender import CalendarButton
 
 class ADDInvoice():
     def __init__(self,master,db):
@@ -20,7 +23,7 @@ class ADDInvoice():
         Label(self.f,text= "Invoice List",font= ('Berlin Sans FB Demi',21),foreground="#3496ff").grid(row=0,column=0,sticky=N+S+E+W,columnspan=2,padx=10,pady=5)
         self.mlb1 = MultiListbox(self.f, (("Invoice ID",40),('Invoice No', 17), ('Invoice Date', 40),('Customer Attached',40)),height = 15)
         self.mlb1.grid(row = 1,column = 0,columnspan = 4,sticky = N+W+S+E)
-        self.Del = Button(self.f,text = "Delete",command = lambda: self.Delete())
+        self.Del = Button(self.f,text = "delete",command = lambda: self.Delete())
         self.Del.grid(row = 2,column = 3)
         self.Add = Button(self.f,text = "ADD",command = lambda: self.Add_Invoice())
         self.Add.grid(row = 2,column = 1)
@@ -33,7 +36,7 @@ class ADDInvoice():
         if index == None or index > self.mlb1.size():
             return showinfo('Select Error','Noting Is Selected',parent  = self.master)
         tup = self.mlb1.get(index)
-        s = askokcancel('Confirm','Are You Sure You Want To Delete Invoice Number %s ?'%tup[0],parent = self.master)
+        s = askokcancel('Confirm','Are You Sure You Want To delete Invoice Number %s ?'%tup[0],parent = self.master)
         if s == True :
             self.db.deleteinvoice(tup[0])
         self.Refresh()
@@ -130,7 +133,7 @@ class ADDInvoice():
         Label(self.t,text = " Customer Phone",background = cor,foreground = fg).grid(row = 4 ,column =0,sticky = N+W+S+E,padx=10,pady=10)
         entry3 = Entry(self.t,width = 30)
         entry3.grid(row = 4 ,column =1,sticky = N+W+S+E,padx=10,pady=10)
-        btn = Button(self.t,text ="Save Invoice",command = lambda:self.Ainv(edit,tup))
+        btn = Button(self.t,text ="save Invoice",command = lambda:self.Ainv(edit,tup))
         btn.grid(row = 5 ,column =1,sticky = N+W+S+E,padx=10,pady=10)
         Label(self.t,text = "Amount",background = cor,foreground = fg).grid(row = 0 ,column =2,sticky = N+W+S+E,padx=10,pady=10)
         entry4 = Entry(self.t,width = 30)

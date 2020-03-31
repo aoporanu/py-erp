@@ -106,7 +106,7 @@ class InventoryDataBase(object):
     
     def Save(self):
         if len(self.dic.keys()) == 0 or len(self.nam.keys()) == 0:
-            return showinfo('Info','Nothing To Save')
+            return showinfo('Info','Nothing To save')
         f = shelve.open("Product and Customer.ic",'n')
         f["dic"] = self.dic
         f["cato"] = self.cato
@@ -115,7 +115,7 @@ class InventoryDataBase(object):
         f["sig"] = True
         f.sync()
         f.close()
-        return showinfo('Info','Save Successfull')
+        return showinfo('Info','save Successfull')
     
     def Save():
         f = shelve.open("Product and Customer.ic",'n')
@@ -125,7 +125,7 @@ class InventoryDataBase(object):
         f["invn"] = self.invn
         f.sync()
         f.close()
-        return showinfo('Info','Save Successfull')
+        return showinfo('Info','save Successfull')
 
 
 

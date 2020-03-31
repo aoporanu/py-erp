@@ -6,7 +6,7 @@ from reportlab.lib.units import inch, mm
 from reportlab.lib.utils import ImageReader
 from reportlab.pdfgen import canvas
 
-from Table import Table, N, S, E, W
+from Src.Table import Table, N, S, E, W
 
 L_margin = 0.5 * inch
 data = ['No', 'Product', 'Qty', 'Unit Price', 'Amount']
@@ -170,7 +170,7 @@ def pdf_document(pic_add, inv_no, company_name, date, company_add,
     ju = c.stringWidth("GrandTotal  - " + currency + " " + str(grand_total), 'Times-Bold', 19)
     c.rect((x2 + w2 - 15) - ju - 15, y2 + 0.9 * inch, ju + 30, 0.4 * inch, 1, 1)
     c.setFillColor(colors.white)
-    c.drawRightString(x2 + w2 - 15, y2 + 1.2 * inch, "GrandTotal  - " + currency.decode("utf-8") + "  " + str(grand_total))
+    c.drawRightString(x2 + w2 - 15, y2 + 1.2 * inch, "GrandTotal  - " + currency + "  " + str(grand_total))
     c.setFillColor(colors.black)
     c.setFont("Helvetica", 11)
     if len(item) >= 10:

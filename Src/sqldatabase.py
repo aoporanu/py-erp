@@ -12,7 +12,13 @@ def new_database_create(conn):
                  product_id TEXT UNIQUE PRIMARY KEY NOT NULL,
                  product_name TEXT NOT NULL UNIQUE,
                  product_description TEXT,
+                 um_id TEXT NOT NULL REFERENCES units_of_measure(id),
                  category_id TEXT NOT NULL REFERENCES category(category_id)); """)
+
+    conn.execute("""CREATE TABLE IF NOT EXISTS units_of_measure(
+                id TEXT UNIQUE PRIMARY KEY NOT NULL,
+                name TEXT NOT NULL UNIQUE,
+                created_on TEXT NOT NULL DEFAULT CURRENT_DATE); """)
 
     conn.execute("""CREATE TABLE IF NOT EXISTS costs(
                  cost_id TEXT UNIQUE PRIMARY KEY NOT NULL,
@@ -24,13 +30,28 @@ def new_database_create(conn):
                  purchase_id TEXT UNIQUE PRIMARY KEY NOT NULL,
                  cost_id TEXT NOT NULL REFERENCES costs(cost_id) ,
                  QTY INT NOT NULL DEFAULT 1,
+                 lot TEXT,
+                 supplier_id TEXT REFERENCES suppliers(id),
+                 for_invoice TEXT NOT NULL,
                  purchase_date TEXT NOT NULL DEFAULT CURRENT_DATE); """)
+
+    conn.execute("""CREATE TABLE IF NOT EXISTS suppliers(
+    id TEXT UNIQUE PRIMARY KEY NOT NULL,
+    name TEXT NOT NULL,
+    address TEXT NOT NULL,
+    phone TEXT NOT NULL,
+    cui TEXT NOT NULL,
+    ro TEXT NOT NULL,
+    created_on TEXT NOT NULL DEFAULT CURRENT_DATE); """)
 
     conn.execute("""CREATE TABLE IF NOT EXISTS customers(
                  customer_id TEXT UNIQUE PRIMARY KEY NOT NULL,
                  customer_name TEXT NOT NULL ,
                  customer_address TEXT ,
-                 customer_email TEXT); """)
+                 customer_email TEXT ,
+                 customer_cui TEXT,
+                 delegate_id TEXT NOT NULL REFERENCES delegates(id),
+                 customer_cnp TEXT); """)
 
     conn.execute("""CREATE TABLE IF NOT EXISTS contacts(
                  phone_id TEXT UNIQUE PRIMARY KEY NOT NULL,
@@ -79,6 +100,7 @@ class Mydatabase(object):
     def __init__(self):
 
         self.connection = sqldb.connect("Database.db")
+        # self.connection.set_trace_callback(print)
         new_database_create(self.connection)
         self.cursor = self.connection.cursor()
 
@@ -119,6 +141,13 @@ class Mydatabase(object):
             return catid
         return catid[0]
 
+    def get_um_id(self, um):
+        row = self.cursor.execute("""select id from units_of_measure WHERE name = "%s" """ % um)
+        umid = row.fetchone()
+        if umid is None:
+            return umid
+        return umid[0]
+
     def deletecategory(self, catid):
         row = self.cursor.execute("""SELECT product_id FROM products WHERE category_id = "%s" """ % (catid))
         i = row.fetchone()
@@ -133,16 +162,21 @@ class Mydatabase(object):
         if pid is None: return pid
         return pid[0]
 
-    def addproduct(self, name, description, category):
+    def addproduct(self, name, description, category, um):
         proid = "PDT" + str(hash(name + hex(int(t.time() * 10000))))
         catid = self.getcategory_id(category)
-        if catid == None:
+        umid = self.get_um_id(um)
+        if catid is None:
             catid = self.addcategory(category)
-        if self.getproductID(name) != None:
+        if umid is None:
+            umid = self.add_um(um)
+        if self.getproductID(name) is not None:
             raise Exception("Product already listed")
         self.cursor.execute(
-            """INSERT INTO products (product_id,product_name,product_description,category_id) VALUES ("%s","%s","%s","%s")""" % (
-                proid, name, description, catid))
+            """INSERT INTO products (product_id,product_name,product_description,category_id, um_id) VALUES ("%s",
+            "%s","%s",
+            "%s", "%s")""" % (
+                proid, name, description, catid, umid))
         return proid
 
     def editproduct(self, PID, attribute, value):
@@ -248,8 +282,12 @@ class Mydatabase(object):
         return iid[0]
 
     def addphone(self, phone, ctmid):
-        phnid = """PHN""" + str(hash(phone + ctmid + hex(int(t.time() * 10000))))
-        if self.getphoneID(phone) != None:
+        print(phone)
+        print(ctmid)
+        print(hex(int(t.time()) * 10000))
+        print(hash(str(phone) + ctmid + str(hex(int(t.time() * 10000)))))
+        phnid = """PHN""" + str(hash(str(phone) + ctmid + hex(int(t.time() * 10000))))
+        if self.getphoneID(phone) is not None:
             raise Exception("""Phone Number already listed""")
         self.cursor.execute(
             """INSERT INTO contacts (phone_id,phone_no,customer_id) VALUES ("%s","%s","%s")""" % (phnid, phone, ctmid))
@@ -271,7 +309,7 @@ class Mydatabase(object):
         ctmid = self.getcustomer_id_frm_phn_id(phnid)
         row = self.cursor.execute("""SELECT phone_id FROM contacts WHERE customer_id = "%s" """ % (ctmid))
         i = map(lambda x: x[0], row.fetchall())
-        print i
+        print(i)
         if len(i) > 1:
             self.cursor.execute("""DELETE FROM contacts WHERE phone_id = "%s" """ % (phnid))
             return True
@@ -284,9 +322,10 @@ class Mydatabase(object):
         return iid[0]
 
     def addnewcustomer(self, name, address, email):
-        ctmid = """CTM""" + str(hash( hex(int(t.time() * 10000))))
+        ctmid = """CTM""" + str(hash(hex(int(t.time() * 10000))))
         self.cursor.execute(
-            """INSERT INTO customers (customer_id,customer_name,customer_address,customer_email) VALUES ("%s","%s","%s","%s")""" % (
+            """INSERT INTO customers (customer_id,customer_name,customer_address,customer_email) VALUES ("%s","%s",
+            "%s","%s")""" % (
                 ctmid, name, address, email))
         return ctmid
 
@@ -323,7 +362,8 @@ class Mydatabase(object):
         if self.getinvoiceID(no) != None:
             raise Exception("""invoice already listed""")
         self.cursor.execute(
-            """INSERT INTO invoices (invoice_id,customer_id,invoice_no,paid,invoice_date) VALUES ("%s","%s",%d,%.2f,"%s")""" % (
+            """INSERT INTO invoices (invoice_id,customer_id,invoice_no,paid,invoice_date) VALUES ("%s","%s",%d,%.2f,
+            "%s")""" % (
                 invid, ctmid, no, paid, date))
         return invid
 
@@ -392,7 +432,8 @@ class Mydatabase(object):
         return qty
 
     def getcostquantity(self, cost_id):
-        qtytup = list(self.cursor.execute(""" SELECT q,qty FROM (SELECT SUM(QTY) AS qty FROM sells WHERE cost_id = "%s") JOIN 
+        qtytup = list(self.cursor.execute(""" SELECT q,qty FROM (SELECT SUM(QTY) AS qty FROM sells WHERE cost_id = 
+        "%s") JOIN 
                                             (SELECT SUM(QTY) AS q FROM purchase WHERE cost_id = "%s") """ % (
             cost_id, cost_id)).fetchone())
         qty = 0.0
@@ -452,3 +493,31 @@ class Mydatabase(object):
                    'comp_site': row[4], 'detail_top': row[5], 'extra': row[6], 'curry': row[7], 'pic_add': row[8],
                    'inv_start': row[9], 'sgst': row[10], 'cgst': row[11]}
         return details
+
+    def get_supplier_id(self, search):
+        row = self.cursor.execute("""SELECT id FROM suppliers WHERE cui = "%s" or ro = "%s" """ % (search, search))
+        pid = row.fetchone()
+        if pid is None: return pid
+        return pid[0]
+
+    def add_supplier(self, name, ro, cui, address, phone):
+        supplier_id = "SID" + str(hash(name + hex(int(t.time() * 10000))))
+        if self.get_supplier_id(ro) or self.get_supplier_id(cui) is not None:
+            raise Exception("Supplier already listed")
+        self.cursor.execute("""INSERT INTO suppliers(id, name, ro, cui, address, phone) VALUES("%s", "%s", "%s", "%s", 
+        "%s", "%s")""" % (supplier_id, name, ro, cui, address, phone))
+        return supplier_id
+
+    def add_um(self, newum):
+        umid = "UM" + str(hash(newum + hex(int(t.time() * 10000))))
+        self.cursor.execute(
+            """INSERT INTO units_of_measure (id,name) VALUES ("%s","%s") """ % (umid, newum))
+        return umid
+
+    def delete_um(self, umid):
+        row = self.cursor.execute("""SELECT product_id FROM products WHERE category_id = "%s" """ % (umid))
+        i = row.fetchone()
+        if i is None:
+            self.cursor.execute("""DELETE FROM category WHERE category_id = "%s" """ % (umid))
+            return True
+        return False

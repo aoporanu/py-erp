@@ -25,7 +25,7 @@ class ADDInvoice():
         self.f.rowconfigure(0,weight = 1)
         self.mlb1 = MultiListbox(self.f, (('No', 5), ('Invoice Number', 15), ('Invoice Date', 40),('Customer Attach',40)))
         self.mlb1.grid(row = 0,column = 0,columnspan = 4,sticky = N+W+S+E)
-        self.Del = Button(self.f,text = "Delete",command = lambda: self.Delete())
+        self.Del = Button(self.f,text = "delete",command = lambda: self.Delete())
         self.Del.grid(row = 1,column = 3)
         self.Add = Button(self.f,text = "ADD",command = lambda: self.Add_Invoice())
         self.Add.grid(row = 1,column = 1)
@@ -38,7 +38,7 @@ class ADDInvoice():
         if index == None or index > self.mlb1.size():
             return showinfo('Select Error','Noting Is Selected',parent  = self.master)
         tup = self.mlb1.get(index)
-        s = askokcancel('Confirm','Are You Sure You Want To Delete Invoice Number %s ?'%tup[1],parent = self.master)
+        s = askokcancel('Confirm','Are You Sure You Want To delete Invoice Number %s ?'%tup[1],parent = self.master)
         if s == True :
             s = self.invn.pop(tup[1])
             r = self.nam[s.keys()[0]]['Invoice Nos'].split(",")
@@ -119,7 +119,7 @@ class ADDInvoice():
                     lbl = Label(self.t,text = " Customer Phone",background = cor,foreground = fg)
                     lbl.grid(row = row ,column =column,sticky = N+W+S+E)
                 elif row == 11 and column == 1:
-                    btn = Button(self.t,text ="Save Invoice",command = lambda:self.Ainv(edit,tup))
+                    btn = Button(self.t,text ="save Invoice",command = lambda:self.Ainv(edit,tup))
                     btn.grid(row = row ,column =column,sticky = N+W+S+E)
                 else :
                     lbl = Label(self.t,background = cor,foreground = fg)

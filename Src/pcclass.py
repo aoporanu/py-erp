@@ -1,7 +1,5 @@
-from proWrd import Filter, InvoiceSplit
-import sqldatabase as sqldb
-from tkMessageBox import showinfo
-from tkMessageBox import askokcancel, askyesno
+import Src.sqldatabase as sqldb
+from tkinter.messagebox import showinfo
 
 
 class DatabaseTypeError(Exception):
@@ -46,7 +44,7 @@ class InventoryDataBase(object):
     invoicelist = property(getinvoiceno)
 
     def searchcustomer(self, likename):
-        tup = tuple([likename] * 6)
+        tup = tuple([likename] * 8)
         row = self.execute(""" SELECT customer_name FROM customers LEFT OUTER JOIN invoices USING (customer_id)
                              LEFT OUTER JOIN contacts USING (customer_id) WHERE
                                  customer_name LIKE "%%%s%%"
@@ -54,31 +52,38 @@ class InventoryDataBase(object):
                                  OR  customers.customer_id LIKE  "%%%s%%"
                                  OR customer_email LIKE "%%%s%%"
                                  OR invoice_no LIKE "%%%s%%"
+                                 OR customer_cui LIKE "%%%s%%"
+                                 OR customer_cnp LIKE "%%%s%%"
                                  OR phone_no LIKE "%%%s%%" """ % tup)
         return row
 
     def searchproduct(self, likename):
         tup = tuple([likename] * 4)
-        row = self.execute(""" SELECT product_name FROM products  LEFT OUTER JOIN category USING (category_id) WHERE
+        row = self.execute(""" SELECT product_name FROM products  LEFT OUTER JOIN category USING (category_id)  WHERE
                                  product_name LIKE "%%%s%%"   OR
                                  product_id  LIKE  "%%%s%%"  OR
-                                 product_description LIKE  "%%%s%%"
-                                 OR category_name LIKE "%%%s%%" """ % tup)
+                                 product_description LIKE  "%%%s%%" OR
+                                 category_name LIKE "%%%s%%" """ % tup)
         return row
 
     def searchcategory(self, likename):
         tup = tuple([likename] * 4)
         row = self.execute(""" SELECT category_name FROM category LEFT OUTER  JOIN products USING (category_id) WHERE
-                                 product_name LIKE "%%%s%%"   OR product_id  LIKE  "%%%s%%"  OR
-                                 product_description LIKE  "%%%s%%"  OR category_name LIKE "%%%s%%" """ % tup)
+                                 product_name LIKE "%%%s%%"   OR 
+                                 product_id  LIKE  "%%%s%%"  OR
+                                 product_description LIKE  "%%%s%%"  OR
+                                 category_name LIKE "%%%s%%" """ % tup)
         return row
 
     def searchinvoice(self, likename):
         tup = tuple([likename] * 5)
         row = self.execute(""" SELECT invoice_no FROM customers  LEFT OUTER JOIN invoices USING (customer_id) WHERE
-                                 customer_name LIKE "%%%s%%"   OR customer_id  LIKE  "%%%s%%"  OR
-                                 customer_address LIKE  "%%%s%%"  OR customer_email LIKE "%%%s%%"
-                                 OR invoice_no LIKE "%%%s%%" """ % tup)
+                                 customer_name LIKE "%%%s%%"   OR 
+                                 customer_id  LIKE  "%%%s%%"  OR
+                                 customer_address LIKE  "%%%s%%"  OR 
+                                 customer_email LIKE "%%%s%%" OR
+                                 customer_ro LIKE  "%%%s%%" OR
+                                 invoice_no LIKE "%%%s%%" """ % tup)
         return row
 
     def execute(self, query):  # use this only for fetchall and one element in every row
@@ -97,29 +102,36 @@ class InventoryDataBase(object):
     def close(self):
         return self.sqldb.close()
 
-    def addproduct_and_cost(self, name, category, description, cost, price):
+    def addproduct_and_cost(self, name, category, description, cost, price, lot):
         name = name.title()
         category = category.title()
         cost = round(float(cost), 2)
         price = round(float(price), 2)
-        PID = self.sqldb.addproduct(name, description, category)
+        lot = lot.title()
+        PID = self.sqldb.addproduct(name, description, category, lot)
         costid = self.sqldb.addnewcost(PID, cost, price)
         return costid
 
-    def addproduct(self, name, category, description):
+    def addproduct(self, name, category, description, um):
         name = name.title()
         category = category.title()
-        return self.sqldb.addproduct(name, description, category)
+        um = um.title()
+        return self.sqldb.addproduct(name, description, category, um)
 
-    def editproduct(self, PID, name, category, description):
+    def editproduct(self, PID, name, category, description, um):
         name = name.title()
         category = category.title()
+        um = um.title()
         catid = self.sqldb.getcategory_id(category)
-        if catid == None:
+        umid = self.sqldb.get_um_id(um)
+        if catid is None:
             catid = self.addcategory(category)
+        if umid is None:
+            umid = self.add_um(um)
         self.sqldb.editproduct(PID, 1, name)
         self.sqldb.editproduct(PID, 2, description)
         self.sqldb.editproduct(PID, 3, catid)
+        self.sqldb.editproduct(PID, 4, umid)
         return True
 
     def deleteproduct(self, PID):
@@ -146,6 +158,10 @@ class InventoryDataBase(object):
         newcategory = newcategory.title()
         return self.sqldb.addcategory(newcategory)
 
+    def add_um(self, um):
+        newum = um.title()
+        return self.sqldb.add_um(newum)
+
     def editcategoryname(self, previousname, newcategory):
         newcategory = newcategory.title()
         catid = self.sqldb.getcategory_id(previousname)
@@ -155,9 +171,13 @@ class InventoryDataBase(object):
         catid = self.sqldb.getcategory_id(category)
         return self.sqldb.deletecategory(catid)
 
+    def delete_um(self, um):
+        umid = self.sqldb.get_um_id(um)
+        return self.sqldb.delete_um(umid)
+
     def addphone(self, phone, ctmid):
-        if phone.isdigit() == False:
-            raise Exception("Phone Number Not Valid")
+        # if not phone.isnumeric():
+        #     raise Exception("Phone Number Not Valid")
         return self.sqldb.addphone(phone, ctmid)
 
     def editphone(self, phnid, phone, ctmid):
@@ -171,17 +191,18 @@ class InventoryDataBase(object):
     def deletephone(self, phnid):
         return self.sqldb.deletephone(phnid)
 
-    def addcustomer(self, name, address, email):
+    def addcustomer(self, name, address, email, ro):
         name = name.title()
-        return self.sqldb.addnewcustomer(name, address, email)
+        return self.sqldb.addnewcustomer(name, address, email, ro)
 
-    def editcustomer(self, ctmid, newname, address, email):
+    def editcustomer(self, ctmid, newname, address, email, ro):
         newname = newname.title()
         if ctmid == None:
             raise Exception("Not a Valid Customer")
         self.sqldb.editcustomer(ctmid, 1, newname)
         self.sqldb.editcustomer(ctmid, 2, address)
         self.sqldb.editcustomer(ctmid, 3, email)
+        self.sqldb.editcustomer(ctmid, 4, ro)
         return True
 
     def deletecustomer(self, ctmid, phone=False):
@@ -274,3 +295,13 @@ class InventoryDataBase(object):
 
     def load(self, fname):
         pass
+
+    def add_supplier(self, name, ro, cui, address, phone):
+        name = name.title()
+        ro = ro.title()
+        cui = cui.title()
+        address = address.title()
+        phone = phone.title()
+        return self.sqldb.add_supplier(name, ro, cui, address, phone)
+
+

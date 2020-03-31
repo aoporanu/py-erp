@@ -257,7 +257,7 @@ class TablesApp(Frame):
         return
         
     def save_as_project(self):
-        """Save as a new filename"""               
+        """save as a new filename"""
         import tkFileDialog, os
         filename=tkFileDialog.asksaveasfilename(parent=self.tablesapp_win,
                                                 defaultextension='.table',
@@ -351,7 +351,7 @@ class TablesApp(Frame):
         return sheetname
     
     def delete_Sheet(self):
-        """Delete a sheet"""
+        """delete a sheet"""
         s = self.notebook.getcurselection()
         self.notebook.delete(s)
         del self.sheets[s]
@@ -393,7 +393,7 @@ class TablesApp(Frame):
         return
         
     def delete_Row(self):
-        """Delete currently selected row"""
+        """delete currently selected row"""
         self.currenttable.delete_Row()  
         self.saved = 0  
         return
@@ -405,7 +405,7 @@ class TablesApp(Frame):
         return 
         
     def delete_Column(self):
-        """Delete currently selected column in table"""
+        """delete currently selected column in table"""
         self.currenttable.delete_Column()             
         self.saved = 0
         return
@@ -505,15 +505,15 @@ class ToolBar(Frame):
         img = Logo_images.open_proj()
         self.add_button('Open Project', self.parentapp.open_project, img)
         img = Logo_images.save_proj()
-        self.add_button('Save Project', self.parentapp.save_project, img)        
+        self.add_button('save Project', self.parentapp.save_project, img)
         img = Logo_images.add_row()
         self.add_button('Add record', self.parentapp.add_Row, img)
         img = Logo_images.add_col()
         self.add_button('Add col', self.parentapp.add_Column, img)
         img = Logo_images.del_row()
-        self.add_button('Delete record', self.parentapp.delete_Row, img)
+        self.add_button('delete record', self.parentapp.delete_Row, img)
         img = Logo_images.del_col()
-        self.add_button('Delete col', self.parentapp.delete_Column, img)
+        self.add_button('delete col', self.parentapp.delete_Column, img)
     
         return
 

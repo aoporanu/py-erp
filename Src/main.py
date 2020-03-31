@@ -1,25 +1,34 @@
 import os
-import tkFont
-from Tkinter import *
-from tkFileDialog import askopenfilename
-from tkFileDialog import asksaveasfilename
-from tkMessageBox import askokcancel
-from tkMessageBox import showinfo
-from ttk import *
+import tkinter as tk
+import tkinter.font as tkFont
+import pyximport
+from tkinter.filedialog import askopenfilename, N, S, E, W, HORIZONTAL
+from tkinter.filedialog import asksaveasfilename
+from tkinter.messagebox import askokcancel
+from tkinter.messagebox import showinfo
+from tkinter.ttk import *
+from tkinter import DoubleVar, TOP, RIGHT, FLAT, LEFT, NORMAL
 
-from PIL import ImageTk, Image
-from proWrd import Filter
+import PIL.Image
+import PIL.ImageTk
+from reportlab import xrange
 
-import TableTree as tableTree
-from Cato_Opt import Category
-from NewCustomer import NewCustomer
-from NewInvoice import ADDInvoice
-from NewProduct import NewProduct
-from PdfGenarator import pdf_document
-from PurchaseLog import Purchase_Log
-from buttoncalender import CalendarButton
-from pcclass import InventoryDataBase
-from scroll_frame import SampleApp
+from Src.Cython.proWrd1 import Filter
+
+import Src.TableTree as tableTree
+from Src.Cato_Opt import Category
+from Src.NewCustomer import NewCustomer
+from Src.NewInvoice import ADDInvoice
+from Src.NewProduct import NewProduct
+from Src.NewSupplier import NewSupplier
+from Src.PdfGenarator import pdf_document
+from Src.PurchaseLog import Purchase_Log
+from Src.buttoncalender import CalendarButton, WORD, END
+from Src.pcclass import InventoryDataBase
+from Src.scroll_frame import SampleApp
+from Src.ImportExport import *
+from Src.UnitsOfMeasure import NewUnitOfMeasure
+from Src.UnitsOfMeasure import UnitsOfMeasure
 
 # variable access by all
 
@@ -27,24 +36,24 @@ db = InventoryDataBase()
 
 # Window
 
-root = Tk()
+root = tk.Tk()
 root.title("Inventory Manager")
-root.iconbitmap('data/database_4.ico')
+# root.iconbitmap('data/database_4.ico')
 root.minsize(1024, 768)
 root.grid()
 root.rowconfigure(0, weight=1)
 for h in range(12):
     root.columnconfigure(h, weight=1)
 root.rowconfigure(2, weight=2)
-root.wm_state('zoomed')
+root.wm_state('normal')
 
-menubar = Menu(root)
-filemenu = Menu(menubar, tearoff=0)
-editmenu = Menu(menubar, tearoff=0)
+menubar = tk.Menu(root)
+filemenu = tk.Menu(menubar, tearoff=0)
+editmenu = tk.Menu(menubar, tearoff=0)
 menubar.add_cascade(label="File", menu=filemenu)
 menubar.add_cascade(label="Edit", menu=editmenu)
-filemenu.add_command(label="  Save Customer and Product", command=lambda: db.Save(), bitmap='info', compound=LEFT)
-filemenu.add_command(label="  Load Database File", command=lambda: ask_dbfile(), bitmap='question', compound=LEFT)
+filemenu.add_command(label="  save Customer and Product", command=lambda: db.Save(), bitmap='info', compound=LEFT)
+filemenu.add_command(label="  Load database File", command=lambda: ask_dbfile(), bitmap='question', compound=LEFT)
 filemenu.add_command(label="  Exit", command=lambda: call_save(), bitmap='error', compound=LEFT)
 editmenu.add_command(label="Company Details", command=lambda: cdmp_del(), bitmap='info', compound=LEFT)
 editmenu.add_command(label="Reset All", command=lambda: reset(), bitmap='info', compound=LEFT)
@@ -63,7 +72,7 @@ styl.configure("r.TLabelframe", background=color)
 
 # notebook
 upnote = Frame(root, style='r.TFrame')
-upnote.grid(row=2, column=0, columnspan=12, sticky=N + S + E + W)
+upnote.grid(row=0, column=0, columnspan=12, sticky=N + S + E + W)
 upnote.columnconfigure(0, weight=1)
 upnote.rowconfigure(0, weight=1)
 
@@ -72,28 +81,32 @@ note.grid(row=0, column=0, sticky=N + S + E + W)
 note.rowconfigure(0, weight=1)
 note.columnconfigure(0, weight=1)
 
-saveico = Image.open("Data/floppy_disk_blue.png").resize((50, 50), Image.ANTIALIAS)
-saveico = ImageTk.PhotoImage(image=saveico)
-Button(root, text="Save", command=lambda: db.save(), compound=TOP, image=saveico, width=2).grid(row=0, column=0,
-                                                                                                sticky=N + S + W + E)
+btnnote = Notebook(root, style="r.TFrame")
+btnnote.grid(row=3, column=0, columnspan=4, sticky=N + S + E + W)
+btnnote.columnconfigure(0, weight=1)
+btnnote.rowconfigure(0, weight=1)
 
-npico = Image.open("Data/new_file.png").resize((50, 50), Image.ANTIALIAS)
-npico = ImageTk.PhotoImage(image=npico)
-productbtn = Button(root, text="New Product", command=lambda: a_d_d__product(modify=False), image=npico, compound=TOP,
-                    width=2)
-productbtn.grid(row=0, column=1, sticky=N + S + W + E)
+saveico = PIL.Image.open("data/floppy_disk_blue.png").resize((32, 32), PIL.Image.ANTIALIAS)
+saveico = PIL.ImageTk.PhotoImage(image=saveico)
+Button(btnnote, text="save", command=lambda: db.save(), compound=TOP, image=saveico, width=1).grid(row=0, column=0,
+                                                                                                   sticky=N + S + W + E)
 
-ncico = Image.open("Data/user_group_new.png").resize((50, 50), Image.ANTIALIAS)
-ncico = ImageTk.PhotoImage(image=ncico)
-customerbtn = Button(root, text="New Customer", command=lambda: a_d_d__customer(modify=False), image=ncico,
+npico = PIL.Image.open("data/new_file.png").resize((32, 32), PIL.Image.ANTIALIAS)
+npico = PIL.ImageTk.PhotoImage(image=npico)
+productbtn = Button(btnnote, text="New Product", command=lambda: a_d_d__product(modify=False), image=npico,
+                    compound=TOP,
+                    width=1).grid(row=0, column=1, sticky=N + S + W + E)
+
+ncico = PIL.Image.open("data/user_group_new.png").resize((32, 32), PIL.Image.ANTIALIAS)
+ncico = PIL.ImageTk.PhotoImage(image=ncico)
+customerbtn = Button(btnnote, text="New Customer", command=lambda: a_d_d__customer(modify=False), image=ncico,
                      compound=TOP,
-                     width=2)
-customerbtn.grid(row=0, column=2, sticky=N + S + W + E)
+                     width=1).grid(row=0, column=2, sticky=N + S + W + E)
 
-setting_ico = Image.open("Data/settings_ico2.png").resize((50, 50), Image.ANTIALIAS)
-setting_ico = ImageTk.PhotoImage(image=setting_ico)
-Button(root, text="Edit Company Details", command=lambda: cdmp_del(),
-       image=setting_ico, compound=TOP, width=2).grid(row=0,
+setting_ico = PIL.Image.open("data/settings_ico2.png").resize((32, 32), PIL.Image.ANTIALIAS)
+setting_ico = PIL.ImageTk.PhotoImage(image=setting_ico)
+Button(btnnote, text="Edit Company Details", command=lambda: cdmp_del(),
+       image=setting_ico, compound=TOP, width=1).grid(row=0,
                                                       column=3,
                                                       sticky=N + S + W + E)
 
@@ -143,7 +156,7 @@ customer_phone.grid(row=1, column=1, sticky=N + S + E + W, pady=10, padx=10)
 lbl1 = Label(Lf01, text="Customer Address", anchor=E)
 lbl1.grid(row=2, column=0, sticky=N + E + W, pady=10, padx=5)
 
-customer_address = Text(Lf01, width=5, height=5, wrap=WORD, relief=FLAT)
+customer_address = tk.Text(Lf01, width=5, height=5, wrap=WORD, relief=FLAT)
 customer_address.grid(row=2, column=1, sticky=N + E + S + W, pady=10, padx=10)
 customer_address.configure(highlightthickness=1, highlightbackground="Grey", relief=FLAT)
 
@@ -164,7 +177,7 @@ product_name.grid(row=0, column=1, sticky=N + E + W + S, padx=5, pady=10)
 lbl8 = Label(Lf02, text="Product Description")
 lbl8.grid(row=1, column=0, sticky=N + E, padx=5, pady=10)
 
-product_detail = Text(Lf02, width=4, height=2, wrap=WORD, relief=FLAT)
+product_detail = tk.Text(Lf02, width=4, height=2, wrap=WORD, relief=FLAT)
 product_detail.grid(row=1, column=1, rowspan=2, sticky=N + E + S + W, pady=10, padx=5)
 product_detail.configure(highlightthickness=1, highlightbackground="Grey", relief=FLAT)
 
@@ -200,7 +213,7 @@ invoice_date.grid(row=1, column=0, columnspan=2, sticky=N + E + S + W, padx=5, p
 # Invoice Number
 Label(Lf04, text="Invoice Number", anchor=N + W).grid(row=2, column=0, sticky=N + E + W + S, padx=5, pady=5)
 
-invoice_number = Spinbox(Lf04, from_=0, to=10000, increment=1.0, wrap=True, readonlybackground='gray98')
+invoice_number = Spinbox(Lf04, from_=0, to=10000, increment=1.0, wrap=True)
 invoice_number.grid(row=2, column=1, sticky=N + E + W + S, padx=5, pady=5)
 # +- Button
 
@@ -210,16 +223,16 @@ Cartindeldbnfram.rowconfigure(0, weight=1)
 Cartindeldbnfram.columnconfigure(0, weight=1)
 Cartindeldbnfram.columnconfigure(1, weight=1)
 
-tmp = Image.open("Data/cart_add.png").resize((25, 25), Image.ANTIALIAS)
-tmp = ImageTk.PhotoImage(image=tmp)
+tmp = PIL.Image.open("data/cart_add.png").resize((25, 25), PIL.Image.ANTIALIAS)
+tmp = PIL.ImageTk.PhotoImage(image=tmp)
 Button(Cartindeldbnfram, text="Add To Cart", image=tmp,
        compound=LEFT, command=lambda: add_2_cart()).grid(row=0, column=0,
                                                          sticky=E + W + N + S,
                                                          padx=5,
                                                          pady=5)
 
-tmp2 = Image.open("Data/cart_remove.png").resize((25, 25), Image.ANTIALIAS)
-tmp2 = ImageTk.PhotoImage(image=tmp2)
+tmp2 = PIL.Image.open("data/cart_remove.png").resize((25, 25), PIL.Image.ANTIALIAS)
+tmp2 = PIL.ImageTk.PhotoImage(image=tmp2)
 Button(Cartindeldbnfram, text="Remove From Cart", image=tmp2,
        compound=LEFT, command=lambda: remove_from_cart()).grid(row=0, column=1,
                                                                sticky=E + W + N + S, padx=5,
@@ -244,10 +257,14 @@ Fon1 = tkFont.Font(family='Times', size=14)
 lbl27 = Label(Lf03, text="Amount :", font=Fon1)
 lbl27.grid(row=0, column=0, sticky=E + N + S, padx=10, pady=10)
 
-Amt_var = DoubleVar()
+Amt_var = tk.DoubleVar()
 
 Amount = Label(Lf03, font=Fon1, textvariable=Amt_var)
 Amount.grid(row=0, column=1, sticky=N + E + S + W, padx=10, pady=10)
+
+
+def select_item(event):
+    print('select')
 
 
 # GST
@@ -275,7 +292,7 @@ Amt_var.trace('w', tax_update)
 Label(Lf03, text="SGST @ " + str(get_sgst()) + "% : ", font=Fon1).grid(row=1, column=0, sticky=E + N + S, padx=10,
                                                                        pady=10)
 
-sgst_var = DoubleVar()
+sgst_var = tk.DoubleVar()
 
 sgst = Label(Lf03, font=Fon1, textvariable=sgst_var)
 sgst.grid(row=1, column=1, sticky=N + E + S + W, padx=10, pady=10)
@@ -283,7 +300,7 @@ sgst.grid(row=1, column=1, sticky=N + E + S + W, padx=10, pady=10)
 Label(Lf03, text="CGST @ " + str(get_cgst()) + "% : ", font=Fon1).grid(row=2, column=0, sticky=E + N + S, padx=10,
                                                                        pady=10)
 
-cgst_var = DoubleVar()
+cgst_var = tk.DoubleVar()
 
 cgst = Label(Lf03, font=Fon1, textvariable=cgst_var)
 cgst.grid(row=2, column=1, sticky=N + E + S + W, padx=10, pady=10)
@@ -293,7 +310,7 @@ Separator(Lf03, orient=HORIZONTAL).grid(row=3, column=0, columnspan=2, sticky="e
 # subtotal
 
 Label(Lf03, text="Sub Total :", font=Fon1).grid(row=4, column=0, sticky=E + N + S, padx=10, pady=10)
-subtol_var = DoubleVar()
+subtol_var = tk.DoubleVar()
 Label(Lf03, font=Fon1, textvariable=subtol_var).grid(row=4, column=1, sticky=W + N + S, padx=10, pady=10)
 
 # Paid
@@ -327,8 +344,8 @@ Gtol = Label(Lf03, font=Fon, textvariable=Gtol_var, width=10)
 Gtol.grid(row=8, column=1, sticky=N + E + S + W, padx=10, pady=10)
 
 # Generate
-genico = Image.open("Data/new_doc.png").resize((50, 50), Image.ANTIALIAS)
-genico = ImageTk.PhotoImage(image=genico)
+genico = PIL.Image.open("data/new_doc.png").resize((32, 32), PIL.Image.ANTIALIAS)
+genico = PIL.ImageTk.PhotoImage(image=genico)
 
 butn_Gen = Button(Lf03, text="Generate Invoice", command=lambda: transfer(), image=genico, compound=LEFT)
 butn_Gen.grid(row=9, column=0, columnspan=2, sticky=E + W + S + N, pady=10, padx=8)
@@ -336,7 +353,8 @@ butn_Gen.grid(row=9, column=0, columnspan=2, sticky=E + W + S + N, pady=10, padx
 # Table
 
 mlb = tableTree.MultiListbox(dframe,
-                             (("Cost ID", 20), ('Product', 35), ('Description', 45), ("QTY", 6), ("Unit Price", 9)))
+                             (("Cost ID", 20), ('Product', 35), ('Description', 45), ("QTY", 6), ("Unit Price", 9),
+                              ("LOT", 35)))
 mlb.grid(row=0, column=0, sticky=N + S + E + W, padx=10)
 
 #     note purchase product
@@ -403,14 +421,14 @@ editbtnfram.rowconfigure(0, weight=1)
 editbtnfram.columnconfigure(0, weight=1)
 editbtnfram.columnconfigure(1, weight=1)
 
-tmp4 = Image.open("Data/edit_add.png").resize((25, 25), Image.ANTIALIAS)
-tmp4 = ImageTk.PhotoImage(image=tmp4)
+tmp4 = PIL.Image.open("data/edit_add.png").resize((25, 25), PIL.Image.ANTIALIAS)
+tmp4 = PIL.ImageTk.PhotoImage(image=tmp4)
 Button(editbtnfram, text="Add",
        image=tmp4, compound=LEFT,
        command=lambda: add2_purchase_table()).grid(row=0, column=0, sticky=N + E + S + W,
                                                    padx=10, pady=5)
-tmp5 = Image.open("Data/symbol_remove.png").resize((25, 25), Image.ANTIALIAS)
-tmp5 = ImageTk.PhotoImage(image=tmp5)
+tmp5 = PIL.Image.open("data/symbol_remove.png").resize((25, 25), PIL.Image.ANTIALIAS)
+tmp5 = PIL.ImageTk.PhotoImage(image=tmp5)
 Button(editbtnfram, text="Remove",
        image=tmp5, compound=LEFT,
        command=lambda: delete_from_purchase_table()).grid(row=0, column=1,
@@ -427,17 +445,22 @@ entry66.grid(row=1, column=5, sticky=W + E, padx=10, pady=5)
 
 Label(lfp, text="Description  ").grid(row=3, column=4, sticky=E + N, padx=10, pady=5)
 
-text61 = Text(lfp, width=0, height=2, wrap=WORD, relief=FLAT)
+text61 = tk.Text(lfp, width=0, height=2, wrap=WORD, relief=FLAT)
 text61.grid(row=3, column=5, rowspan=3, sticky=W + E + N + S, padx=10, pady=5)
 text61.configure(highlightthickness=1, highlightbackground="Grey", relief=FLAT)
 
+Label(lfp, text="Pentru factura").grid(row=6, column=0, sticky=E, padx=5, pady=5)
+
+entry67 = Entry(lfp)
+entry67.grid(row=6, column=1, sticky=W + E, padx=5, pady=5)
+
 mlb21 = tableTree.MultiListbox(app6,
                                (('Product name', 35), ("Cost Price", 25), ("Selling Price", 25), ("QTY", 15),
-                                ("Date", 35)))
+                                ("Date", 35), ("LOT", 25), ("Pentru factura", 35)))
 mlb21.grid(row=3, column=0, columnspan=1, sticky=N + S + E + W)
 
-tmp3 = Image.open("Data/next.png").resize((70, 70), Image.ANTIALIAS)
-tmp3 = ImageTk.PhotoImage(image=tmp3)
+tmp3 = PIL.Image.open("data/next.png").resize((70, 70), PIL.Image.ANTIALIAS)
+tmp3 = PIL.ImageTk.PhotoImage(image=tmp3)
 
 btn62 = Button(app6, text="Complete Transaction", width=35,
                image=tmp3, compound=LEFT,
@@ -481,15 +504,15 @@ Label(lf3, text="Search KeyWord").grid(row=0, column=0, sticky=N + W + S + E, pa
 product_search = Combobox(lf3, width=35, postcommand=lambda: product__search())
 product_search.grid(row=0, column=1, columnspan=2, sticky=N + W + S + E, padx=5, pady=7)
 
-tmp6 = Image.open("Data/search.png").resize((20, 20), Image.ANTIALIAS)
-tmp6 = ImageTk.PhotoImage(image=tmp6)
+tmp6 = PIL.Image.open("data/search.png").resize((20, 20), PIL.Image.ANTIALIAS)
+tmp6 = PIL.ImageTk.PhotoImage(image=tmp6)
 Button(lf3, text="Search", width=15,
        image=tmp6,
        command=lambda: b_product__search()).grid(row=1, column=1, sticky=N + W + S + E,
                                                  padx=5, pady=5)
-tmp7 = Image.open("Data/view_refresh.png").resize((20, 20), Image.ANTIALIAS)
-tmp7 = ImageTk.PhotoImage(image=tmp7)
-Button(lf3, text="Refresh", width=15, image=tmp7,
+tmp7 = PIL.Image.open("data/view_refresh.png").resize((20, 20), PIL.Image.ANTIALIAS)
+tmp7 = PIL.ImageTk.PhotoImage(image=tmp7)
+Button(lf3, text="refresh", width=15, image=tmp7,
        command=lambda: b_product__search(refresh=True)).grid(row=1, column=2,
                                                              sticky=N + W + S + E, padx=5,
                                                              pady=5)
@@ -510,21 +533,35 @@ Button(lf31, text="Remove Product",
                                                               sticky=N + W + S + E, padx=5,
                                                               pady=5)
 
-tmp_modify = Image.open("Data/settings.png").resize((20, 20), Image.ANTIALIAS)
-tmp_modify = ImageTk.PhotoImage(image=tmp_modify)
+tmp_modify = PIL.Image.open("data/settings.png").resize((20, 20), PIL.Image.ANTIALIAS)
+tmp_modify = PIL.ImageTk.PhotoImage(image=tmp_modify)
 Button(lf31, text="Modify Product",
        image=tmp_modify, compound=LEFT,
        command=lambda: a_d_d__product(modify=True), width=20).grid(row=1, column=0,
                                                                    sticky=N + W + S + E,
                                                                    padx=5, pady=5)
-tmp_extra = Image.open("Data/settings_2.png").resize((20, 20), Image.ANTIALIAS)
-tmp_extra = ImageTk.PhotoImage(image=tmp_extra)
+tmp_extra = PIL.Image.open("data/settings_2.png").resize((20, 20), PIL.Image.ANTIALIAS)
+tmp_extra = PIL.ImageTk.PhotoImage(image=tmp_extra)
 
 Button(lf31, text="Category Options",
        image=tmp_extra, compound=LEFT,
        command=lambda: category_opt_event(), width=20).grid(row=1, column=1,
                                                             sticky=N + W + S + E, padx=5,
                                                             pady=5)
+
+
+def uom_opt_event():
+    rootd = tk.Toplevel(master=root)
+    rootd.title("Unit of Measure Options")
+    rootd.columnconfigure(0, weight=1)
+    rootd.rowconfigure(0, weight=1)
+    UnitsOfMeasure(rootd, db)
+    rootd.wait_window()
+    return True
+
+
+Button(lf31, text="Unitati de masura", image=tmp_extra, compound=LEFT, command=lambda: uom_opt_event(), 
+       width=20).grid(row=2, column=0, sticky=N + W + S + E, padx=5, pady=5)
 
 mlb31 = tableTree.MultiListbox(app2,
                                (('Product ID', 5), ('Product Name', 45), ('Category', 25), ('Description', 65),
@@ -541,7 +578,7 @@ app3.columnconfigure(1, weight=5)
 app3.rowconfigure(2, weight=1)
 
 note.add(app3, text="    Customers    ")
-Label(app3, text='Customer Database List',
+Label(app3, text='Customer database List',
       foreground="#3496ff", font=('Berlin Sans FB Demi', 20)).grid(row=0, column=0,
                                                                    columnspan=2,
                                                                    sticky=E + N + W + S,
@@ -564,7 +601,7 @@ customer_search.grid(row=0, column=1, columnspan=2, sticky=N + W + S + E, padx=5
 Button(lf41, text="Search", width=15, image=tmp6,
        command=lambda: b_customer__search()).grid(row=1, column=1, sticky=N + W + S + E,
                                                   padx=5, pady=5)
-Button(lf41, text="Refresh", width=15, image=tmp7,
+Button(lf41, text="refresh", width=15, image=tmp7,
        command=lambda: b_customer__search(refresh=True)).grid(row=1, column=2,
                                                               sticky=N + W + S + E,
                                                               padx=5, pady=5)
@@ -624,7 +661,7 @@ entry51.grid(row=2, column=2, columnspan=2, sticky=N + E + S + W, padx=10, pady=
 btn51 = Button(lf2, text="Browse File", command=lambda: brow__file(entry51))
 btn51.grid(row=2, column=5, sticky=N + E + S + W, padx=10, pady=10)
 
-C51 = Canvas(app4, width=350, height=350, bg="White")
+C51 = tk.Canvas(app4, width=350, height=350, bg="White")
 C51.grid(row=2, rowspan=15, column=8, columnspan=15, sticky=N + E + W + S, padx=10, pady=10)
 Fon3 = tkFont.Font(family='Times', size=24)
 Fon4 = tkFont.Font(family='Times', size=16)
@@ -660,6 +697,74 @@ btn53.grid(row=8, column=5, sticky=N + E + S + W, padx=10, pady=10)
 btn55 = Button(lf1, text="Export", command=lambda: export(entry53))
 btn55.grid(row=12, column=4, columnspan=2, sticky=N + E + S + W, padx=10, pady=10)
 
+# Suppliers frame
+app5 = Frame(note)
+app5.grid(row=0, column=0)
+for h in range(8):
+    app4.columnconfigure(h, weight=1)
+app4.columnconfigure(24, weight=1)
+
+note.add(app5, text="    Suppliers    ")
+Label(app5, text='Manage Suppliers',
+      foreground="#3496ff", font=('Berlin Sans FB Demi', 20)).grid(row=0, column=0,
+                                                                   sticky=E + N + W + S,
+                                                                   padx=10, pady=0)
+ef = Frame(app5)
+ef.grid(row=1, column=0, sticky=N + S + W + E)
+ef.columnconfigure(0, weight=5)
+ef.columnconfigure(1, weight=1)
+lf51 = LabelFrame(ef, text="Supplier search Options")
+lf51.grid(row=0, column=0, sticky=N + S + W + E, padx=2, pady=0)
+lf51.columnconfigure(1, weight=1)
+lf51.columnconfigure(2, weight=1)
+for h in xrange(2):
+    lf51.rowconfigure(h, weight=1)
+Label(lf51, text="Search Keyword").grid(row=0, column=0, sticky=N + S + E, padx=5, pady=5)
+supplier_search = Combobox(lf51, postcommand=lambda: supplier_search(), width=35)
+supplier_search.grid(row=0, column=1, columnspan=2, sticky=N + W + S + E, padx=5, pady=5)
+
+Button(lf51, text="Search", width=15, image=tmp6, command=lambda: b_supplier_search()).grid(row=1, column=1,
+                                                                                            sticky=N + W + S + E,
+                                                                                            padx=5, pady=5)
+Button(lf51, text="refresh", width=15, image=tmp7, command=lambda: b_supplier_search(refresh=True)).grid(row=1,
+                                                                                                         column=2,
+                                                                                                         sticky=N + W
+                                                                                                                + S +
+                                                                                                                E,
+                                                                                                         padx=5,
+                                                                                                         pady=5)
+lf52 = Labelframe(ef, text="Supplier Edit Options")
+lf52.grid(row=0, column=1, sticky=N + W + S + E, padx=2, pady=0)
+lf52.columnconfigure(0, weight=1)
+lf52.rowconfigure(0, weight=1)
+for h in xrange(2):
+    lf52.rowconfigure(h, weight=1)
+Button(lf52, text="Add Supplier", width=20, image=tmp4, compound=LEFT, command=lambda: add_supplier()).grid(row=0,
+                                                                                                            column=0,
+                                                                                                            sticky=N
+                                                                                                                   +
+                                                                                                                   W
+                                                                                                                   +
+                                                                                                                   S
+                                                                                                                   +
+                                                                                                                   E,
+                                                                                                            padx=5,
+                                                                                                            pady=5)
+
+Button(lf52, text="Remove Customer", width=20, image=tmp5, compound=LEFT, command=lambda: remove_supplier(mlb51)).grid(
+    row=0, column=1,
+    sticky=N + W + S + E,
+    padx=5, pady=5)
+
+Button(lf52, text="Modify Supplier", width=20, image=tmp_modify, compound=LEFT, command=lambda: add_supplier(
+    modify=True)).grid(row=1, column=0,
+                       sticky=N + W + E + S,
+                       padx=5, pady=5)
+
+mlb51 = tableTree.MultiListbox(app4, (("Supplier ID", 5), ("Supplier Name", 40), ("Supplier RO", 12), ("Supplier "
+                                                                                                       "Address", 70)))
+mlb51.grid(row=2, column=0, columnspan=2, sticky=N + S + E + W, pady=10)
+
 
 #
 # from Graph import Graph
@@ -671,8 +776,14 @@ btn55.grid(row=12, column=4, columnspan=2, sticky=N + E + S + W, padx=10, pady=1
 # app72.columnconfigure(1, weight=1)
 # app72.rowconfigure(0, weight=1)
 
-
 # function
+def supplier_search():
+    print('Supplier search')
+
+
+def b_supplier_search(refresh=False):
+    print('Supplier Button search')
+
 
 def ckeys():
     entry66['values'] = db.categorylist
@@ -680,7 +791,7 @@ def ckeys():
 
 
 def ipurlog():
-    root23 = Tk()
+    root23 = tk.Tk()
     root23.grid()
     root23.title("Purchase Log")
     root23.rowconfigure(0, weight=1)
@@ -704,7 +815,8 @@ def call_purchase_search(event):
 
 def special_purchase_search(event):
     inp = str(entry61.get())
-    l = db.sqldb.execute("""SELECT cost,price,category_name,product_description FROM costs JOIN products USING (product_id)
+    l = db.sqldb.execute("""SELECT cost,price,category_name,product_description FROM costs JOIN products USING (
+    product_id)
                 JOIN category USING (category_id) WHERE product_name =  "%s" """ % (inp.title())).fetchone()
     if l is None:
         l = db.sqldb.execute("""SELECT category_name,product_description FROM  products 
@@ -787,13 +899,13 @@ def delete_from_purchase_table():
 
 
 def add2_inventory():
-    for item in xrange(mlb21.size()):
-        tup = mlb21.get(item)
-        name = tup[0].title()
-        cost = round(float(tup[1]), 2)
-        price = round(float(tup[2]), 2)
-        qty = round(float(tup[3]))
-        date = tup[4]
+    for item in mlb21.tree.get_children():
+        tup = mlb21.tree.item(item)
+        name = tup['values'][0]
+        cost = round(float(tup['values'][1]), 2)
+        price = round(float(tup['values'][2]), 2)
+        qty = round(float(tup['values'][3]))
+        date = tup['values'][4]
         pid = db.sqldb.getproductID(name)
         costid = db.sqldb.getcostID(pid, cost, price)
         try:
@@ -826,13 +938,13 @@ def remove__product(obj):
     if del_row is None or del_row > obj.size():
         return showinfo('Error', 'Nothing is Selected To Remove')
     tup = obj.get(del_row)
-    ans = askokcancel('WARNING', "Do You Really Want To Delete " + tup[1] + " ?")
+    ans = askokcancel('WARNING', "Do You Really Want To delete " + tup[1] + " ?")
     if ans:
         ie = db.deleteproduct(tup[0])
         if ie:
             showinfo('Info', tup[1] + ' Successfully Deleted')
         else:
-            showinfo('Error', 'Sorry Cannot Delete, Product is attached to Invoices or Purchase. Delete Them first.')
+            showinfo('Error', 'Sorry Cannot delete, Product is attached to Invoices or Purchase. delete Them first.')
     return b_product__search(refresh=True)
 
 
@@ -841,13 +953,13 @@ def remove__customer(obj):
     if del_row is None or del_row > obj.size():
         return showinfo('Error', 'Nothing is Selected To Remove')
     tup = obj.get(del_row)
-    ans = askokcancel('WARNING', "Do You Really Want To Delete " + tup[1] + " ?")
+    ans = askokcancel('WARNING', "Do You Really Want To delete " + tup[1] + " ?")
     if ans:
         ie = db.deletecustomer(tup[0])
         if ie:
             showinfo('Info', tup[1] + 'Has Been Deleted')
         else:
-            showinfo('Error', 'Sorry Cannot Delete, Customer is attached to invoices')
+            showinfo('Error', 'Sorry Cannot delete, Customer is attached to invoices')
         return b_customer__search(refresh=True)
     else:
         return b_customer__search(refresh=True)
@@ -872,7 +984,8 @@ def print__p_table(lists):
     lists.sort()
     mlb31.delete(0, END)
     for item in lists:
-        tup = db.sqldb.execute(""" SELECT product_id,product_name,category_name,product_description FROM  products
+        tup = db.sqldb.execute(""" SELECT product_id,product_name,category_name,product_description FROM  
+        products
                         JOIN category USING (category_id) WHERE product_name = "%s" """ % item).fetchall()
         for p in tup:
             p = list(p)
@@ -1038,9 +1151,10 @@ def call__p_search(event):
 
 
 def add(obj, l):
+    l = list(l)
     l.sort()
     obj["value"] = ""
-    obj["value"] = l
+    obj["value"] = list(l)
 
 
 # def ask__cd_file():
@@ -1057,7 +1171,7 @@ def add(obj, l):
 
 
 def ask_dbfile():
-    fname = askopenfilename(filetypes=(('Inventory Manager Database File', "*.ic"), ('All File', "*.*")))
+    fname = askopenfilename(filetypes=(('Inventory Manager database File', "*.ic"), ('All File', "*.*")))
     try:
         ds = open(fname, 'r')
     except IOError:
@@ -1073,7 +1187,7 @@ def ask_dbfile():
 
 
 def export(objentry1):
-    from ImportExport import ExportCsv
+    from Src.ImportExport import ExportCsv
     ans = askokcancel("WARNING", "2 FILES WILL BE EXPORTED SURE YOU WANT EXPORT IN THIS FOLDER ?")
     if not ans:
         return False
@@ -1090,7 +1204,7 @@ def export(objentry1):
 
 def brow__file(obj):
     """Should alawys use entry widget as obj"""
-    from tkFileDialog import askopenfilename
+    from tkinter.filedialog import askopenfilename
     try:
         fname = askopenfilename(filetypes=(('Csv File', "*.csv"), ('All File', "*.*")))
     except[IOError]:
@@ -1120,7 +1234,7 @@ def save__as__file(obj):
 
 
 def import_csv(objentry1, objentry2):
-    from ImportExport import ImportCsv
+    from Src.ImportExport import ImportCsv
     importfile1 = Filter(str(objentry1))
     importfile2 = Filter(str(objentry2))
     if len(str(importfile1).split()) == 0:
@@ -1145,7 +1259,7 @@ def invoice_opt_event():
 
 
 def invoice__option():
-    rootn = Toplevel(master=root)
+    rootn = tk.Toplevel(master=root)
     rootn.title("Invoice Options")
     rootn.columnconfigure(0, weight=1)
     rootn.rowconfigure(0, weight=1)
@@ -1160,7 +1274,7 @@ def category_opt_event():
 
 
 def category__opt():
-    rootd = Toplevel(master=root)
+    rootd = tk.Toplevel(master=root)
     rootd.title("Category Options")
     rootd.columnconfigure(0, weight=1)
     rootd.rowconfigure(0, weight=1)
@@ -1170,11 +1284,15 @@ def category__opt():
 
 
 def d_click__on__list(event):
+    cur_item = mlb31.tree.focus()
     index = int(mlb31.tree.identify_column(event.x)[1])
+    id = mlb31.tree.item(cur_item)
+    arg = id["values"][0]
+
     if index == 3:
         return category_opt_event()
     elif 1 < index < 6:
-        return a_d_d__product(modify=True)
+        return a_d_d__product(arg, modify=True)
     else:
         return 0
 
@@ -1209,24 +1327,26 @@ entry61.bind('<<ComboboxSelected>>', special_purchase_search)
 
 def process_cart(invid):
     no_of_product = 0
-    for item in xrange(int(mlb.size())):
-        tup = mlb.get(item)
-        no_of_product += float(tup[3])
+    for item in mlb.tree.get_children():
+        tup = mlb.tree.item(item)
+        no_of_product += float(tup['values'][3])
     discount_per_product = float(Discount_var.get()) / no_of_product
     lik = []
-    for item in xrange(int(mlb.size())):
-        r = mlb.get(item)
-        costid = str(r[0])
-        product_name2 = str(r[1])
-        product_description = str(r[2])
-        product_qty = float(r[3])
-        product_price2 = float(r[4])
+    i = 1
+    for item in mlb.tree.get_children():
+        r = mlb.tree.item(item)
+        costid = str(r['values'][0])
+        product_name2 = str(r['values'][1])
+        product_description = str(r['values'][2])
+        product_qty = float(r['values'][3])
+        product_price2 = float(r['values'][4])
         product_amount = product_qty * product_price2
         product_info = product_name2 + ' ' + product_description
-        listsw = [item + 1, product_info, product_qty, product_price2, str(product_amount)]
+        listsw = [i, product_info, product_qty, product_price2, str(product_amount)]
         lik.append(listsw)
         sold_price = product_price2 - discount_per_product
         db.addsells(costid, sold_price, invid, product_qty)
+        i += 1
     mlb.delete(0, END)
     return lik
 
@@ -1267,12 +1387,12 @@ def generate__invoice(product__list_forpdf, custup, invoicetup, detail):
                  discount=Discount_var.get(),
                  sub_total=subtol_var.get()
                  )
-    fileline = "Invoice\Invoice   " + invoi_num + ".pdf"
+    fileline = "Invoice/Invoice   " + invoi_num + ".pdf"
     try:
         os.startfile(fileline)
     except:
         fileline = askopenfilename(
-            filetypes=(('Microsoft Word Document File', "*.docx"), ("Protable Document File", "*.pdf")))
+            filetypes=(('Microsoft Word Document File', "*.docx"), ("Portable Document File", "*.pdf")))
         os.startfile(fileline)
     return None
 
@@ -1302,8 +1422,6 @@ def transfer():
     invid = db.addinvoice(ctmid, Invoi_num, Grand_total, invoice__date2)
     Product_List_forpdf = process_cart(invid)
     invoicetup = (invoice__date2, Invoi_num, Grand_total, amount, discount)
-    # if len(discount) == 0:
-    #     discount = 0
     generate__invoice(Product_List_forpdf, custup, invoicetup, detail)
     Discount_var.set(0.0)
     Amt_var.set(0.0)
@@ -1500,7 +1618,7 @@ def make_sure_path_exist(path):
     return 1
 
 
-def a_d_d__product(modify=False):
+def a_d_d__product(id=False, modify=False):
     tup = []
     if not modify:
         titlel = "New Product"
@@ -1508,6 +1626,9 @@ def a_d_d__product(modify=False):
         titlel = "Modify Product"
         index = mlb31.Select_index
         tup = mlb31.get(index)
+        cur_item = mlb31.tree.focus()
+        arg = mlb31.tree.item(cur_item)
+        id = arg["values"][0]
         if index is None or index > mlb31.size():
             return showinfo(title='Error', message='Nothing is Selected To Modify')
     root12 = Toplevel(master=root)
@@ -1516,7 +1637,7 @@ def a_d_d__product(modify=False):
     root12.focus()
     root12.rowconfigure(0, weight=1)
     root12.columnconfigure(0, weight=1)
-    np = NewProduct(root12, tup, modify, db)
+    np = NewProduct(root12, tup, modify, db, id)
     np.grid(row=0, column=0, sticky=N + S + W + E)
     np.rowconfigure(0, weight=1)
     np.columnconfigure(0, weight=1)
@@ -1551,7 +1672,7 @@ def a_d_d__customer(modify=False):
 
 
 def call_save():
-    ans = askokcancel("WARNING", "Do You Want To Save All Changes")
+    ans = askokcancel("WARNING", "Do You Want To save All Changes")
     if ans:
         db.save()
         root.destroy()
@@ -1564,12 +1685,45 @@ def cdmp_del():
     sapp.load__de
 
 
+def add_supplier(id=False, modify=False):
+    tup = []
+    if not modify:
+        print('not modify')
+        title = "New Supplier"
+    else:
+        print('modify')
+        title = "Modify Supplier"
+        index = mlb51.Select_index
+        piid = mlb51.trueparent(mlb51.Select_iid)
+        index = mlb51.index(piid)
+        tup = mlb51.get(index)
+        id = arg["values"][0]
+        if index is None or index > mlb51.size():
+            return showinfo("Error", "Nothing is selected to modify")
+    root13 = Toplevel(master=root)
+    root13.title(title)
+    root13.focus()
+    root13.grid()
+    root13.rowconfigure(0, weight=1)
+    root13.columnconfigure(0, weight=1)
+    ns = NewSupplier(root13, modify, tup, db, id)
+    ns.grid(row=0, column=0, sticky=N + W + S + E)
+    ns.rowconfigure(0, weight=1)
+    ns.columnconfigure(0, weight=1)
+    root13.wait_window()
+    return b_supplier_search(refresh=True)
+
+
+def remove_supplier(mlb51):
+    pass
+
+
 invoice__date()
 invoice_num()
 b_product__search(refresh=True)
 b_customer__search(refresh=True)
 make_sure_path_exist("invoice")
-make_sure_path_exist("Data")
+make_sure_path_exist("data")
 root.protocol(name="WM_DELETE_WINDOW", func=call_save)
 
 root.mainloop()
