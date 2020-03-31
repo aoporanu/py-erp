@@ -115,17 +115,17 @@ class NewProduct(Frame):
         if not modify:
             copy['state'] = DISABLED
         if modify:
-            d = self.db.sqldb.execute(""" SELECT product_name,category_name,product_description,product_lot FROM  
+            d = self.db.sqldb.execute(""" SELECT product_name,category_name,product_description FROM  
             products 
-                        JOIN category USING (category_id) WHERE product_id = "%s" JOIN units_of_measure USING (
-                        uom_id) WHERE uom_id="%s" """ %
-                                      (id, id)).fetchone()
+                        JOIN category USING (category_id) join units_of_measure on products.um_id=units_of_measure.id 
+                        WHERE product_id = "%s" """ %
+                                      (id)).fetchone()
             name = d[0]
             category = d[1]
             Des = d[2]
             no = tup[0]
-            lot = d[3]
             qty = self.db.sqldb.getquantity(tup[0])
+            um = self.db.sqldb.get_um(tup[0])
             self.entry5.delete(0, END)
             self.entry5.insert(0, name)
             self.entry.delete(0, END)
@@ -137,7 +137,7 @@ class NewProduct(Frame):
             self.entry6.delete(0, END)
             self.entry6.insert(0, no)
             self.entry7.delete(0, END)
-            self.entry7.insert(0, lot)
+            self.entry7.insert(0, um)
         self.entry6['state'] = "readonly"
         self.entry3['state'] = "readwrite"
 

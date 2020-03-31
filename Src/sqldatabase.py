@@ -444,6 +444,10 @@ class Mydatabase(object):
         qty += (qtytup[0] - qtytup[1])
         return float(qty)
 
+    def get_um(self, um_id):
+        um = list(self.cursor.execute(""" select name from units_of_measure where id = "%s" """ % um_id))
+        return um
+
     def resetdatabase(self):
         self.cursor.execute(""" BEGIN ;
                             DROP TABLE category;

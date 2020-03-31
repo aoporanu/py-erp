@@ -304,4 +304,14 @@ class InventoryDataBase(object):
         phone = phone.title()
         return self.sqldb.add_supplier(name, ro, cui, address, phone)
 
+    def search_supplier(self, fst):
+        tup = tuple([fst] * 1)
+        row = self.execute(""" SELECT name FROM units_of_measure WHERE
+                                         name LIKE "%%%s%%" """ % tup)
+        return row
+
+    def search_um(self, param):
+        row = self.execute(""" SELECT name FROM units_of_measure WHERE name LIKE "%%%s%%" """ % param)
+        return row
+
 

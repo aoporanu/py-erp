@@ -378,7 +378,7 @@ for i in range(1, 5):
         continue
     app6.rowconfigure(i, weight=1)
 
-Label(app6, background="Brown").grid(row=0, column=0, sticky=N + S + E + W)
+# Label(app6, background="Brown").grid(row=0, column=0, sticky=N + S + E + W)
 
 lfp = Frame(app6, padding="0.2i")
 lfp.grid(row=1, column=0, sticky=N + S + E + W)
@@ -454,6 +454,16 @@ Label(lfp, text="Pentru factura").grid(row=6, column=0, sticky=E, padx=5, pady=5
 entry67 = Entry(lfp)
 entry67.grid(row=6, column=1, sticky=W + E, padx=5, pady=5)
 
+Label(lfp, text="Supplier").grid(row=6, column=2, sticky=E, padx=10, pady=5)
+
+supplier_name = Combobox(lfp, postcommand=lambda: supplier_search(), width=40)
+supplier_name.grid(row=6, column=3, sticky=N + E + W + S, padx=5, pady=10)
+
+Label(lfp, text="LOT   ").grid(row=6, column=4, sticky=E, padx=10, pady=5)
+
+lot = Entry(lfp)
+lot.grid(row=6, column=5, sticky=W + E, padx=10, pady=5)
+
 mlb21 = tableTree.MultiListbox(app6,
                                (('Product name', 35), ("Cost Price", 25), ("Selling Price", 25), ("QTY", 15),
                                 ("Date", 35), ("LOT", 25), ("Pentru factura", 35)))
@@ -465,9 +475,9 @@ tmp3 = PIL.ImageTk.PhotoImage(image=tmp3)
 btn62 = Button(app6, text="Complete Transaction", width=35,
                image=tmp3, compound=LEFT,
                command=lambda: add2_inventory())
-btn62.grid(row=4, column=0, sticky=N + E + S, pady=10)
+btn62.grid(row=8, column=0, sticky=N + E + S, pady=10)
 
-Label(app6, background="Brown").grid(row=5, column=0, sticky=N + S + E + W)
+# Label(app6, background="Brown").grid(row=5, column=0, sticky=N + S + E + W)
 
 # page 3
 # frame 3
@@ -560,12 +570,12 @@ def uom_opt_event():
     return True
 
 
-Button(lf31, text="Unitati de masura", image=tmp_extra, compound=LEFT, command=lambda: uom_opt_event(), 
+Button(lf31, text="Unitati de masura", image=tmp_extra, compound=LEFT, command=lambda: uom_opt_event(),
        width=20).grid(row=2, column=0, sticky=N + W + S + E, padx=5, pady=5)
 
 mlb31 = tableTree.MultiListbox(app2,
                                (('Product ID', 5), ('Product Name', 45), ('Category', 25), ('Description', 65),
-                                ("QTY", 10)))
+                                ("Unitate de masura", 10), ("QTY", 10)))
 mlb31.grid(row=2, column=0, columnspan=2, sticky=N + S + E + W)
 
 # page 4
@@ -777,8 +787,11 @@ mlb51.grid(row=2, column=0, columnspan=2, sticky=N + S + E + W, pady=10)
 # app72.rowconfigure(0, weight=1)
 
 # function
-def supplier_search():
-    print('Supplier search')
+def supplier_search(refresh=False):
+    inp = Filter(customer_name.get())
+    if inp == " ":
+        inp = ""
+    l = customernamesearch(inp)
 
 
 def b_supplier_search(refresh=False):
@@ -984,9 +997,13 @@ def print__p_table(lists):
     lists.sort()
     mlb31.delete(0, END)
     for item in lists:
-        tup = db.sqldb.execute(""" SELECT product_id,product_name,category_name,product_description FROM  
+        tup = db.sqldb.execute(""" SELECT product_id,product_name,category_name,product_description, 
+        units_of_measure.name FROM  
         products
-                        JOIN category USING (category_id) WHERE product_name = "%s" """ % item).fetchall()
+                        JOIN category USING (category_id) join units_of_measure on products.um_id=units_of_measure.id 
+                        WHERE 
+                        product_name = 
+                        "%s" """ % item).fetchall()
         for p in tup:
             p = list(p)
             qty = float(db.sqldb.getquantity(p[0]))
@@ -1074,11 +1091,15 @@ def customernamesearch(string):
     return db.searchcustomer(string.title())
 
 
-def invoicenosearch(string):
+def unit_name_search(string):
+    return db.search_um(string.title())
+
+
+def invoice_no_search(string):
     return db.searchinvoice(string.title())
 
 
-def categorynamesearch(string):
+def category_name_search(string):
     return db.searchcategory(string.title())
 
 
@@ -1122,7 +1143,7 @@ def customer__search():
 #     inp = str(invoice_search.get())
 #     if inp == " ":
 #         inp = ""
-#     l = invoicenosearch(inp)
+#     l = invoice_no_search(inp)
 #     return add(invoice_search, l)
 
 
@@ -1134,7 +1155,7 @@ def customer__search():
 #     inp = str(category_search.get())
 #     if inp == " ":
 #         inp = ""
-#     l = categorynamesearch(inp)
+#     l = category_name_search(inp)
 #     return add(category_search, l)
 
 

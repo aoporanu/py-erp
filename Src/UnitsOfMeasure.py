@@ -24,7 +24,8 @@ class UnitsOfMeasure:
                                                                                                          column=0,
                                                                                                          sticky=N + S +
                                                                                                          E + W)
-        self.mlb1 = MultiListbox(self.f, (('Category Name', 35), ('No of Product', 45), ('Category ID', 30)), height=20)
+        self.mlb1 = MultiListbox(self.f, (('Denumire', 35), ('Cantitate', 45), ('ID UM', 30)),
+                                 height=20)
         self.mlb1.grid(row=1, column=0, columnspan=4, sticky=N + W + S + E)
         self.Del = Button(self.f, text="delete", command=lambda: self.delete())
         self.Del.grid(row=2, column=3)
@@ -75,15 +76,17 @@ class UnitsOfMeasure:
         self.mlb1.delete(0, END)
         row = self.db.sqldb.execute("""SELECT * FROM units_of_measure ORDER BY name """).fetchall()
         for i in row:
-            row2 = self.db.sqldb.execute("""SELECT product_id,product_name FROM products JOIN units_of_measure USING (
-                    uom_id)
+            row2 = self.db.sqldb.execute("""SELECT product_id,product_name FROM products JOIN units_of_measure 
+            on products.um_id=units_of_measure.id
                                                     WHERE id = "%s"  ORDER BY product_name """ % (
             i[0])).fetchall()
             iid = self.mlb1.insert(END, (i[1], len(row2), i[0]))
-            self.mlb1.insert(END, ["Product ID", "Product Name", "Qty"], parent=iid, rowname="", bg='grey93', fg='Red',
+            self.mlb1.insert(END, ["Product ID", "Product Name", "Qty", "UM"], parent=iid, rowname="", bg='grey93',
+                             fg='Red',
                              tag="lo")
             for p in row2:
                 qty = float(self.db.sqldb.getquantity(p[0]))
+                um = self.db.sqldb.get_um(p[0])
                 self.mlb1.insert(END, [p[0], p[1], qty], parent=iid, rowname="", bg='grey95', fg='Blue', tag="lol")
         return 1
 
