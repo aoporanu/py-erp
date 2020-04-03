@@ -86,6 +86,14 @@ def new_database_create(conn):
              sgst_rate INT,
              cgst_rate INT)
     """)
+    conn.execute("""
+                create table if not exists delegates(
+                id TEXT UNIQUE PRIMARY KEY NOT NULL,
+                name TEXT NOT NULL,
+                customer_id TEXT NOT NULL REFERENCES customers(customer_id),
+                cnp TEXT NOT NULL,
+                car_no TEXT NOT NULL,
+                created_at TEXT NOT NULL DEFAULT CURRENT_DATE); """)
     if conn.execute("SELECT count(*) FROM details").fetchone()[0] == 0:
         conn.execute("INSERT INTO details VALUES('','','','','','','','Rs','logo.png',0,0,0)")
     conn.commit()
@@ -247,14 +255,15 @@ class Mydatabase(object):
         if iid == None: return iid
         return iid[0]
 
-    def addnewpurchase(self, costid, date, qty):
+    def addnewpurchase(self, costid, date, qty, lot, pentru_factura, supplier):
         s = costid + date + str(qty) + hex(int(t.time() * 10000))
         purid = "PUR" + str(hash(s))
         if self.getpurchaseID(costid, date, qty) != None:
             raise ValueError("purchase already listed")
         self.cursor.execute(
-            """ INSERT INTO purchase (purchase_id,cost_id,QTY,purchase_date) VALUES ("%s","%s",%.2f,"%s")""" % (
-                purid, costid, qty, date))
+            """ INSERT INTO purchase (purchase_id,cost_id,QTY,purchase_date,lot,for_invoice) VALUES ("%s","%s",%.2f,
+            "%s","%s","%s","%s")""" % (
+                purid, costid, qty, date, lot, pentru_factura, supplier))
         return purid
 
     def editpurchase(self, purid, attribute, value):
@@ -321,12 +330,14 @@ class Mydatabase(object):
         if iid == None: return iid
         return iid[0]
 
-    def addnewcustomer(self, name, address, email):
+    def addnewcustomer(self, name, address, email, ro, cui, cnp):
         ctmid = """CTM""" + str(hash(hex(int(t.time() * 10000))))
         self.cursor.execute(
-            """INSERT INTO customers (customer_id,customer_name,customer_address,customer_email) VALUES ("%s","%s",
-            "%s","%s")""" % (
-                ctmid, name, address, email))
+            """INSERT INTO customers (customer_id,customer_name,customer_address,customer_email, delegate_id, 
+            customer_cui, customer_cnp
+            ) VALUES ("%s","%s",
+            "%s","%s","%s","%s","%s")""" % (
+                ctmid, name, address, email, ro, cui, cnp))
         return ctmid
 
     def editcustomer(self, ctmid, attribute, value):

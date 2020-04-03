@@ -33,6 +33,10 @@ class UnitsOfMeasure:
         self.Add.grid(row=2, column=1)
         self.Edit = Button(self.f, text="Edit", command=lambda: self.add_um(edit=True))
         self.Edit.grid(row=2, column=2)
+        mlb41 = tableTree.MultiListbox(app3,
+                                       (('Customer ID', 5), ('Customer Name', 40), ('Phone No', 15), ('Address', 70),
+                                        ("Email", 30)))
+        mlb41.grid(row=3, column=0, columnspan=2, sticky=N + S + E + W, pady=10)
         self.insert()
 
     def delete(self):

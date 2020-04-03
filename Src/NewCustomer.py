@@ -320,6 +320,16 @@ class NewCustomer(Frame):
         self.entry4 = Entry(app, width=35)
         self.entry4.grid(row=4, column=1, sticky=sty, padx=5, pady=5)
 
+        lbl4 = Label(app, text="Customer CUI ")
+        lbl4.grid(row=5, column=0, sticky=sty, padx=5, pady=5)
+        self.cui_text = Entry(app, width=35)
+        self.cui_text.grid(row=5, column=1, sticky=sty, padx=5, pady=5)
+
+        lbl5 = Label(app, text="Customer CNP ")
+        lbl5.grid(row=6, column=0, sticky=sty, padx=5, pady=5)
+        self.cnp_text = Entry(app, width=35)
+        self.cnp_text.grid(row=6, column=1, sticky=sty, padx=5, pady=5)
+
         tmpapp = Frame(app)
         tmpapp.grid(row=1, column=2, rowspan=4, sticky=sty, padx=0, pady=0)
         tmpapp.columnconfigure(0, weight=1)
@@ -341,28 +351,31 @@ class NewCustomer(Frame):
                                                                                pady=5)
 
         tmpapp = Frame(app)
-        tmpapp.grid(row=5, column=1, sticky=sty, padx=0, pady=0)
+        tmpapp.grid(row=7, column=1, sticky=sty, padx=0, pady=0)
         tmpapp.columnconfigure(0, weight=1)
         tmpapp.columnconfigure(1, weight=1)
         tmpapp.rowconfigure(0, weight=1)
 
         btn = Button(tmpapp, text='save', width=12, command=lambda: self.Save(modify, tup))
-        btn.grid(row=0, column=0, sticky=sty, padx=5, pady=5)
+        btn.grid(row=9, column=0, sticky=sty, padx=5, pady=5)
         copy = Button(tmpapp, text='save As Copy', width=12, command=lambda: self.Save(False, tup))
-        copy.grid(row=0, column=1, sticky=sty, padx=5, pady=5)
-        if modify == False:
+        copy.grid(row=9, column=1, sticky=sty, padx=5, pady=5)
+        if not modify:
             copy['state'] = DISABLED
 
-        if modify == True:
+        if modify:
             ctmid = self.tup[0]
             d = self.db.sqldb.execute(
-                """ SELECT customer_name,customer_address,customer_email, customer_ro FROM customers WHERE 
+                """ SELECT customer_name,customer_address,customer_email, customer_ro, customer_cui, 
+                customer_cnp FROM customers WHERE 
                 customer_id = "%s" """ % (
                     ctmid)).fetchone()
             name = d[0]
             add = d[1]
             email = d[2]
             ro = d[3]
+            cui = d[4]
+            cnp = d[5]
             self.phnrefresh(ctmid)
             self.entry5.delete(0, END)
             self.entry5.insert(0, name)
@@ -372,6 +385,11 @@ class NewCustomer(Frame):
             self.entry3.insert(0, email)
             self.entry4.delete(0, END)
             self.entry4.insert(0, ro)
+            self.cui_text.delete(0, END)
+            self.cui_text.insert(0, cui)
+            self.cnp_text.delete(0, END)
+            self.cnp_text.insert(0, cnp)
+
 
     def Save(self, modify, tup):
         """
@@ -385,11 +403,14 @@ class NewCustomer(Frame):
         name = Filter(self.entry5.get()).title()
         add = Filter(self.text.get(0.0, END)).title()
         email = Filter(self.entry3.get()).title()
+        ro = Filter(self.entry4.get()).title()
+        cui = Filter(self.cui_text.get()).title()
+        cnp = Filter(self.cnp_text.get()).title()
         if len(name.split()) == 0:
             return showinfo(title="Error", message='Customer Name Must Be Specified', parent=self.master)
         ctmid = None
         if not modify:
-            ctmid = self.db.addcustomer(name, address=add, email=email)
+            ctmid = self.db.addcustomer(name, add, email, ro, cui, cnp)
         else:
             ctmid = self.tup[0]
             ask = askokcancel("Key Error",

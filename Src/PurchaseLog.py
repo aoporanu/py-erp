@@ -5,7 +5,7 @@ from Src.TableTree import MultiListbox
 sty = N + S + E + W
 
 
-class Purchase_Log(Frame):
+class PurchaseLog(Frame):
     def __init__(self, master, db):
         Frame.__init__(self, master)
         self.master = master
@@ -17,8 +17,9 @@ class Purchase_Log(Frame):
         self.assign()
 
     def assign(self):
-        row = self.db.sqldb.execute("""SELECT purchase_date,product_name,QTY,cost,product_lot,product_supplier FROM 
-        purchase JOIN costs USING (cost_id) JOIN products USING (product_id) """)
+        row = self.db.sqldb.execute("""SELECT purchase_date,product_name,QTY,cost,lot FROM 
+        purchase JOIN costs USING (cost_id) JOIN products USING (product_id) join suppliers on 
+        purchase.supplier_id=suppliers.id""")
         a = row.fetchall()
         for i in a:
             self.mlb.insert(END, i)

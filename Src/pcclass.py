@@ -30,8 +30,8 @@ class InventoryDataBase(object):
 
     def getcategorynames(self):
         l = self.execute("SELECT category_name FROM category")
-        l.sort()
-        return l
+        a = sorted(l)
+        return a
 
     def getinvoiceno(self):
         l = self.execute("SELECT invoice_no FROM invoices")
@@ -191,9 +191,9 @@ class InventoryDataBase(object):
     def deletephone(self, phnid):
         return self.sqldb.deletephone(phnid)
 
-    def addcustomer(self, name, address, email, ro):
+    def addcustomer(self, name, address, email, ro, cui, cnp):
         name = name.title()
-        return self.sqldb.addnewcustomer(name, address, email, ro)
+        return self.sqldb.addnewcustomer(name, address, email, ro, cui, cnp)
 
     def editcustomer(self, ctmid, newname, address, email, ro):
         newname = newname.title()
@@ -226,8 +226,8 @@ class InventoryDataBase(object):
     def deleteinvoice(self, invid):
         return self.sqldb.deleteinvoice(invid)
 
-    def addpurchase(self, PID, costid, date, qty):
-        return self.sqldb.addnewpurchase(costid, date, qty)
+    def addpurchase(self, PID, costid, date, qty, lot, pentru_factura, supplier):
+        return self.sqldb.addnewpurchase(costid, date, qty, lot, pentru_factura, supplier)
 
     def editpurchase(self, purid, costid, qty, date):
         qty = int(qty)
@@ -305,9 +305,8 @@ class InventoryDataBase(object):
         return self.sqldb.add_supplier(name, ro, cui, address, phone)
 
     def search_supplier(self, fst):
-        tup = tuple([fst] * 1)
-        row = self.execute(""" SELECT name FROM units_of_measure WHERE
-                                         name LIKE "%%%s%%" """ % tup)
+        row = self.execute(""" SELECT name FROM suppliers WHERE
+                                         name LIKE "%%%s%%" """ % fst)
         return row
 
     def search_um(self, param):
