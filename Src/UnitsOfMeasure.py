@@ -89,7 +89,7 @@ class UnitsOfMeasure:
                              fg='Red',
                              tag="lo")
             for p in row2:
-                qty = float(self.db.sqldb.getquantity(p[0]))
+                qty = float(self.db.sqldb.get_quantity(p[0]))
                 um = self.db.sqldb.get_um(p[0])
                 self.mlb1.insert(END, [p[0], p[1], qty], parent=iid, rowname="", bg='grey95', fg='Blue', tag="lol")
         return 1

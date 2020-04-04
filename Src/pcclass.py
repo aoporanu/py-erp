@@ -178,83 +178,83 @@ class InventoryDataBase(object):
     def addphone(self, phone, ctmid):
         # if not phone.isnumeric():
         #     raise Exception("Phone Number Not Valid")
-        return self.sqldb.addphone(phone, ctmid)
+        return self.sqldb.add_phone(phone, ctmid)
 
     def editphone(self, phnid, phone, ctmid):
-        ph = self.sqldb.getphoneID(phone)
+        ph = self.sqldb.get_phone_ID(phone)
         if ph != None:
             raise Exception("Phone Number Already Listed")
-        self.sqldb.editphone(phnid, 1, phone)
-        self.sqldb.editphone(phnid, 2, ctmid)
+        self.sqldb.edit_phone(phnid, 1, phone)
+        self.sqldb.edit_phone(phnid, 2, ctmid)
         return None
 
     def deletephone(self, phnid):
-        return self.sqldb.deletephone(phnid)
+        return self.sqldb.delete_phone(phnid)
 
     def addcustomer(self, name, address, email, ro, cui, cnp):
         name = name.title()
-        return self.sqldb.addnewcustomer(name, address, email, ro, cui, cnp)
+        return self.sqldb.add_new_customer(name, address, email, ro, cui, cnp)
 
     def editcustomer(self, ctmid, newname, address, email, ro):
         newname = newname.title()
         if ctmid == None:
             raise Exception("Not a Valid Customer")
-        self.sqldb.editcustomer(ctmid, 1, newname)
-        self.sqldb.editcustomer(ctmid, 2, address)
-        self.sqldb.editcustomer(ctmid, 3, email)
-        self.sqldb.editcustomer(ctmid, 4, ro)
+        self.sqldb.edit_customer(ctmid, 1, newname)
+        self.sqldb.edit_customer(ctmid, 2, address)
+        self.sqldb.edit_customer(ctmid, 3, email)
+        self.sqldb.edit_customer(ctmid, 4, ro)
         return True
 
     def deletecustomer(self, ctmid, phone=False):
         if phone == True:
-            ctmid = self.sqldb.getcustomerID(ctmid)
-        return self.sqldb.deletecustomer(ctmid)
+            ctmid = self.sqldb.get_customer_ID(ctmid)
+        return self.sqldb.delete_customer(ctmid)
 
     def addinvoice(self, ctmid, no, paid, date):
         paid = round(float(paid), 2)
         no = round(float(no), 1)
-        return self.sqldb.addnewinvoice(ctmid, no, date, paid)
+        return self.sqldb.add_new_invoice(ctmid, no, date, paid)
 
     def editinvoice(self, invid, ctmid, no, date):
         no = int(no)
         date = " ".join(date.split())
-        self.sqldb.editinvoice(invid, 1, ctmid)
-        self.sqldb.editinvoice(invid, 2, no)
-        self.sqldb.editinvoice(invid, 4, date)
+        self.sqldb.edit_invoice(invid, 1, ctmid)
+        self.sqldb.edit_invoice(invid, 2, no)
+        self.sqldb.edit_invoice(invid, 4, date)
         return True
 
     def deleteinvoice(self, invid):
-        return self.sqldb.deleteinvoice(invid)
+        return self.sqldb.delete_invoice(invid)
 
     def addpurchase(self, PID, costid, date, qty, lot, pentru_factura, supplier):
-        return self.sqldb.addnewpurchase(costid, date, qty, lot, pentru_factura, supplier)
+        return self.sqldb.add_new_purchase(costid, date, qty, lot, pentru_factura, supplier)
 
     def editpurchase(self, purid, costid, qty, date):
         qty = int(qty)
         date = " ".join(date.split())
-        self.sqldb.editpurchase(purid, 1, costid)
-        self.sqldb.editpurchase(purid, 2, qty)
-        self.sqldb.editpurchase(purid, 3, date)
+        self.sqldb.edit_purchase(purid, 1, costid)
+        self.sqldb.edit_purchase(purid, 2, qty)
+        self.sqldb.edit_purchase(purid, 3, date)
         return True
 
     def deletepurchase(self, purid):
-        return self.sqldb.deletepurchase(purid)
+        return self.sqldb.delete_purchase(purid)
 
     def addsells(self, costid, sold, invid, qty):
         sold = round(float(sold), 2)
         qty = round(float(qty), 1)
-        return self.sqldb.addnewsell(invid, sold, qty, costid)
+        return self.sqldb.add_new_sell(invid, sold, qty, costid)
 
     def editsells(self, selid, sold, qty, costid):
         sold = round(float(sold), 2)
         qty = round(float(qty), 1)
-        self.sqldb.editsells(selid, 2, sold)
-        self.sqldb.editsells(selid, 3, qty)
-        self.sqldb.editsells(selid, 4, costid)
+        self.sqldb.edit_sells(selid, 2, sold)
+        self.sqldb.edit_sells(selid, 3, qty)
+        self.sqldb.edit_sells(selid, 4, costid)
         return True
 
     def deletesells(self, selid):
-        return self.sqldb.deletesells(selid)
+        return self.sqldb.delete_sells(selid)
 
     def getallsellID(self, invid):
         row = self.execute("""SELECT selling_id FROM sells WHERE invoice_id = "%s"
@@ -265,12 +265,12 @@ class InventoryDataBase(object):
         costid = self.execute("""SELECT cost_id FROM costs WHERE product_id = "%s"
                                     AND price = %.2f """ % (PID, price))
         for i in costid:
-            qty = self.sqldb.getcostquantity(i)
+            qty = self.sqldb.get_cost_quantity(i)
             if qty > 0:
                 return i
         costid = self.execute("""SELECT cost_id FROM costs WHERE product_id = "%s" """ % (PID))
         for i in costid:
-            qty = self.sqldb.getcostquantity(i)
+            qty = self.sqldb.get_cost_quantity(i)
             if qty > 0:
                 return i
         return None
@@ -279,10 +279,10 @@ class InventoryDataBase(object):
         no = int(no)
         paid = round(float(paid), 2)
         date = " ".join(date.split())
-        self.sqldb.editinvoice(invid, 1, ctmid)
-        self.sqldb.editinvoice(invid, 2, no)
-        self.sqldb.editinvoice(invid, 3, paid)
-        self.sqldb.editinvoice(invid, 4, date)
+        self.sqldb.edit_invoice(invid, 1, ctmid)
+        self.sqldb.edit_invoice(invid, 2, no)
+        self.sqldb.edit_invoice(invid, 3, paid)
+        self.sqldb.edit_invoice(invid, 4, date)
         return True
 
     def getphoneS(self, ctmid):

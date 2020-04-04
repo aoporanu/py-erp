@@ -18,7 +18,8 @@ class MultiListbox(Frame):
         append = self.b.append
         for i in lists:
             append(i[0])
-        if height == None:
+        if height is None:
+
             self.tree = Treeview(self, column=self.b, selectmode='browse', style="new.Treeview")
         else:
             self.tree = Treeview(self, column=self.b, selectmode='browse', style="new.Treeview", height=height)

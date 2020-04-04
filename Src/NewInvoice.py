@@ -38,7 +38,7 @@ class ADDInvoice():
         tup = self.mlb1.get(index)
         s = askokcancel('Confirm','Are You Sure You Want To delete Invoice Number %s ?'%tup[0],parent = self.master)
         if s == True :
-            self.db.deleteinvoice(tup[0])
+            self.db.delete_invoice(tup[0])
         self.Refresh()
         return showinfo("Info","Invoice delete successfully",parent = self.master)
 
@@ -248,7 +248,7 @@ class ADDInvoice():
         if edit == True :
             invid = tup[0]
         else :
-            invid = self.db.sqldb.getinvoiceID(inv_no)
+            invid = self.db.sqldb.get_invoice_ID(inv_no)
         if invid != None and edit == False :
             return showinfo('Input Error','Invoice Number Already Exists',parent  = self.t)
         inv_date = self.cb0.get()
@@ -265,7 +265,7 @@ class ADDInvoice():
             discount = float(Filter(self.entry6.get()))
         except(ValueError):
             return showinfo('Input Error','Amount, Paid and Discount Have To Be numbers',parent  = self.t)
-        ctmid = self.db.sqldb.getcustomerID(Cphn)
+        ctmid = self.db.sqldb.get_customer_ID(Cphn)
         if ctmid == None :
             ans = askokcancel("New Customer","The Customer %s is not in customer list!\nAdd It?",parent  = self.t)
             if ans == False :
@@ -281,7 +281,7 @@ class ADDInvoice():
             invid = self.db.addinvoice(ctmid,inv_no,paid,inv_date)
         selids = self.db.getallsellID(invid)
         for i in selids :
-            self.db.deletesells(i)
+            self.db.delete_sells(i)
         tnoofproduct = 0
         for i in xrange(self.lb.size()) :
             r = self.lb.get(i)
@@ -292,7 +292,7 @@ class ADDInvoice():
             product_price = float(tup[2])
             product_qty = float(tup[1])
             costid = tup[3]
-            selID = self.db.sqldb.getsellID(invid,costid)
+            selID = self.db.sqldb.get_sell_ID(invid, costid)
             sold_price = product_price - discountperproduct
             self.db.addsells(costid,sold_price,invid,product_qty)
         self.lb.delete(0,END)

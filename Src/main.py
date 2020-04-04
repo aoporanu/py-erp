@@ -18,6 +18,7 @@ from reportlab import xrange
 from Src.Cython.proWrd1 import Filter
 
 import Src.TableTree as tableTree
+import subprocess, sys
 from Src.Cato_Opt import Category
 from Src.NewCustomer import NewCustomer
 from Src.NewInvoice import ADDInvoice
@@ -938,7 +939,7 @@ def add2_inventory():
             if ans:
                 pur_i_d = db.sqldb.getpurchaseID(costid, date, qty)
                 qty += db.sqldb.getcell("purchase", "purchase_id", "QTY", "\"" + pur_i_d + "\"")
-                db.sqldb.editpurchase(pur_i_d, 2, qty)
+                db.sqldb.edit_purchase(pur_i_d, 2, qty)
     mlb21.delete(0, END)
     return showinfo("Info", "All Products Has Been Added to the Inventory")
 
@@ -1015,7 +1016,7 @@ def print__p_table(lists):
                         "%s" """ % item).fetchall()
         for p in tup:
             p = list(p)
-            qty = float(db.sqldb.getquantity(p[0]))
+            qty = float(db.sqldb.get_quantity(p[0]))
             p.append(qty)
             bg = None
             colour = "White"
@@ -1054,12 +1055,13 @@ def print__c_table(lists):
                            FROM invoices WHERE customer_id = "%s" ORDER BY invoice_no """ % (c[0])).fetchall()
             mlb41.insert(END, ("Invoice ID", "Invoice No", "Invoice Time Stamp", "Paid"), parent=guiid, rowname="",
                          bg='grey93', fg='Red', tag="lo")
-            tup2 = db.sqldb.execute(""" select name, cnp from delegates where customer_id = "%s" order by id """ % (
-                c[0])).fetchall()
-            mlb41.insert(END, ("Delegate ID", "Delegate Name", "Delegate CNP"), parent=guiid, rowname="",
-                         bg="grey93", fg="Blue", tag="lo")
             for p in tup1:
                 mlb41.see(mlb41.insert(END, p, parent=guiid, rowname="", bg='White', fg='Blue', tag="lol"))
+            tup2 = db.sqldb.execute(""" select id, name, cnp, car_no from delegates where customer_id = "%s" order by 
+            id """ % (
+                c[0])).fetchall()
+            mlb41.insert(END, ("Delegate ID", "Delegate Name", "Delegate CNP", "# Auto"), parent=guiid, rowname="",
+                         bg="grey93", fg="Green", tag="lo")
             for d in tup2:
                 mlb41.see(mlb41.insert(END, d, parent=guiid, rowname="", bg="White", fg="Brown", tag="lol"))
     mlb41.see("")
@@ -1431,11 +1433,19 @@ def generate__invoice(product__list_forpdf, custup, invoicetup, detail):
                  )
     fileline = "Invoice/Invoice   " + invoi_num + ".pdf"
     try:
-        os.startfile(fileline)
+        if sys.platform is "win32":
+            os.startfile(fileline)
+        else:
+            opener = "open" if sys.platform == "darwin" else "xdg-open"
+            subprocess.call([opener, fileline])
     except:
         fileline = askopenfilename(
             filetypes=(('Microsoft Word Document File', "*.docx"), ("Portable Document File", "*.pdf")))
-        os.startfile(fileline)
+        if sys.platform is "win32":
+            os.startfile(fileline)
+        else:
+            opener = "open" if sys.platform == "darwin" else "xdg-open"
+            subprocess.call([opener, fileline])
     return None
 
 
@@ -1444,7 +1454,7 @@ def transfer():
     detail = db.sqldb.get_company_details
     if Invoi_num is None:
         return 1
-    alooas = db.sqldb.getinvoiceID(Invoi_num)
+    alooas = db.sqldb.get_invoice_ID(Invoi_num)
     if alooas is not None:
         return showinfo("Error", "Invoice Number Already Exists And Assigned To another Customer", parent=root)
     if mlb.size() == 0:
@@ -1639,7 +1649,7 @@ def pre_inv():
     if not phone.isdigit():
         showinfo(title="Error", message='Not a Valid Phone Number', parent=root)
         return None
-    ctmid = db.sqldb.getcustomerID(phone)
+    ctmid = db.sqldb.get_customer_ID(phone)
     if ctmid is None:
         ctmid = db.addcustomer(name, address, phone, "")
     else:
@@ -1696,9 +1706,9 @@ def a_d_d__customer(modify=False):
         index = mlb41.Select_index
         if index is None or index > mlb41.size():
             return showinfo('Error', 'Nothing is Selected To Modify')
-        piid = mlb41.trueparent(mlb41.Select_iid)
-        index = mlb41.index(piid)
-        tup = mlb41.get(index)
+        cur_item = mlb41.tree.focus()
+        arg = mlb41.tree.item(cur_item)
+        tup = arg["values"]
     root13 = Toplevel(master=root)
     root13.title(titlel)
     root13.focus()
@@ -1732,7 +1742,6 @@ def add_supplier(id=False, modify=False):
     if not modify:
         title = "New Supplier"
     else:
-        print('modify')
         title = "Modify Supplier"
         index = mlb51.Select_index
         piid = mlb51.trueparent(mlb51.Select_iid)

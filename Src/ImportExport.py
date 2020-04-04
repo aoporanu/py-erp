@@ -169,10 +169,10 @@ class ImportCsv(object):
             except KeyError:
                 email = ""
             if len(phone) == 10:
-                phnid = self.db.sqldb.getphoneID(phone)
+                phnid = self.db.sqldb.get_phone_ID(phone)
                 print(phnid, phone, name, address, email), len(phone)
                 if phnid != None:
-                    self.db.editcustomer(phnid, phone, name, address, email)
+                    self.db.edit_customer(phnid, phone, name, address, email)
                 else:
                     self.db.addcustomer(name, address, phone, email)
         self.returns = True

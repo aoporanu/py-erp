@@ -55,7 +55,7 @@ class Category:
             self.mlb1.insert(END, ["Product ID", "Product Name", "Qty"], parent=iid, rowname="", bg='grey93', fg='Red',
                              tag="lo")
             for p in row2:
-                qty = float(self.db.sqldb.getquantity(p[0]))
+                qty = float(self.db.sqldb.get_quantity(p[0]))
                 self.mlb1.insert(END, [p[0], p[1], qty], parent=iid, rowname="", bg='grey95', fg='Blue', tag="lol")
         return 1
 

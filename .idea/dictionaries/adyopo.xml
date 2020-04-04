@@ -4,6 +4,7 @@
       <w>acat</w>
       <w>addcost</w>
       <w>catid</w>
+      <w>cgst</w>
       <w>costid</w>
       <w>ctmid</w>
       <w>docx</w>
@@ -12,6 +13,8 @@
       <w>pentru</w>
       <w>phnid</w>
       <w>piid</w>
+      <w>qtytup</w>
+      <w>sgst</w>
       <w>titlel</w>
       <w>umid</w>
     </words>

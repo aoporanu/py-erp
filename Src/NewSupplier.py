@@ -9,7 +9,6 @@ sty = N + W + S + E
 
 class NewSupplier(Frame):
     def __init__(self, master, tup, modify, db, id):
-        print('si aici')
         Frame.__init__(self, master)
         self.id = id
         self.db = db

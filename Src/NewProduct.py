@@ -124,7 +124,7 @@ class NewProduct(Frame):
             category = d[1]
             Des = d[2]
             no = tup[0]
-            qty = self.db.sqldb.getquantity(tup[0])
+            qty = self.db.sqldb.get_quantity(tup[0])
             um = self.db.sqldb.get_um(tup[0])
             self.entry5.delete(0, END)
             self.entry5.insert(0, name)
@@ -222,7 +222,7 @@ class NewProduct(Frame):
                 price = i[2]
                 cost = i[1]
                 costid = i[0]
-                qty = self.db.sqldb.getcostquantity(costid)
+                qty = self.db.sqldb.get_cost_quantity(costid)
                 i.append(qty)
                 ins(END, i)
 
@@ -403,7 +403,7 @@ class NewProduct(Frame):
         costid = self.db.sqldb.getcostID(PID, cost, price)
         if costid == None:
             costid = self.db.sqldb.addnewcost(PID, cost, price)
-        self.db.editpurchase(self.purid, costid, qty, date)
+        self.db.edit_purchase(self.purid, costid, qty, date)
         self.purgui.destroy()
         self.Add2Mlb21()
         return showinfo(title="Successful", message='Changes Saved', parent=self.master)
@@ -416,7 +416,7 @@ class NewProduct(Frame):
         self.purid = r[0]
         ans = askokcancel("Message", "Sure You Want To delete %s ?" % (self.purid), parent=self.master)
         if ans == True:
-            self.db.deletepurchase(self.purid)
+            self.db.delete_purchase(self.purid)
             return showinfo("Message", "%s Has Been Successfully Deleted" % (self.purid),
                             parent=self.master), self.Add2Mlb21()
         return False
@@ -568,11 +568,11 @@ class NewProduct(Frame):
         costid = self.db.sqldb.getcostID(PID, cost, price)
         if costid == None:
             costid = self.db.sqldb.addnewcost(PID, cost, price)
-        invid = self.db.sqldb.getinvoiceID(invno)
+        invid = self.db.sqldb.get_invoice_ID(invno)
         if invid == None:
             return showinfo(title="ERROR", message='Invoice In That Number Dsn\'t Exsist', parent=self.master)
         print(self.selid, sold, qty, costid)
-        self.db.editsells(self.selid, sold, qty, costid)
+        self.db.edit_sells(self.selid, sold, qty, costid)
         self.salegui.destroy()
         self.Add2Mlb22()
         return showinfo(title="Successful", message='Changes Saved', parent=self.master)
@@ -585,7 +585,7 @@ class NewProduct(Frame):
         self.selid = r[0]
         ans = askokcancel("Message", "Sure You Want To delete %s ?" % (self.selid), parent=self.master)
         if ans == True:
-            self.db.deletesells(self.selid)
+            self.db.delete_sells(self.selid)
             return showinfo("Message", "%s Has Been Successfully Deleted" % (self.selid),
                             parent=self.master), self.Add2Mlb22()
         return False

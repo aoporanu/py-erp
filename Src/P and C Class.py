@@ -69,7 +69,7 @@ class InventoryDataBase(object):
             try :
                 ctmid = self.addcustomer(name,address,phone,email)
             except :
-                ctmid = self.sqldb.getcustomerID(phone)
+                ctmid = self.sqldb.get_customer_ID(phone)
             invoice = InvoiceSplit(invoice)
             for h in invoice :
                 paid = f["invn"][str(h)]["Paid"]
@@ -77,7 +77,7 @@ class InventoryDataBase(object):
                 try :
                     invid = self.addinvoice(ctmid,h,paid,date)
                 except :
-                    invid = self.sqldb.getinvoiceID(h)
+                    invid = self.sqldb.get_invoice_ID(h)
                 for pro in f["invn"][str(h)]["Products"]:
                     PID = self.sqldb.getproductID(pro)
                     if pro == 'Philips - Induction' :
