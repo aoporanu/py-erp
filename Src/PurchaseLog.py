@@ -18,8 +18,8 @@ class PurchaseLog(Frame):
 
     def assign(self):
         row = self.db.sqldb.execute("""SELECT purchase_date,product_name,QTY,cost,lot FROM 
-        purchase JOIN costs USING (cost_id) JOIN products USING (product_id) join suppliers on 
-        purchase.supplier_id=suppliers.id""")
-        a = row.fetchall()
-        for i in a:
+        purchase JOIN costs USING (cost_id) JOIN products on purchase.product_id=products.product_id join suppliers on 
+        purchase.supplier_id=suppliers.id""").fetchall()
+        print(row)
+        for i in row:
             self.mlb.insert(END, i)

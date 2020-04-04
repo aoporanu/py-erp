@@ -1,6 +1,8 @@
 import os
 import tkinter as tk
 import tkinter.font as tkFont
+from pathlib import Path
+
 import pyximport
 from tkinter.filedialog import askopenfilename, N, S, E, W, HORIZONTAL
 from tkinter.filedialog import asksaveasfilename
@@ -265,11 +267,6 @@ Amt_var = tk.DoubleVar()
 Amount = Label(Lf03, font=Fon1, textvariable=Amt_var)
 Amount.grid(row=0, column=1, sticky=N + E + S + W, padx=10, pady=10)
 
-
-def select_item(event):
-    print('select')
-
-
 # GST
 
 def get_sgst():
@@ -362,8 +359,7 @@ mlb.grid(row=0, column=0, sticky=N + S + E + W, padx=10)
 
 
 def purchase_product_frame():
-    global product_name_search, qty_text, cost_price_text, btn64, selling_price_text, tmp4, tmp5, category_combo, \
-        description_text, mlb21, supplier_combo_search, pentru_factura, lot_text
+    global product_name_search, qty_text, cost_price_text, btn64, selling_price_text, tmp4, tmp5, category_combo, description_text, mlb21, supplier_combo_search, pentru_factura, lot_text
     #     note purchase product
     upf = Frame(note)
     upf.grid(row=0, column=0, sticky=N + W + S + E)
@@ -920,7 +916,6 @@ def add2_inventory():
         return showinfo("Error", "The purchase list is empty")
     for item in mlb21.tree.get_children():
         tup = mlb21.tree.item(item)
-        print(tup)
         name = tup['values'][0]
         cost = round(float(tup['values'][1]), 2)
         price = round(float(tup['values'][2]), 2)
@@ -1431,7 +1426,10 @@ def generate__invoice(product__list_forpdf, custup, invoicetup, detail):
                  discount=Discount_var.get(),
                  sub_total=subtol_var.get()
                  )
-    fileline = "Invoice/Invoice   " + invoi_num + ".pdf"
+    fileline = "Invoice   " + invoi_num + ".pdf"
+    p = Path('Invoices')
+    p.mkdir(exist_ok=True)
+
     try:
         if sys.platform is "win32":
             os.startfile(fileline)
@@ -1554,7 +1552,7 @@ def invoice_num():
 
 
 def invoice__date():
-    invoice_date.insert(invoice_date.getTimeStamp())
+    invoice_date.insert(invoice_date.get_time_stamp())
     return 1
 
 
@@ -1747,6 +1745,8 @@ def add_supplier(id=False, modify=False):
         piid = mlb51.trueparent(mlb51.Select_iid)
         index = mlb51.index(piid)
         tup = mlb51.get(index)
+        cur_item = mlb51.tree.focus()
+        arg = mlb51.tree.item(cur_item)
         id = arg["values"][0]
         if index is None or index > mlb51.size():
             return showinfo("Error", "Nothing is selected to modify")

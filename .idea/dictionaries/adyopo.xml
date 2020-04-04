@@ -3,20 +3,30 @@
     <words>
       <w>acat</w>
       <w>addcost</w>
+      <w>butn</w>
       <w>catid</w>
       <w>cgst</w>
       <w>costid</w>
       <w>ctmid</w>
+      <w>demi</w>
       <w>docx</w>
+      <w>editbtnfram</w>
       <w>factura</w>
+      <w>genico</w>
+      <w>gtol</w>
+      <w>masura</w>
       <w>notepage</w>
       <w>pentru</w>
       <w>phnid</w>
       <w>piid</w>
       <w>qtytup</w>
+      <w>rootd</w>
       <w>sgst</w>
+      <w>subtol</w>
       <w>titlel</w>
       <w>umid</w>
+      <w>unitate</w>
+      <w>unitati</w>
     </words>
   </dictionary>
 </component>

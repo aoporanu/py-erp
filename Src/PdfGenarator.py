@@ -49,7 +49,7 @@ def pdf_document(pic_add, inv_no, company_name, date, company_add,
     except IOError:
         pil = Image.new('RGB', (250, 43))
     p = ImageReader(pil)
-    c = canvas.Canvas("Invoice\Invoice   " + inv_no + ".pdf", pagesize=A4, bottomup=0)
+    c = canvas.Canvas("Invoice   " + inv_no + ".pdf", pagesize=A4, bottomup=0)
     c.setViewerPreference("FitWindow", "true")
     c.setFont("Times-Bold", 24)
     c.drawImage(p, 2.5 * inch, 0.5 * inch)

@@ -227,7 +227,7 @@ class InventoryDataBase(object):
         return self.sqldb.delete_invoice(invid)
 
     def addpurchase(self, PID, costid, date, qty, lot, pentru_factura, supplier):
-        return self.sqldb.add_new_purchase(costid, date, qty, lot, pentru_factura, supplier)
+        return self.sqldb.add_new_purchase(PID, costid, date, qty, lot, pentru_factura, supplier)
 
     def editpurchase(self, purid, costid, qty, date):
         qty = int(qty)

@@ -89,7 +89,7 @@ class NewCustomer(Frame):
         try:
             self.invdate.insert(r[0])
         except:
-            self.invdate.insert(self.invdate.getTimeStamp())
+            self.invdate.insert(self.invdate.get_time_stamp())
         self.invno = Spinbox(lf, from_=0, to=9999)
         self.invno.grid(row=2, column=1, sticky=sty, pady=8, padx=7)
         self.invno.delete(0, END)

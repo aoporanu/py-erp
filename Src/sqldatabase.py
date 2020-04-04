@@ -256,15 +256,17 @@ class Mydatabase(object):
             return iid
         return iid[0]
 
-    def add_new_purchase(self, costid, date, qty, lot, pentru_factura, supplier):
+    def add_new_purchase(self, PID, costid, date, qty, lot, pentru_factura, supplier):
         s = costid + date + str(qty) + hex(int(t.time() * 10000))
         purid = "PUR" + str(hash(s))
         if self.getpurchaseID(costid, date, qty) is not None:
             raise ValueError("purchase already listed")
         self.cursor.execute(
-            """ INSERT INTO purchase (purchase_id,cost_id,QTY,purchase_date,lot,for_invoice) VALUES ("%s","%s",%.2f,
-            "%s","%s","%s","%s")""" % (
-                purid, costid, qty, date, lot, pentru_factura, supplier))
+            """ INSERT INTO purchase (purchase_id,cost_id,QTY,purchase_date,lot,for_invoice,supplier_id, 
+            product_id) VALUES ("%s",
+            "%s",%.2f,
+            "%s","%s","%s","%s","%s")""" % (
+                purid, costid, qty, date, lot, pentru_factura, supplier, PID))
         return purid
 
     def edit_purchase(self, purid, attribute, value):
