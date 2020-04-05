@@ -216,11 +216,11 @@ class NewCustomer(Frame):
             JOIN costs USING (cost_id) JOIN products USING (product_id) )
                     JOIN invoices USING (invoice_id) WHERE invoice_id = "%s" ORDER BY product_name """ % (
                 invid)).fetchall()
-            self.mlb22.insert(END, ["Product Name", "Cost Price", "Selling Price", "Qty"], parent=iid, rowname="+",
+            self.mlb22.insert(END, ["Product Name", "Cost Price", "Selling Price", "Qty"], parent=iid, row_name="+",
                               bg='grey90', fg='Blue', tag="l5")
             tpro += len(tup1)
             for g in xrange(len(tup1)):
-                self.mlb22.insert(END, tup1[g], parent=iid, rowname=g, bg='white')
+                self.mlb22.insert(END, tup1[g], parent=iid, row_name=g, bg='white')
         self.lbl1["text"] = "Total Amount Earned - %d " % tp
         self.lbl2["text"] = "Total No of Product - %d " % tpro
         self.lbl3["text"] = "Total Amount Due - %d " % td
@@ -288,7 +288,7 @@ class NewCustomer(Frame):
                 return showinfo('Select Error', 'Noting Is Selected', parent=self.master)
             piid = self.mlb2221.trueparent(self.mlb2221.Select_iid)
             index = self.mlb2221.index(piid)
-            self.mlb2221.setvalue(index, 0, phone)
+            self.mlb2221.set_value(index, 0, phone)
         else:
             self.mlb2221.insert(END, phone)
         self.t.destroy()

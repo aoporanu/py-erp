@@ -1,5 +1,5 @@
 import tkinter as tk
-from tkinter import N, S, E, W, FLAT, VERTICAL, X, Y, YES, NO, END
+from tkinter import N, S, E, W, FLAT, VERTICAL, X, Y, YES, END, HORIZONTAL, BOTTOM, RIGHT, FALSE
 from tkinter.ttk import *
 
 
@@ -19,7 +19,6 @@ class MultiListbox(Frame):
         for i in lists:
             append(i[0])
         if height is None:
-
             self.tree = Treeview(self, column=self.b, selectmode='browse', style="new.Treeview")
         else:
             self.tree = Treeview(self, column=self.b, selectmode='browse', style="new.Treeview", height=height)
@@ -32,11 +31,14 @@ class MultiListbox(Frame):
             tree.heading(l, text=l)
         frame = Frame(self)
         frame.grid(row=0, column=1, sticky=N + S + E + W)
-        bn = Label(frame, width=1, relief=FLAT);
+        bn = Label(frame, width=1, relief=FLAT)
         bn.pack(fill=X)
+        xsb = Scrollbar(frame, orient=HORIZONTAL, command=self.tree.xview)
         sb = Scrollbar(frame, orient=VERTICAL, command=self.tree.yview)
-        sb.pack(expand=YES, fill=Y)
-        self.tree['yscrollcommand'] = sb.set
+        xsb.pack(side=BOTTOM, expand=FALSE, fill=X)
+        sb.pack(side=RIGHT, expand=FALSE, fill=Y)
+        self.tree.configure(yscrollcommand=sb.set)
+        self.tree.configure(xscrollcommand=xsb.set)
         self.firstcolumn("No", width=60)
         self.tree.bind('<1>', self.rowselect)
         self.V = tk.StringVar()
@@ -67,8 +69,8 @@ class MultiListbox(Frame):
 
     def delete(self, first, last=None):
         self.__dele(first, last)
-        self.V.set("Number of Entries - %d" % (self.count))
-        if self.count < 1 :
+        self.V.set("Number of Entries - %d" % self.count)
+        if self.count < 1:
             self.Select_index = None
 
     def __dele(self, first, last):
@@ -86,11 +88,11 @@ class MultiListbox(Frame):
             self.parentelements = []
             self.lists = []
             return None
-        elif last == None:
+        elif last is None:
             del self.lists[first]
             try:
                 self.parentelements.remove(iid)
-            except(ValueError):
+            except ValueError:
                 pass
             self.count -= 1
             return self.tree.delete(iid)
@@ -100,10 +102,10 @@ class MultiListbox(Frame):
            else if column is specified it gets the exact value of
            that row in the column
         """
-        if iid == None:
+        if iid is None:
             return 0
         iid = self.lists[iid]
-        if column == None:
+        if column is None:
             l = range(len(self.b))
             d = self.tree.set(iid, column=column)
             bi = self.b.index
@@ -118,20 +120,20 @@ class MultiListbox(Frame):
         else:
             return self.tree.set(iid, column=column)
 
-    def setvalue(self, iid, column, Value):
+    def set_value(self, iid, column, value):
         """set the value of the cell[iid][column]"""
         iid = self.lists[iid]
-        return self.tree.set(iid, column=column, value=Value)
+        return self.tree.set(iid, column=column, value=value)
 
     def row(self, iid, **options):
-        """use to retrive or set different values of
+        """use to retrieve or set different values of
            row iid"""
         if type(iid) == int:
             iid = self.lists[iid]
         return self.tree.item(iid, **options)
 
     def column(self, iid, **options):
-        """use to retrive or set different values of a column"""
+        """use to retrieve or set different values of a column"""
         if type(iid) == int:
             iid = self.b[iid]
         return self.tree.column(iid, **options)
@@ -140,27 +142,27 @@ class MultiListbox(Frame):
         """Corresponding index of the id value"""
         return self.lists.index(iid)
 
-    def insert(self, index, elements, fg='Black', bg=None, rowname=None, parent="", tag=None):
+    def insert(self, index, elements, fg='Black', bg=None, row_name=None, parent="", tag=None):
         """add a new row at the end of the table"""
         tags = self.count
-        if rowname == None:
-            rowname = self.count + 1
+        if row_name is None:
+            row_name = self.count + 1
         if parent != "":
-            if tag == None:
+            if tag is None:
                 tags = 1
             else:
                 tags = tag
-        l = self.tree.insert(parent=parent, index=END, iid=None, values=elements, text=rowname, tags=tags)
+        l = self.tree.insert(parent=parent, index=END, iid=None, values=elements, text=row_name, tags=tags)
         self.lists.append(l)
         if parent == "":
             self.parentelements.append(l)
             self.count += 1
-        if bg == None:
+        if bg is None:
             bg = 'grey99'
             if tags % 2 == 0:
                 bg = 'grey94'
         self.tree.tag_configure(tags, background=bg, foreground=fg)
-        self.V.set("Number of Entries - %d" % (self.count))
+        self.V.set("Number of Entries - %d" % self.count)
         return l
 
     def size(self):

@@ -1048,17 +1048,17 @@ def print__c_table(lists):
             guiid = mlb41.insert(END, c, bg=None, tag="ta")
             tup1 = db.sqldb.execute("""SELECT invoice_id,invoice_no,invoice_date,paid
                            FROM invoices WHERE customer_id = "%s" ORDER BY invoice_no """ % (c[0])).fetchall()
-            mlb41.insert(END, ("Invoice ID", "Invoice No", "Invoice Time Stamp", "Paid"), parent=guiid, rowname="",
+            mlb41.insert(END, ("Invoice ID", "Invoice No", "Invoice Time Stamp", "Paid"), parent=guiid, row_name="",
                          bg='grey93', fg='Red', tag="lo")
             for p in tup1:
-                mlb41.see(mlb41.insert(END, p, parent=guiid, rowname="", bg='White', fg='Blue', tag="lol"))
+                mlb41.see(mlb41.insert(END, p, parent=guiid, row_name="", bg='White', fg='Blue', tag="lol"))
             tup2 = db.sqldb.execute(""" select id, name, cnp, car_no from delegates where customer_id = "%s" order by 
             id """ % (
                 c[0])).fetchall()
-            mlb41.insert(END, ("Delegate ID", "Delegate Name", "Delegate CNP", "# Auto"), parent=guiid, rowname="",
+            mlb41.insert(END, ("Delegate ID", "Delegate Name", "Delegate CNP", "# Auto"), parent=guiid, row_name="",
                          bg="grey93", fg="Green", tag="lo")
             for d in tup2:
-                mlb41.see(mlb41.insert(END, d, parent=guiid, rowname="", bg="White", fg="Brown", tag="lol"))
+                mlb41.see(mlb41.insert(END, d, parent=guiid, row_name="", bg="White", fg="Brown", tag="lol"))
     mlb41.see("")
     customer_search.delete(0, END)
     return 1
@@ -1621,7 +1621,7 @@ def add_2_cart():
         r = mlb.get(ITEM)
         if costid == r[0]:
             newqty = float(r[3]) + float(qty)
-            mlb.setvalue(ITEM, "QTY", newqty)
+            mlb.set_value(ITEM, "QTY", newqty)
             boo = True
     if not boo:
         tup = (costid, product, p_de, float(qty), p_price)

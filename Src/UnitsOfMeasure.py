@@ -85,13 +85,13 @@ class UnitsOfMeasure:
                                                     WHERE id = "%s"  ORDER BY product_name """ % (
             i[0])).fetchall()
             iid = self.mlb1.insert(END, (i[1], len(row2), i[0]))
-            self.mlb1.insert(END, ["Product ID", "Product Name", "Qty", "UM"], parent=iid, rowname="", bg='grey93',
+            self.mlb1.insert(END, ["Product ID", "Product Name", "Qty", "UM"], parent=iid, row_name="", bg='grey93',
                              fg='Red',
                              tag="lo")
             for p in row2:
                 qty = float(self.db.sqldb.get_quantity(p[0]))
                 um = self.db.sqldb.get_um(p[0])
-                self.mlb1.insert(END, [p[0], p[1], qty], parent=iid, rowname="", bg='grey95', fg='Blue', tag="lol")
+                self.mlb1.insert(END, [p[0], p[1], qty], parent=iid, row_name="", bg='grey95', fg='Blue', tag="lol")
         return 1
 
     def refresh(self):

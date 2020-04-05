@@ -89,7 +89,7 @@ class ADDInvoice():
                 r = lb.get(i)
                 if costid == r[3] :
                     newqty = float(r[1])+float(qty)
-                    lb.setvalue(i,"Qty",newqty)
+                    lb.set_value(i, "Qty", newqty)
                     boo = True
             amount += float(price)*qty
             if boo == False :
