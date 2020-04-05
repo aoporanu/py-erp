@@ -59,7 +59,7 @@ class NewCustomer(Frame):
         i = self.mlb22.Select_index
         if i is None:
             return showinfo("Message", "No Item Selected", parent=self.master)
-        piid = self.mlb22.trueparent(self.mlb22.Select_iid)
+        piid = self.mlb22.true_parent(self.mlb22.Select_iid)
         i = self.mlb22.index(piid)
         r = self.mlb22.get(i)
         self.invid = r[0]
@@ -239,7 +239,7 @@ class NewCustomer(Frame):
             index = self.mlb2221.Select_index
             if index is None or index > self.mlb2221.size():
                 return showinfo('Select Error', 'Noting Is Selected', parent=self.master)
-            piid = self.mlb2221.trueparent(self.mlb2221.Select_iid)
+            piid = self.mlb2221.true_parent(self.mlb2221.Select_iid)
             index = self.mlb2221.index(piid)
             tup = self.mlb2221.get(index)
         self.t = Toplevel(master=self.master)
@@ -286,7 +286,7 @@ class NewCustomer(Frame):
             index = self.mlb2221.Select_index
             if index is None or index > self.mlb2221.size():
                 return showinfo('Select Error', 'Noting Is Selected', parent=self.master)
-            piid = self.mlb2221.trueparent(self.mlb2221.Select_iid)
+            piid = self.mlb2221.true_parent(self.mlb2221.Select_iid)
             index = self.mlb2221.index(piid)
             self.mlb2221.set_value(index, 0, phone)
         else:
@@ -298,7 +298,7 @@ class NewCustomer(Frame):
         index = self.mlb2221.Select_index
         if index is None or index > self.mlb2221.size():
             return showinfo('Select Error', 'Noting Is Selected', parent=self.master)
-        piid = self.mlb2221.trueparent(self.mlb2221.Select_iid)
+        piid = self.mlb2221.true_parent(self.mlb2221.Select_iid)
         index = self.mlb2221.index(piid)
         tup = self.mlb2221.get(index)
         phnid = self.db.sqldb.get_phone_ID(tup[0])

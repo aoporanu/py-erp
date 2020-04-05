@@ -899,8 +899,14 @@ def add2_purchase_table():
     category_combo.delete(0, END)
     description_text.delete(0.0, END)
     lot_text.delete(0, END)
-    pentru_factura.delete(0, END)
-    supplier_combo_search.delete(0, END)
+    # We shouldn't delete the pentru factura and supplier_combo text
+    # because we're adding products from an invoice, and one invoice
+    # has one supplier and one invoice number
+    # pentru_factura.delete(0, END)
+    # instead
+    pentru_factura.configure(state="readonly")
+    # supplier_combo_search.delete(0, END)
+    supplier_combo_search.configure(state="disabled")
     return 1
 
 
@@ -1163,16 +1169,16 @@ def customer__search():
 #     return add(invoice_search, l)
 
 
-# def call__c_search(event):
-#     category__search()
-#
-#
-# def category__search():
-#     inp = str(category_search.get())
-#     if inp == " ":
-#         inp = ""
-#     l = category_name_search(inp)
-#     return add(category_search, l)
+def call__c_search(event):
+    category__search()
+
+
+def category__search():
+    inp = str(category_combo.get())
+    if inp == " ":
+        inp = ""
+    l = category_name_search(inp)
+    return add(category_combo, l)
 
 
 def product__search():
@@ -1190,22 +1196,8 @@ def call__p_search(event):
 def add(obj, l):
     l = list(l)
     l.sort()
-    print(list(l))
     obj["value"] = ""
     obj["value"] = list(l)
-
-
-# def ask__cd_file():
-#     fname = askopenfilename(filetypes=(('Inventory Manager Company Detail File', "*.dat"), ('All File', "*.*")))
-#     try:
-#         ds = open(fname, 'r')
-#     except(IOError):
-#         showinfo("No File", "No File With Such name Found !")
-#         return 0
-#     del ds
-#     if len(fname) != 0:
-#         Load_De(fname)
-#     return 1
 
 
 def ask_dbfile():
@@ -1742,7 +1734,7 @@ def add_supplier(id=False, modify=False):
     else:
         title = "Modify Supplier"
         index = mlb51.Select_index
-        piid = mlb51.trueparent(mlb51.Select_iid)
+        piid = mlb51.true_parent(mlb51.Select_iid)
         index = mlb51.index(piid)
         tup = mlb51.get(index)
         cur_item = mlb51.tree.focus()

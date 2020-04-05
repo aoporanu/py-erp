@@ -65,7 +65,7 @@ class Category:
             index = self.mlb1.Select_index
             if index is None or index > self.mlb1.size():
                 return showinfo('Select Error', 'Noting Is Selected', parent=self.master)
-            piid = self.mlb1.trueparent(self.mlb1.Select_iid)
+            piid = self.mlb1.true_parent(self.mlb1.Select_iid)
             index = self.mlb1.index(piid)
             tup = self.mlb1.get(index)
         self.t = tk.Toplevel(master=self.master)

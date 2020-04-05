@@ -1,5 +1,5 @@
 import tkinter as tk
-from tkinter import N, S, E, W, FLAT, VERTICAL, X, Y, YES, END, HORIZONTAL, BOTTOM, RIGHT, FALSE
+from tkinter import N, S, E, W, FLAT, VERTICAL, X, Y, END, HORIZONTAL, BOTTOM, RIGHT, FALSE
 from tkinter.ttk import *
 
 
@@ -24,7 +24,7 @@ class MultiListbox(Frame):
             self.tree = Treeview(self, column=self.b, selectmode='browse', style="new.Treeview", height=height)
         self.tree.grid(row=0, column=0, sticky=N + S + E + W)
         self.lists = []
-        self.parentelements = []
+        self.parent_elements = []
         tree = self.tree
         for l, w in lists:
             tree.column(l, width=w * 5)
@@ -39,28 +39,28 @@ class MultiListbox(Frame):
         sb.pack(side=RIGHT, expand=FALSE, fill=Y)
         self.tree.configure(yscrollcommand=sb.set)
         self.tree.configure(xscrollcommand=xsb.set)
-        self.firstcolumn("No", width=60)
-        self.tree.bind('<1>', self.rowselect)
+        self.first_column("No", width=60)
+        self.tree.bind('<1>', self.row_select)
         self.V = tk.StringVar()
         lbl = Label(self, relief=FLAT, textvariable=self.V, anchor=E, font=("Ebrima", 8))
         lbl.grid(row=1, column=0, columnspan=2, sticky=N + E + S + W, pady=0, padx=15)
         self.V.set("Number of Entries - %d" % (len(self.lists)))
 
-    def rowselect(self, event):
+    def row_select(self, event):
         inter = self.tree.identify_row(event.y)
         if inter == "":
             return 0
         self.Select_iid = inter
         self.Select_index = self.lists.index(inter)
 
-    def firstcolumn(self, head="", width=0, stretch=0):
+    def first_column(self, head="", width=0, stretch=0):
         """Use To set the heading of the key column
            along with column width and stretchability
         """
         self.tree.column("#0", minwidth=0, width=width, stretch=stretch)
         self.tree.heading('#0', text=head)
 
-    def trueparent(self, iid):
+    def true_parent(self, iid):
         piid = iid
         while piid != "":
             iid = piid
@@ -74,24 +74,24 @@ class MultiListbox(Frame):
             self.Select_index = None
 
     def __dele(self, first, last):
-        """delete a perticular row"""
+        """delete a particular row"""
         if len(self.lists) == 0:
             return 0
         iid = self.lists[first]
         if last == END:
             self.count = 0
-            niid = self.parentelements[0]
+            niid = self.parent_elements[0]
             while niid != "":
                 cdel = niid
                 niid = self.tree.next(niid)
                 self.tree.delete(cdel)
-            self.parentelements = []
+            self.parent_elements = []
             self.lists = []
             return None
         elif last is None:
             del self.lists[first]
             try:
-                self.parentelements.remove(iid)
+                self.parent_elements.remove(iid)
             except ValueError:
                 pass
             self.count -= 1
@@ -143,7 +143,9 @@ class MultiListbox(Frame):
         return self.lists.index(iid)
 
     def insert(self, index, elements, fg='Black', bg=None, row_name=None, parent="", tag=None):
-        """add a new row at the end of the table"""
+        """add a new row at the end of the table
+        @type index: object
+        """
         tags = self.count
         if row_name is None:
             row_name = self.count + 1
@@ -155,7 +157,7 @@ class MultiListbox(Frame):
         l = self.tree.insert(parent=parent, index=END, iid=None, values=elements, text=row_name, tags=tags)
         self.lists.append(l)
         if parent == "":
-            self.parentelements.append(l)
+            self.parent_elements.append(l)
             self.count += 1
         if bg is None:
             bg = 'grey99'

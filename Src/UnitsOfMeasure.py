@@ -4,6 +4,7 @@ from tkinter.ttk import Frame, Label, Button, Entry
 
 from Src.Cython.proWrd1 import Filter
 from Src.TableTree import MultiListbox
+import Src.TableTree as tableTree
 
 
 class NewUnitOfMeasure():
@@ -19,6 +20,7 @@ class UnitsOfMeasure:
         self.f.grid(row=0, column=0, sticky=N + W + S + E)
         self.f.columnconfigure(0, weight=1)
         self.f.rowconfigure(1, weight=1)
+        app3 = Frame(self.f)
 
         Label(self.f, text="Units of Measure List", foreground="#3496ff", font=('Berlin Sans FB Demi', 20)).grid(row=0,
                                                                                                          column=0,
@@ -33,10 +35,6 @@ class UnitsOfMeasure:
         self.Add.grid(row=2, column=1)
         self.Edit = Button(self.f, text="Edit", command=lambda: self.add_um(edit=True))
         self.Edit.grid(row=2, column=2)
-        mlb41 = tableTree.MultiListbox(app3,
-                                       (('Customer ID', 5), ('Customer Name', 40), ('Phone No', 15), ('Address', 70),
-                                        ("Email", 30)))
-        mlb41.grid(row=3, column=0, columnspan=2, sticky=N + S + E + W, pady=10)
         self.insert()
 
     def delete(self):
@@ -55,7 +53,7 @@ class UnitsOfMeasure:
             index = self.mlb1.Select_index
             if index is None or index > self.mlb1.size():
                 return showinfo('Select Error', 'Noting Is Selected', parent=self.master)
-            piid = self.mlb1.trueparent(self.mlb1.Select_iid)
+            piid = self.mlb1.true_parent(self.mlb1.Select_iid)
             index = self.mlb1.index(piid)
             tup = self.mlb1.get(index)
         self.t = Toplevel(master=self.master)

@@ -153,7 +153,7 @@ class ADDInvoice():
         btnA2 = Button(frm,text = "<<" ,command = lambda:pDssdd())
         btnA2.grid(row = 1,column=0)
         lb = MultiListbox(self.t,[("Product Name",35),("Qty",15),("Unit Price",23),("Cost ID",30)],5)
-        lb.firstcolumn("",width = 0)
+        lb.first_column("", width = 0)
         lb.grid(row = 3 ,column =3,sticky = N+W+S+E,padx=10,pady=10)
 
         Label(self.t,text = "Products",background = cor,foreground = fg).grid(row = 4 ,column =2,sticky = N+W+S+E,padx=10,pady=10)

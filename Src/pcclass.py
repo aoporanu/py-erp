@@ -66,6 +66,11 @@ class InventoryDataBase(object):
                                  category_name LIKE "%%%s%%" """ % tup)
         return row
 
+    def search_sales_invoice(self, like_name):
+        row = self.execute(""" select distinct for_invoice from purchase where for_invoice LIKE "%%%s%%" """ %
+                           like_name)
+        return row
+
     def searchcategory(self, likename):
         tup = tuple([likename] * 4)
         row = self.execute(""" SELECT category_name FROM category LEFT OUTER  JOIN products USING (category_id) WHERE

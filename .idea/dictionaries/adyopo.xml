@@ -5,16 +5,21 @@
       <w>addcost</w>
       <w>butn</w>
       <w>catid</w>
+      <w>cdel</w>
       <w>cgst</w>
       <w>costid</w>
       <w>ctmid</w>
+      <w>dele</w>
       <w>demi</w>
       <w>docx</w>
+      <w>ebrima</w>
       <w>editbtnfram</w>
       <w>factura</w>
       <w>genico</w>
       <w>gtol</w>
+      <w>ipurlog</w>
       <w>masura</w>
+      <w>niid</w>
       <w>notepage</w>
       <w>pentru</w>
       <w>phnid</w>
@@ -24,6 +29,7 @@
       <w>sgst</w>
       <w>subtol</w>
       <w>titlel</w>
+      <w>treeview</w>
       <w>umid</w>
       <w>unitate</w>
       <w>unitati</w>
