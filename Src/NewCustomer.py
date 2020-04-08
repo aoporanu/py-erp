@@ -212,7 +212,7 @@ class NewCustomer(Frame):
             paid = i[3]
             tp = tp + float(paid)
             iid = self.mlb22.insert(END, i)
-            tup1 = self.db.sqldb.execute(""" SELECT  product_name,cost,sold_price,QTY  FROM  (SELECT * FROM sells 
+            tup1 = self.db.sqldb.execute(""" SELECT  product_name,cost,sold_price,QTY  FROM  (SELECT * FROM sells
             JOIN costs USING (cost_id) JOIN products USING (product_id) )
                     JOIN invoices USING (invoice_id) WHERE invoice_id = "%s" ORDER BY product_name """ % (
                 invid)).fetchall()
@@ -395,8 +395,8 @@ class NewCustomer(Frame):
         if modify:
             ctmid = self.tup[0]
             d = self.db.sqldb.execute(
-                """ SELECT customer_name,customer_address,customer_email, customer_ro, customer_cui, 
-                customer_cnp FROM customers WHERE 
+                """ SELECT customer_name,customer_address,customer_email, customer_ro, customer_cui,
+                customer_cnp FROM customers WHERE
                 customer_id = "%s" """ % (
                     ctmid)).fetchone()
 
@@ -460,7 +460,7 @@ class NewCustomer(Frame):
     def mlb22load(self):
         self.mlb23.delete(0, END)
         ctmid = self.tup[0]
-        delegates = self.db.sqldb.execute(""" select id, name, cnp, created_at, car_no from delegates where 
+        delegates = self.db.sqldb.execute(""" select id, name, cnp, created_at, car_no from delegates where
         customer_id= "%s" """ % ctmid).fetchall()
         for i in delegates:
             iid = self.mlb23.insert(END, i)

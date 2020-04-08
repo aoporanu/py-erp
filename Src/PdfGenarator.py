@@ -1,7 +1,7 @@
 from PIL import Image
 from reportlab.lib import colors
 from reportlab.lib.colors import HexColor
-from reportlab.lib.pagesizes import A4
+from reportlab.lib.pagesizes import A4, landscape
 from reportlab.lib.units import inch, mm
 from reportlab.lib.utils import ImageReader
 from reportlab.pdfgen import canvas
@@ -13,10 +13,10 @@ data = ['No', 'Product', 'Qty', 'Unit Price', 'Amount']
 extra = [["", "", "", "", ""]]
 
 
-def calucate_y(y, lines, ofset):
+def calculate_y(y, lines, offset):
     lines = lines.split('\n')
     multiplier = len(lines)
-    new_y = y + (multiplier * ofset)
+    new_y = y + (multiplier * offset)
     return new_y
 
 
@@ -41,7 +41,15 @@ def draw_string(string, canvas_instance, x, y, lead):
     return canvas_instance.drawText(textobject)
 
 
-def pdf_document(pic_add, inv_no, company_name, date, company_add,
+def nir_document(tup_not_for):
+    print(tup_not_for["values"])
+
+    # c = canvas.Canvas('NIR  ' + inv_no + ".pdf", pagesize=landscape(A4), bottomup=0)
+    # c.setViewerPreference("FitWindow", "true")
+    # c.setFont("Times-Bold", 24)
+
+
+def pdf_document(delegate, pic_add, inv_no, company_name, date, company_add,
                  cus_name, cus_add, plist, currency, total_amt, s_g_s_t, c_g_s_t,
                  sub_total, grand_total, discount, bottom_detail):
     try:
@@ -70,13 +78,16 @@ def pdf_document(pic_add, inv_no, company_name, date, company_add,
     c.drawString(5.65 * inch - 15, (heading + 0.35 * inch), "Invoice Date")
     c.drawRightString(7.8500000000000005 * inch, (heading + 0.35 * inch), date)
     c.setFont("Helvetica", 11)
+    c.drawRightString(7.8500000000000005 * inch, (heading + 0.55 * inch), "Delegate name: " + delegate[1])
+    c.drawRightString(7.8500000000000005 * inch, (heading + 0.75 * inch), "Delegate #" + delegate[4])
+    c.drawRightString(7.8500000000000005 * inch, (heading + 0.95 * inch), "CNP Delegate" + delegate[3])
     draw_string(company_add, c, L_margin, (heading + 0.5 * inch), 15)
     c.setFont("Times-Bold", 15)
-    c.drawString(L_margin, calucate_y((heading + 0.5 * inch), company_add, 0.23 * inch), "Bill To :")
+    c.drawString(L_margin, calculate_y((heading + 0.5 * inch), company_add, 0.23 * inch), "Bill To :")
     c.setFont("Times-Bold", 16)
-    c.drawString(L_margin, calucate_y((heading + 0.5 * inch), company_add, 0.23 * inch) + 0.3 * inch,
+    c.drawString(L_margin, calculate_y((heading + 0.5 * inch), company_add, 0.23 * inch) + 0.3 * inch,
                  cus_name)
-    hei = calucate_y((heading + 0.5 * inch), company_add, 0.23 * inch) + 0.3 * inch
+    hei = calculate_y((heading + 0.5 * inch), company_add, 0.23 * inch) + 0.3 * inch
     c.setFont("Helvetica", 11)
     draw_string(cus_add, c, L_margin, hei + 0.25 * inch, 15)
     ori = (hei + inch, L_margin)

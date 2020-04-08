@@ -104,7 +104,7 @@ class IDPresentError(Exception):
     pass
 
 
-class Mydatabase(object):
+class MyDatabase(object):
     def __init__(self):
 
         self.connection = sqldb.connect("Database.db")
@@ -121,16 +121,26 @@ class Mydatabase(object):
     def execute(self, query):
         return self.cursor.execute(query)
 
-    def getcell(self, tablename, rowname, columnname, rowid):
+    def get_cell(self, table_name, row_name, column_name, rowid):
         row = self.cursor.execute(
-            """SELECT %s FROM %s WHERE %s = "%s" """ % (columnname, tablename, rowname, rowid)).fetchone()
+            """SELECT %s FROM %s WHERE %s = "%s" """ % (column_name, table_name, row_name, rowid)).fetchone()
         if row is None:
             return None
         return row[0]
 
-    def setcell(self, tablename, rowname, columnname, rowid, value):
+    def set_cell(self, table_name, row_name, column_name, rowid, value):
         self.cursor.execute(
-            """UPDATE %s SET %s = %s  WHERE %s = "%s" """ % (tablename, columnname, value, rowname, rowid))
+            """UPDATE %s SET %s = %s  WHERE %s = "%s" """ % (table_name, column_name, value, row_name, rowid))
+
+    def get_um_for_product(self, pid):
+        l = self.execute(""" select * from units_of_measure where id = (select um_id from products 
+        where product_id= "%s")""" % pid).fetchone()
+        return l
+
+    def get_delegate_for(self, customer_id):
+        l = self.execute(""" select * from delegates where customer_id= "%s" """ % customer_id)
+        row = l.fetchone()
+        return row
 
     def addcategory(self, category):
         catid = "CAT" + str(hash(category + hex(int(t.time() * 10000))))

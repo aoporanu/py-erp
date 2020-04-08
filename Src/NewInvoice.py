@@ -80,7 +80,7 @@ class ADDInvoice():
                 qty = float(qty)
             except(ValueError):
                 return showinfo("Error","Amount,Qty Should be in Numbers",parent= self.app)
-            price  = self.db.sqldb.getcell("costs","product_id","price",PID)
+            price  = self.db.sqldb.get_cell("costs", "product_id", "price", PID)
             if price == None :
                 return showinfo("Error","No Purchse has been made on %s "%(name),parent= self.app)
             costid = self.db.getanycostid(PID,price)
@@ -214,7 +214,7 @@ class ADDInvoice():
             entry1.insert(0,tup[3])
             autofill(1)
             amount =0.0
-            paid = self.db.sqldb.getcell("invoices","invoice_id","paid",tup[0])
+            paid = self.db.sqldb.get_cell("invoices", "invoice_id", "paid", tup[0])
             row = self.db.sqldb.execute("""SELECT product_name,QTY,price,cost_id FROM sells JOIN costs USING (cost_id) JOIN products USING(product_id)
                  WHERE invoice_id =  "%s" """%(tup[0])).fetchall()
             for i in row :
@@ -272,7 +272,7 @@ class ADDInvoice():
                 return 0
             ctmid = self.db.addcustomer(Cname,Cadd,Cphn,"")
         else:
-            dbcmname = self.db.sqldb.getcell("customers","customer_id","customer_name",ctmid)
+            dbcmname = self.db.sqldb.get_cell("customers", "customer_id", "customer_name", ctmid)
             if dbcmname != Cname :
                 showinfo('Input Error','Phone Number Already Registered in Another Name',parent  = self.t)
         if edit == True :

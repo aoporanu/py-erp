@@ -144,6 +144,12 @@ class MultiListbox(Frame):
 
     def insert(self, index, elements, fg='Black', bg=None, row_name=None, parent="", tag=None):
         """add a new row at the end of the table
+        @param tag:
+        @param parent:
+        @param row_name:
+        @param bg:
+        @param fg:
+        @param elements:
         @type index: object
         """
         tags = self.count

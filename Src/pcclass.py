@@ -16,7 +16,7 @@ class InvalidDataError(Exception):
 
 class InventoryDataBase(object):
     def __init__(self):
-        self.sqldb = sqldb.Mydatabase()
+        self.sqldb = sqldb.MyDatabase()
 
     def getcustomernames(self):
         l = self.execute("SELECT customer_name FROM customers")
@@ -33,6 +33,11 @@ class InventoryDataBase(object):
         a = sorted(l)
         return a
 
+    def get_supplier_names(self):
+        l = self.execute("SELECT name FROM suppliers")
+        a = sorted(l)
+        return a
+
     def getinvoiceno(self):
         l = self.execute("SELECT invoice_no FROM invoices")
         l.sort()
@@ -42,6 +47,7 @@ class InventoryDataBase(object):
     productlist = property(getproductnames)
     categorylist = property(getcategorynames)
     invoicelist = property(getinvoiceno)
+    get_supplier_names = property(get_supplier_names)
 
     def searchcustomer(self, likename):
         tup = tuple([likename] * 8)
@@ -263,7 +269,7 @@ class InventoryDataBase(object):
 
     def getallsellID(self, invid):
         row = self.execute("""SELECT selling_id FROM sells WHERE invoice_id = "%s"
-                                    """ % (invid))
+                                    """ % invid)
         return row
 
     def getanycostid(self, PID, price):
@@ -317,5 +323,3 @@ class InventoryDataBase(object):
     def search_um(self, param):
         row = self.execute(""" SELECT name FROM units_of_measure WHERE name LIKE "%%%s%%" """ % param)
         return row
-
-

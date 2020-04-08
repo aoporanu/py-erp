@@ -26,7 +26,7 @@ from Src.NewCustomer import NewCustomer
 from Src.NewInvoice import ADDInvoice
 from Src.NewProduct import NewProduct
 from Src.NewSupplier import NewSupplier
-from Src.PdfGenarator import pdf_document
+from Src.PdfGenarator import pdf_document, nir_document
 from Src.PurchaseLog import PurchaseLog
 from Src.buttoncalender import CalendarButton, WORD, END
 from Src.pcclass import InventoryDataBase
@@ -267,6 +267,7 @@ Amt_var = tk.DoubleVar()
 Amount = Label(Lf03, font=Fon1, textvariable=Amt_var)
 Amount.grid(row=0, column=1, sticky=N + E + S + W, padx=10, pady=10)
 
+
 # GST
 
 def get_sgst():
@@ -359,7 +360,8 @@ mlb.grid(row=0, column=0, sticky=N + S + E + W, padx=10)
 
 
 def purchase_product_frame():
-    global product_name_search, qty_text, cost_price_text, btn64, selling_price_text, tmp4, tmp5, category_combo, description_text, mlb21, supplier_combo_search, pentru_factura, lot_text
+    global product_name_search, qty_text, cost_price_text, btn64, selling_price_text, tmp4, tmp5, category_combo, \
+        description_text, mlb21, supplier_combo_search, pentru_factura, lot_text
     #     note purchase product
     upf = Frame(note)
     upf.grid(row=0, column=0, sticky=N + W + S + E)
@@ -432,13 +434,14 @@ def purchase_product_frame():
     pentru_factura = Entry(lfp)
     pentru_factura.grid(row=6, column=1, sticky=W + E, padx=5, pady=5)
     Label(lfp, text="Supplier").grid(row=6, column=2, sticky=E, padx=10, pady=5)
-    supplier_combo_search = Combobox(lfp, postcommand=lambda: supplier_search(), width=40)
+    supplier_combo_search = Combobox(lfp, postcommand=lambda: supplier_keys(), width=40)
     supplier_combo_search.grid(row=6, column=3, sticky=N + E + W + S, padx=5, pady=10)
     Label(lfp, text="LOT   ").grid(row=6, column=4, sticky=E, padx=10, pady=5)
     lot_text = Entry(lfp)
     lot_text.grid(row=6, column=5, sticky=W + E, padx=10, pady=5)
     mlb21 = tableTree.MultiListbox(app6,
-                                   (('Product name', 35), ("Cost Price", 25), ("Selling Price", 25), ("QTY", 15),
+                                   (('Product name', 35), ("UM", 10), ("Cost Price", 25), ("Selling Price", 25), ("QTY",
+                                                                                                                  15),
                                     ("Date", 35), ("LOT", 25), ("Pentru factura", 35)))
     mlb21.grid(row=3, column=0, columnspan=1, sticky=N + S + E + W)
     tmp3 = PIL.Image.open("data/next.png").resize((70, 70), PIL.Image.ANTIALIAS)
@@ -793,6 +796,11 @@ def ckeys():
     return None
 
 
+def supplier_keys():
+    supplier_combo_search["values"] = db.get_supplier_names
+    return None
+
+
 def ipurlog():
     root23 = tk.Tk()
     root23.grid()
@@ -853,6 +861,10 @@ def special_purchase_search(event):
     description_text.insert(0.0, str(des))
 
 
+def get_um_for_product(pid):
+    return db.sqldb.get_um_for_product(pid)
+
+
 def add2_purchase_table():
     name = Filter(product_name_search.get()).title()
     qty = Filter(qty_text.get()).title()
@@ -890,7 +902,8 @@ def add2_purchase_table():
     costid = db.sqldb.getcostID(pid, cost, price)
     if costid is None:
         db.addcost(name, cost, price)
-    lopp = [name, cost, price, qty, date, lot, for_invoice, supplier]
+    um = get_um_for_product(pid)[1]
+    lopp = [name, um, cost, price, qty, date, lot, for_invoice, supplier]
     mlb21.insert(END, lopp)
     product_name_search.delete(0, END)
     qty_text.delete(0, END)
@@ -906,7 +919,8 @@ def add2_purchase_table():
     # instead
     pentru_factura.configure(state="readonly")
     # supplier_combo_search.delete(0, END)
-    supplier_combo_search.configure(state="disabled")
+    supplier_combo_search.configure(state="DISABLED")
+    btn64.configure(state="DISABLED")
     return 1
 
 
@@ -918,30 +932,47 @@ def delete_from_purchase_table():
 
 
 def add2_inventory():
+    tup_not_for = []
     if not mlb21.tree.get_children():
         return showinfo("Error", "The purchase list is empty")
     for item in mlb21.tree.get_children():
         tup = mlb21.tree.item(item)
         name = tup['values'][0]
-        cost = round(float(tup['values'][1]), 2)
-        price = round(float(tup['values'][2]), 2)
-        qty = round(float(tup['values'][3]))
-        date = tup['values'][4]
+        cost = round(float(tup['values'][2]), 2)
+        price = round(float(tup['values'][3]), 2)
+        qty = round(float(tup['values'][4]))
+        date = tup['values'][5]
         pid = db.sqldb.getproductID(name)
         costid = db.sqldb.getcostID(pid, cost, price)
-        lot = tup['values'][5]
-        pentru_factura = tup['values'][6]
-        supplier = tup["values"][7]
+        lot = tup['values'][6]
+        for_factura = tup['values'][7]
+        supplier = tup["values"][8]
+        um = get_um_for_product(pid)
+        # tup.insert(9, um)
+        # tup.append(9)
+        # tup[9] = um
+        tup.update({9: um})
+        print(type(tup))
         try:
-            db.addpurchase(pid, costid, date, qty, lot, pentru_factura, supplier)
+            pur_id = db.addpurchase(pid, costid, date, qty, lot, for_factura, supplier)
+            # tup.setdefault(10, []).append(pur_id)
+            #   generate NIR
+            # tup["values"][10] = pur_id
+            # tup.append(10)
+            # tup[10] = pur_id
+            tup.update({10, pur_id})
+            tup_not_for.append(tup["values"])
         except ValueError:
             ans = askokcancel("Purchase already listed",
-                              "The puchase is already Listed \nLike to increase the product Quantity ?")
+                              "The purchase is already Listed \nLike to increase the product Quantity ?")
             if ans:
                 pur_i_d = db.sqldb.getpurchaseID(costid, date, qty)
-                qty += db.sqldb.getcell("purchase", "purchase_id", "QTY", "\"" + pur_i_d + "\"")
+                qty += db.sqldb.get_cell("purchase", "purchase_id", "QTY", "\"" + pur_i_d + "\"")
+
                 db.sqldb.edit_purchase(pur_i_d, 2, qty)
     mlb21.delete(0, END)
+    # make nir
+    nir_document(tup_not_for)
     return showinfo("Info", "All Products Has Been Added to the Inventory")
 
 
@@ -1054,7 +1085,8 @@ def print__c_table(lists):
             guiid = mlb41.insert(END, c, bg=None, tag="ta")
             tup1 = db.sqldb.execute("""SELECT invoice_id,invoice_no,invoice_date,paid
                            FROM invoices WHERE customer_id = "%s" ORDER BY invoice_no """ % (c[0])).fetchall()
-            mlb41.insert(END, ("Invoice ID", "Invoice No", "Invoice Time Stamp", "Paid"), parent=guiid, row_name="",
+            mlb41.insert(END, ("Invoice ID", "Invoice No", "Invoice Time Stamp", "Paid"), parent=guiid,
+                         row_name="",
                          bg='grey93', fg='Red', tag="lo")
             for p in tup1:
                 mlb41.see(mlb41.insert(END, p, parent=guiid, row_name="", bg='White', fg='Blue', tag="lol"))
@@ -1401,7 +1433,9 @@ def generate__invoice(product__list_forpdf, custup, invoicetup, detail):
 
     PDfCompany_Adress = Company_Adress + "\n" + Detail_top + "\n" + email + "\n" + phone
     pdfcust_address = cust_address + "\n" + cust_phone
-    pdf_document(pic_add="logo.png",
+    delegate = db.sqldb.get_delegate_for(custup[0])
+    pdf_document(delegate,
+                 pic_add="logo.png",
                  inv_no=str(invoi_num),
                  company_name=str(Company),
                  date=getpdfdate(invoice__date2),
@@ -1559,7 +1593,7 @@ def remove_from_cart():
     mlb.delete(index)
 
 
-def adddiscount(event):
+def add_discount(event):
     paid = Filter(entry20.get())
     if len(paid) == 0:
         return 1
@@ -1575,7 +1609,7 @@ def adddiscount(event):
     Gtol_var.set(str(paid))
 
 
-entry20.bind('<Any-KeyRelease>', adddiscount)
+entry20.bind('<Any-KeyRelease>', add_discount)
 
 
 def add_2_cart():
@@ -1643,7 +1677,7 @@ def pre_inv():
     if ctmid is None:
         ctmid = db.addcustomer(name, address, phone, "")
     else:
-        dbcmname = db.sqldb.getcell("customers", "customer_id", "customer_name", ctmid)
+        dbcmname = db.sqldb.get_cell("customers", "customer_id", "customer_name", ctmid)
         if dbcmname != name:
             showinfo("Error", "Phone Number Already registerd in %s's Name" % dbcmname)
             return None
