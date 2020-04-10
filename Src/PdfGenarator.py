@@ -7,10 +7,15 @@ from reportlab.lib.utils import ImageReader
 from reportlab.pdfgen import canvas
 
 from Src.Table import Table, N, S, E, W
+from Src.pcclass import InventoryDataBase
+
+db = InventoryDataBase()
 
 L_margin = 0.5 * inch
 data = ['No', 'Product', 'Qty', 'Unit Price', 'Amount']
+data_for_nir = ['No', 'Product', 'Qty', 'Unit Price', 'Amount', '', '', '', '']
 extra = [["", "", "", "", ""]]
+extra_for_nir = [["", "", "", "", "", "", "", "", ""]]
 
 
 def calculate_y(y, lines, offset):
@@ -41,12 +46,65 @@ def draw_string(string, canvas_instance, x, y, lead):
     return canvas_instance.drawText(textobject)
 
 
-def nir_document(tup_not_for):
-    print(tup_not_for["values"])
+def nir_document(tup_not_for, pur_id):
+    c = canvas.Canvas('NIR  ' + pur_id + ".pdf", pagesize=landscape(A4), bottomup=0)
+    c.setViewerPreference("FitWindow", "true")
+    c.setFont("Times-Bold", 14)
+    heading = 1 * inch
+    detail = db.sqldb.get_company_details
+    hei = calculate_y((heading + 0.5 * inch), detail["comp_add"], 0.23 * inch) + 0.3 * inch
 
-    # c = canvas.Canvas('NIR  ' + inv_no + ".pdf", pagesize=landscape(A4), bottomup=0)
-    # c.setViewerPreference("FitWindow", "true")
-    # c.setFont("Times-Bold", 24)
+    ori = (hei + inch, L_margin)
+    row_height = [0.25 * inch]
+    columnwidth = [0.35 * inch, 3.5 * inch, 1.1 * inch, 0.9 * inch, 1.5 * inch, 1.5 * inch, 1.5 * inch, 1.5 * inch,
+                   1.5 * inch, 1.5 * inch]
+
+    company_name = detail["comp_name"]
+    c.drawString(L_margin, heading, company_name)
+    if len(tup_not_for) < 11:
+        itemmultiply = 10 - len(tup_not_for)
+        item = tup_not_for + extra_for_nir * itemmultiply
+    s = Table(c, ori, no_of_rows=len(tup_not_for) + 1, no_of_column=len(tup_not_for[0]), rowheight=row_height, columnwidth=columnwidth)
+    for i in range(9):
+        if i == 0:
+            lining = N + W + S
+        elif i == 4:
+            lining = N + E + S
+        else:
+            lining = N + S
+        s.modify(0, i, text=data_for_nir[i], fontcolour=colors.white, bg=HexColor('#9558fb'), bpad=2 * mm,
+                 font=("Helvetica", 11), justify='center', lining=lining)
+    print(item)
+    for i in range(len(item)):
+        print(i)
+        las = len(item) - 1
+        if i == 0:
+            lining = N + E + W
+        elif i == las:
+            lining = S + E + W
+        else:
+            lining = E + W
+        if i % 2 == 0:
+            bg = HexColor('#f2ecfd')
+        else:
+            bg = HexColor('#e8dcff')
+        for t in range(len(item[i])):
+            if t == 1:
+                justify = 'left'
+            elif t == 4 or t == 3:
+                justify = 'right'
+            else:
+                justify = 'center'
+            print(item[i][t])
+            s.modify(i + 1, t, text=item[i][t], fontcolour=colors.black, bpad=2 * mm, font=("Helvetica", 11),
+                     justify=justify, lining=lining, bg=bg)
+    s.Draw()
+    c.showPage()
+    try:
+        c.save()
+        return True
+    except IOError:
+        return False
 
 
 def pdf_document(delegate, pic_add, inv_no, company_name, date, company_add,

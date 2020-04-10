@@ -948,20 +948,14 @@ def add2_inventory():
         for_factura = tup['values'][7]
         supplier = tup["values"][8]
         um = get_um_for_product(pid)
+
         # tup.insert(9, um)
         # tup.append(9)
         # tup[9] = um
-        tup.update({9: um})
-        print(type(tup))
         try:
             pur_id = db.addpurchase(pid, costid, date, qty, lot, for_factura, supplier)
-            # tup.setdefault(10, []).append(pur_id)
-            #   generate NIR
-            # tup["values"][10] = pur_id
-            # tup.append(10)
-            # tup[10] = pur_id
-            tup.update({10, pur_id})
             tup_not_for.append(tup["values"])
+            nir_document(tup_not_for, pur_id)
         except ValueError:
             ans = askokcancel("Purchase already listed",
                               "The purchase is already Listed \nLike to increase the product Quantity ?")
@@ -972,7 +966,6 @@ def add2_inventory():
                 db.sqldb.edit_purchase(pur_i_d, 2, qty)
     mlb21.delete(0, END)
     # make nir
-    nir_document(tup_not_for)
     return showinfo("Info", "All Products Has Been Added to the Inventory")
 
 
