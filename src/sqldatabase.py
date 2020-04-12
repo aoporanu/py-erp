@@ -122,6 +122,7 @@ class MyDatabase(object):
         return self.cursor.execute(query)
 
     def get_cell(self, table_name, row_name, column_name, rowid):
+        print([table_name, row_name, column_name, rowid])
         row = self.cursor.execute(
             """SELECT %s FROM %s WHERE %s = "%s" """ % (column_name, table_name, row_name, rowid)).fetchone()
         if row is None:

@@ -84,8 +84,11 @@ class Table:
                 self.__table[row][cell]['bordercolor'] = colors.black
 
     def modify(self, row, column, **argv):
-        print([row, column, argv.keys()])
         for i in argv.keys():
+            print(i)
+            print(row)
+            print(column)
+            print(str(i))
             self.__table[row][column][str(i)] = argv[i]
         return self.__table[row][column]
 

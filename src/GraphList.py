@@ -38,15 +38,11 @@ def getprocostd(self):
     for i in self.dic.keys():
         data.append(self.dic[i]['cost'])
     return tuple(data)
-            
+
 
 def getpropriced(self):
     data = []
     for i in self.dic.keys():
         data.append(self.dic[i]['price'])
     return tuple(data)
-
-
-
-
 

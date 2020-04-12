@@ -1,15 +1,12 @@
+import subprocess, sys
 import os
 import tkinter as tk
 import tkinter.font as tkFont
 from pathlib import Path
 
-import pyximport
-from tkinter.filedialog import askopenfilename, N, S, E, W, HORIZONTAL
-from tkinter.filedialog import asksaveasfilename
-from tkinter.messagebox import askokcancel
-from tkinter.messagebox import showinfo
+from tkinter.filedialog import askopenfilename, N, S, E, W, HORIZONTAL, asksaveasfilename
 from tkinter.ttk import *
-from tkinter import DoubleVar, TOP, RIGHT, FLAT, LEFT, NORMAL
+from tkinter import DoubleVar, TOP, RIGHT, FLAT, LEFT, NORMAL, messagebox
 
 import PIL.Image
 import PIL.ImageTk
@@ -17,27 +14,23 @@ from reportlab import xrange
 
 # TODO supplier multilistbox
 
-from Src.Cython.proWrd1 import Filter
+from src.Cython.proWrd1 import Filter
 
-import Src.TableTree as tableTree
-import subprocess, sys
-from Src.Cato_Opt import Category
-from Src.NewCustomer import NewCustomer
-from Src.NewInvoice import ADDInvoice
-from Src.NewProduct import NewProduct
-from Src.NewSupplier import NewSupplier
-from Src.PdfGenarator import pdf_document, nir_document
-from Src.PurchaseLog import PurchaseLog
-from Src.buttoncalender import CalendarButton, WORD, END
-from Src.pcclass import InventoryDataBase
-from Src.scroll_frame import SampleApp
-from Src.ImportExport import *
-from Src.UnitsOfMeasure import NewUnitOfMeasure
-from Src.UnitsOfMeasure import UnitsOfMeasure
-
+import src.TableTree as tableTree
+from src.Cato_Opt import Category
+from src.NewCustomer import NewCustomer
+from src.NewInvoice import ADDInvoice
+from src.NewProduct import NewProduct
+from src.NewSupplier import NewSupplier
+from src.PdfGenarator import pdf_document, nir_document
+from src.PurchaseLog import PurchaseLog
+from src.buttoncalender import CalendarButton, WORD, END
+from src.pcclass import InventoryDataBase
+from src.scroll_frame import SampleApp
+from src.UnitsOfMeasure import UnitsOfMeasure
 # variable access by all
 
-db = InventoryDataBase()
+DB = InventoryDataBase()
 
 # Window
 
@@ -51,21 +44,26 @@ for h in range(12):
     root.columnconfigure(h, weight=1)
 root.rowconfigure(2, weight=2)
 root.wm_state('normal')
+color = '#323232'
+SEL_COLOR = '#273f5c'
+FOREGROUND = "#cecece"
+root['background'] = color
 
-menubar = tk.Menu(root)
-filemenu = tk.Menu(menubar, tearoff=0)
-editmenu = tk.Menu(menubar, tearoff=0)
+menubar = tk.Menu(root, background=color, activebackground=SEL_COLOR, foreground=FOREGROUND,
+                   activeforeground="#FFFFFF")
+filemenu = tk.Menu(menubar, tearoff=0, background=color, activebackground=SEL_COLOR, foreground=FOREGROUND,
+                   activeforeground="#FFFFFF")
+editmenu = tk.Menu(menubar, tearoff=0, background=color, activebackground=SEL_COLOR, foreground=FOREGROUND,
+                   activeforeground="#FFFFFF")
 menubar.add_cascade(label="File", menu=filemenu)
 menubar.add_cascade(label="Edit", menu=editmenu)
-filemenu.add_command(label="  save Customer and Product", command=lambda: db.Save(), bitmap='info', compound=LEFT)
+filemenu.add_command(label="  save Customer and Product", command=lambda: DB.Save(), bitmap='info', compound=LEFT)
 filemenu.add_command(label="  Load database File", command=lambda: ask_dbfile(), bitmap='question', compound=LEFT)
 filemenu.add_command(label="  Exit", command=lambda: call_save(), bitmap='error', compound=LEFT)
 editmenu.add_command(label="Company Details", command=lambda: cdmp_del(), bitmap='info', compound=LEFT)
 editmenu.add_command(label="Reset All", command=lambda: reset(), bitmap='info', compound=LEFT)
 root.config(menu=menubar)
 
-color = 'gray98'
-root['background'] = color
 
 styl = Style()
 styl.configure("r.TFrame", background=color)
@@ -93,7 +91,7 @@ btnnote.rowconfigure(0, weight=1)
 
 saveico = PIL.Image.open("data/floppy_disk_blue.png").resize((32, 32), PIL.Image.ANTIALIAS)
 saveico = PIL.ImageTk.PhotoImage(image=saveico)
-Button(btnnote, text="save", command=lambda: db.save(), compound=TOP, image=saveico, width=1).grid(row=0, column=0,
+Button(btnnote, text="save", command=lambda: DB.save(), compound=TOP, image=saveico, width=1).grid(row=0, column=0,
                                                                                                    sticky=N + S + W + E)
 
 npico = PIL.Image.open("data/new_file.png").resize((32, 32), PIL.Image.ANTIALIAS)
@@ -124,7 +122,7 @@ app.rowconfigure(1, weight=1)
 app.rowconfigure(2, weight=5)
 
 Label(app, text="Create Invoice And Sell Product", foreground="#3496ff", font=('Berlin Sans FB Demi', 20),
-      background="White").grid(row=0, column=0, sticky=N + S + E + W)
+      background="#323232").grid(row=0, column=0, sticky=N + S + E + W)
 
 add_together = Frame(app)
 add_together.grid(row=1, column=0, sticky=N + E + S + W)
@@ -271,11 +269,11 @@ Amount.grid(row=0, column=1, sticky=N + E + S + W, padx=10, pady=10)
 # GST
 
 def get_sgst():
-    return db.sqldb.get_company_details['sgst']
+    return DB.sqldb.get_company_details['sgst']
 
 
 def get_cgst():
-    return db.sqldb.get_company_details['cgst']
+    return DB.sqldb.get_company_details['cgst']
 
 
 def tax_update(a, b, c):
@@ -532,7 +530,7 @@ def inventory_product_list():
         rootd.title("Unit of Measure Options")
         rootd.columnconfigure(0, weight=1)
         rootd.rowconfigure(0, weight=1)
-        UnitsOfMeasure(rootd, db)
+        UnitsOfMeasure(rootd, DB)
         rootd.wait_window()
         return True
 
@@ -749,7 +747,7 @@ suppliers_frame()
 
 
 #
-# from Graph import Graph
+# import Graph
 #
 # app72 = Graph(note, currency.get(), db)
 # app72.grid(row=0, column=0, sticky=N + S + E + W)
@@ -772,7 +770,7 @@ def print_supplier_table(fst_l):
     lists.sort()
     mlb51.delete(0, END)
     for item in lists:
-        tup = db.sqldb.execute(""" select id, name, ro, address from suppliers""").fetchall()
+        tup = DB.sqldb.execute(""" select id, name, ro, address from suppliers""").fetchall()
         for p in tup:
             p = list(p)
             bg = None
@@ -787,17 +785,17 @@ def b_supplier_search(refresh=False):
         BP_log1[0] = fst
     else:
         fst = BP_log1[0]
-    fst_l = set(db.search_supplier(fst))
+    fst_l = set(DB.search_supplier(fst))
     return print_supplier_table(fst_l)
 
 
 def ckeys():
-    category_combo['values'] = db.categorylist
+    category_combo['values'] = DB.categorylist
     return None
 
 
 def supplier_keys():
-    supplier_combo_search["values"] = db.get_supplier_names
+    supplier_combo_search["values"] = DB.get_supplier_names
     return None
 
 
@@ -807,7 +805,7 @@ def ipurlog():
     root23.title("Purchase Log")
     root23.rowconfigure(0, weight=1)
     root23.columnconfigure(0, weight=1)
-    p = PurchaseLog(root23, db)
+    p = PurchaseLog(root23, DB)
     p.grid(row=0, column=0, sticky=N + S + E + W)
     root23.mainloop()
 
@@ -816,7 +814,7 @@ def product_entry_search():
     inp = str(product_name_search.get())
     if inp == " ":
         inp = ""
-    l = productnamesearch(inp)
+    l = product_name_search_func(inp)
     return add(product_name_search, l)
 
 
@@ -830,11 +828,11 @@ def call_supplier_search(event):
 
 def special_purchase_search(event):
     inp = str(product_name_search.get())
-    l = db.sqldb.execute("""SELECT cost,price,category_name,product_description FROM costs JOIN products USING (
+    l = DB.sqldb.execute("""SELECT cost,price,category_name,product_description FROM costs JOIN products USING (
     product_id)
                 JOIN category USING (category_id) WHERE product_name =  "%s" """ % (inp.title())).fetchone()
     if l is None:
-        l = db.sqldb.execute("""SELECT category_name,product_description FROM  products 
+        l = DB.sqldb.execute("""SELECT category_name,product_description FROM  products
                 JOIN category USING (category_id) WHERE product_name =  "%s" """ % (inp.title())).fetchone()
         category = l[0]
         des = l[1]
@@ -862,7 +860,7 @@ def special_purchase_search(event):
 
 
 def get_um_for_product(pid):
-    return db.sqldb.get_um_for_product(pid)
+    return DB.sqldb.get_um_for_product(pid)
 
 
 def add2_purchase_table():
@@ -877,13 +875,13 @@ def add2_purchase_table():
     supplier = Filter(supplier_combo_search.get()).title()
     for_invoice = Filter(pentru_factura.get()).title()
     if len(qty.split()) == 0:
-        return showinfo("Input Error", "The Quantity provided Is Not Valid", parent=root)
+        return messagebox.showinfo("Input Error", "The Quantity provided Is Not Valid", parent=root)
     if len(date.split()) == 0:
-        return showinfo("Input Error", "The Date provided Is Not Valid", parent=root)
+        return messagebox.showinfo("Input Error", "The Date provided Is Not Valid", parent=root)
     if len(cat.split()) == 0:
-        return showinfo("Input Error", "The Category provided Is Not Valid", parent=root)
+        return messagebox.showinfo("Input Error", "The Category provided Is Not Valid", parent=root)
     if len(cost.split()) == 0:
-        return showinfo(title="Input Error", message='Product Cost Must Be Specified', parent=root)
+        return messagebox.showinfo(title="Input Error", message='Product Cost Must Be Specified', parent=root)
     if len(price.split()) == 0:
         price = cost
     try:
@@ -891,17 +889,19 @@ def add2_purchase_table():
         cost = float(cost)
         qty = float(qty)
     except ValueError:
-        return showinfo(title="Input Error", message='Product Quantity or Cost Price or Selling price Must Be Numbers',
+        return messagebox.showinfo(title="Input Error", message='Product Quantity or Cost Price or Selling price Must '
+                                                               'Be Numbers',
                         parent=root)
-    pid = db.sqldb.getproductID(name)
+    pid = DB.sqldb.getproductID(name)
     if pid is None:
-        aut = askokcancel("Authenticate", "The Product is not in the Product list \nLike To Add IT ?", parent=root)
+        aut = messagebox.askokcancel("Authenticate", "The Product is not in the Product list \nLike To Add IT ?",
+                                parent=root)
         if not aut:
             return 0
-        pid = db.addproduct(name, cat, des)
-    costid = db.sqldb.getcostID(pid, cost, price)
+        pid = DB.addproduct(name, cat, des)
+    costid = DB.sqldb.getcostID(pid, cost, price)
     if costid is None:
-        db.addcost(name, cost, price)
+        DB.addcost(name, cost, price)
     um = get_um_for_product(pid)[1]
     lopp = [name, um, cost, price, qty, date, lot, for_invoice, supplier]
     mlb21.insert(END, lopp)
@@ -920,21 +920,21 @@ def add2_purchase_table():
     pentru_factura.configure(state="readonly")
     # supplier_combo_search.delete(0, END)
     supplier_combo_search.configure(state="DISABLED")
-    btn64.configure(state="DISABLED")
+    # btn64.configure(state="DISABLED")
     return 1
 
 
 def delete_from_purchase_table():
     index = mlb21.Select_index
     if index is None or index > mlb21.size():
-        return showinfo('Error', 'Nothing is Selected To Remove')
+        return messagebox.showinfo('Error', 'Nothing is Selected To Remove')
     mlb21.delete(index)
 
 
 def add2_inventory():
     tup_not_for = []
     if not mlb21.tree.get_children():
-        return showinfo("Error", "The purchase list is empty")
+        return messagebox.showinfo("Error", "The purchase list is empty")
     for item in mlb21.tree.get_children():
         tup = mlb21.tree.item(item)
         name = tup['values'][0]
@@ -942,8 +942,8 @@ def add2_inventory():
         price = round(float(tup['values'][3]), 2)
         qty = round(float(tup['values'][4]))
         date = tup['values'][5]
-        pid = db.sqldb.getproductID(name)
-        costid = db.sqldb.getcostID(pid, cost, price)
+        pid = DB.sqldb.getproductID(name)
+        costid = DB.sqldb.getcostID(pid, cost, price)
         lot = tup['values'][6]
         for_factura = tup['values'][7]
         supplier = tup["values"][8]
@@ -953,61 +953,63 @@ def add2_inventory():
         # tup.append(9)
         # tup[9] = um
         try:
-            pur_id = db.addpurchase(pid, costid, date, qty, lot, for_factura, supplier)
+            pur_id = DB.addpurchase(pid, costid, date, qty, lot, for_factura, supplier)
             tup_not_for.append(tup["values"])
-            nir_document(tup_not_for, pur_id)
+            nir_document(tup_not_for, pur_id, supplier)
         except ValueError:
-            ans = askokcancel("Purchase already listed",
+            ans = messagebox.askokcancel("Purchase already listed",
                               "The purchase is already Listed \nLike to increase the product Quantity ?")
             if ans:
-                pur_i_d = db.sqldb.getpurchaseID(costid, date, qty)
-                qty += db.sqldb.get_cell("purchase", "purchase_id", "QTY", "\"" + pur_i_d + "\"")
+                pur_i_d = DB.sqldb.getpurchaseID(costid, date, qty)
+                qty += DB.sqldb.get_cell("purchase", "purchase_id", "QTY", "\"" + pur_i_d + "\"")
 
-                db.sqldb.edit_purchase(pur_i_d, 2, qty)
+                DB.sqldb.edit_purchase(pur_i_d, 2, qty)
     mlb21.delete(0, END)
     # make nir
-    return showinfo("Info", "All Products Has Been Added to the Inventory")
+    return messagebox.showinfo("Info", "All Products Has Been Added to the Inventory")
 
 
 def reset():
-    s = askokcancel("Warning", "Are you sure you want to reset every thing ?")
+    s = messagebox.askokcancel("Warning", "Are you sure you want to reset every thing ?")
     if s:
         reset_coform()
     return 1
 
 
 def reset_coform():
-    db.sqldb.resetdatabase()
+    DB.sqldb.resetdatabase()
     return None
 
 
 def remove__product(obj):
     del_row = obj.Select_index
     if del_row is None or del_row > obj.size():
-        return showinfo('Error', 'Nothing is Selected To Remove')
+        return messagebox.showinfo('Error', 'Nothing is Selected To Remove')
     tup = obj.get(del_row)
-    ans = askokcancel('WARNING', "Do You Really Want To delete " + tup[1] + " ?")
+    ans = messagebox.askokcancel('WARNING', "Do You Really Want To delete " + tup[1] + " ?")
     if ans:
-        ie = db.deleteproduct(tup[0])
+        ie = DB.deleteproduct(tup[0])
         if ie:
-            showinfo('Info', tup[1] + ' Successfully Deleted')
+            messagebox.showinfo('Info', tup[1] + ' Successfully Deleted')
         else:
-            showinfo('Error', 'Sorry Cannot delete, Product is attached to Invoices or Purchase. delete Them first.')
+            messagebox.showinfo('Error', 'Sorry Cannot delete, Product is attached to Invoices or Purchase. delete '
+                                         'Them '
+                                  'first.')
     return b_product__search(refresh=True)
 
 
 def remove__customer(obj):
     del_row = obj.Select_index
     if del_row is None or del_row > obj.size():
-        return showinfo('Error', 'Nothing is Selected To Remove')
+        return messagebox.showinfo('Error', 'Nothing is Selected To Remove')
     tup = obj.get(del_row)
-    ans = askokcancel('WARNING', "Do You Really Want To delete " + tup[1] + " ?")
+    ans = messagebox.askokcancel('WARNING', "Do You Really Want To delete " + tup[1] + " ?")
     if ans:
-        ie = db.deletecustomer(tup[0])
+        ie = DB.deletecustomer(tup[0])
         if ie:
-            showinfo('Info', tup[1] + 'Has Been Deleted')
+            messagebox.showinfo('Info', tup[1] + 'Has Been Deleted')
         else:
-            showinfo('Error', 'Sorry Cannot delete, Customer is attached to invoices')
+            messagebox.showinfo('Error', 'Sorry Cannot delete, Customer is attached to invoices')
         return b_customer__search(refresh=True)
     else:
         return b_customer__search(refresh=True)
@@ -1023,7 +1025,7 @@ def b_product__search(refresh=False):
         BP_log1[0] = fst
     else:
         fst = BP_log1[0]
-    fst_l = set(db.searchproduct(fst))
+    fst_l = set(DB.searchproduct(fst))
     return print__p_table(fst_l)
 
 
@@ -1032,16 +1034,16 @@ def print__p_table(lists):
     lists.sort()
     mlb31.delete(0, END)
     for item in lists:
-        tup = db.sqldb.execute(""" SELECT product_id,product_name,category_name,product_description, 
-        units_of_measure.name FROM  
+        tup = DB.sqldb.execute(""" SELECT product_id,product_name,category_name,product_description,
+        units_of_measure.name FROM
         products
-                        JOIN category USING (category_id) join units_of_measure on products.um_id=units_of_measure.id 
-                        WHERE 
-                        product_name = 
+                        JOIN category USING (category_id) join units_of_measure on products.um_id=units_of_measure.id
+                        WHERE
+                        product_name =
                         "%s" """ % item).fetchall()
         for p in tup:
             p = list(p)
-            qty = float(db.sqldb.get_quantity(p[0]))
+            qty = float(DB.sqldb.get_quantity(p[0]))
             p.append(qty)
             bg = None
             colour = "White"
@@ -1062,7 +1064,7 @@ def b_customer__search(refresh=False):
         BC_log1[0] = fst
     else:
         fst = BC_log1[0]
-    fst_l = set(db.searchcustomer(fst))
+    fst_l = set(DB.searchcustomer(fst))
     return print__c_table(fst_l)
 
 
@@ -1071,19 +1073,19 @@ def print__c_table(lists):
     lists.sort()
     mlb41.delete(0, END)
     for item in lists:
-        tup = db.sqldb.execute("""SELECT customer_id,customer_name,phone_no,customer_address,customer_email
+        tup = DB.sqldb.execute("""SELECT customer_id,customer_name,phone_no,customer_address,customer_email
                        FROM customers JOIN contacts USING (customer_id)  WHERE customer_name = "%s" """ % (
             item)).fetchall()
         for c in tup:
             guiid = mlb41.insert(END, c, bg=None, tag="ta")
-            tup1 = db.sqldb.execute("""SELECT invoice_id,invoice_no,invoice_date,paid
+            tup1 = DB.sqldb.execute("""SELECT invoice_id,invoice_no,invoice_date,paid
                            FROM invoices WHERE customer_id = "%s" ORDER BY invoice_no """ % (c[0])).fetchall()
             mlb41.insert(END, ("Invoice ID", "Invoice No", "Invoice Time Stamp", "Paid"), parent=guiid,
                          row_name="",
                          bg='grey93', fg='Red', tag="lo")
             for p in tup1:
                 mlb41.see(mlb41.insert(END, p, parent=guiid, row_name="", bg='White', fg='Blue', tag="lol"))
-            tup2 = db.sqldb.execute(""" select id, name, cnp, car_no from delegates where customer_id = "%s" order by 
+            tup2 = DB.sqldb.execute(""" select id, name, cnp, car_no from delegates where customer_id = "%s" order by
             id """ % (
                 c[0])).fetchall()
             mlb41.insert(END, ("Delegate ID", "Delegate Name", "Delegate CNP", "# Auto"), parent=guiid, row_name="",
@@ -1097,7 +1099,7 @@ def print__c_table(lists):
 
 def special__p_search(event):
     st = str(product_name.get())
-    l = db.sqldb.execute("""SELECT product_description,price FROM costs JOIN products USING (product_id)
+    l = DB.sqldb.execute("""SELECT product_description,price FROM costs JOIN products USING (product_id)
                  WHERE product_name =  "%s" """ % st).fetchone()
     des = l[0]
     price = l[1]
@@ -1112,7 +1114,7 @@ def special__p_search(event):
 
 def special__c_search(event):
     st = str(customer_name.get())
-    l = db.sqldb.execute("""SELECT customer_address,phone_no FROM customers JOIN contacts USING (customer_id)
+    l = DB.sqldb.execute("""SELECT customer_address,phone_no FROM customers JOIN contacts USING (customer_id)
                  WHERE customer_name =  "%s" """ % st).fetchone()
     add_inner = l[0]
     phn = l[1]
@@ -1126,35 +1128,35 @@ def call__pn_search(event):
     product_name__search()
 
 
-def productnamesearch(string):
-    return db.searchproduct(string.title())
+def product_name_search_func(string):
+    return DB.searchproduct(string.title())
 
 
-def customernamesearch(string):
-    return db.searchcustomer(string.title())
+def customer_name_search(string):
+    return DB.searchcustomer(string.title())
 
 
 def supplier_name_search(string):
-    return db.search_supplier(string.title())
+    return DB.search_supplier(string.title())
 
 
 def unit_name_search(string):
-    return db.search_um(string.title())
+    return DB.search_um(string.title())
 
 
 def invoice_no_search(string):
-    return db.searchinvoice(string.title())
+    return DB.searchinvoice(string.title())
 
 
 def category_name_search(string):
-    return db.searchcategory(string.title())
+    return DB.searchcategory(string.title())
 
 
 def product_name__search():
     inp = str(product_name.get())
     if inp == " ":
         inp = ""
-    l = productnamesearch(inp)
+    l = product_name_search_func(inp)
     return add(product_name, l)
 
 
@@ -1166,7 +1168,7 @@ def customer_name__search():
     inp = Filter(customer_name.get())
     if inp == " ":
         inp = ""
-    l = customernamesearch(inp)
+    l = customer_name_search(inp)
     return add(customer_name, l)
 
 
@@ -1182,7 +1184,7 @@ def customer__search():
     inp = str(customer_search.get())
     if inp == " ":
         inp = ""
-    l = customernamesearch(inp)
+    l = customer_name_search(inp)
     return add(customer_search, l)
 
 
@@ -1210,7 +1212,7 @@ def product__search():
     inp = str(product_search.get())
     if inp == " ":
         inp = ""
-    l = productnamesearch(inp)
+    l = product_name_search_func(inp)
     return add(product_search, l)
 
 
@@ -1230,31 +1232,31 @@ def ask_dbfile():
     try:
         ds = open(fname, 'r')
     except IOError:
-        showinfo("No File", "No File With Such name Found !")
+        messagebox.showinfo("No File", "No File With Such name Found !")
         return 0
     del ds
-    boo = db.load(fname)
+    boo = DB.load(fname)
     b_customer__search(refresh=True)
     b_product__search(refresh=True)
     if not boo:
-        return showinfo("Message", "Loading of product Not Completed")
-    return showinfo("Message", "Loading of product successful")
+        return messagebox.showinfo("Message", "Loading of product Not Completed")
+    return messagebox.showinfo("Message", "Loading of product successful")
 
 
 def export(objentry1):
-    from Src.ImportExport import ExportCsv
-    ans = askokcancel("WARNING", "2 FILES WILL BE EXPORTED SURE YOU WANT EXPORT IN THIS FOLDER ?")
+    from src.ImportExport import ExportCsv
+    ans = messagebox.askokcancel("WARNING", "2 FILES WILL BE EXPORTED SURE YOU WANT EXPORT IN THIS FOLDER ?")
     if not ans:
         return False
     exportfile1 = Filter(str(objentry1.get()))
     if len(str(exportfile1).split()) == 0:
         pass
     else:
-        ec = ExportCsv(exportfile1, db)
+        ec = ExportCsv(exportfile1, DB)
         if ec.returns:
             objentry1.delete(0, END)
         del ec
-    return showinfo("Message", "Your File Has Been Exported Successfully")
+    return messagebox.showinfo("Message", "Your File Has Been Exported Successfully")
 
 
 def brow__file(obj):
@@ -1264,9 +1266,9 @@ def brow__file(obj):
         fname = askopenfilename(filetypes=(('Csv File', "*.csv"), ('All File', "*.*")))
     except[IOError]:
         fname = ""
-        showinfo("File Error", "Choose Again")
+        messagebox.showinfo("File Error", "Choose Again")
     if len(fname) == 0:
-        showinfo("File Error", "You Must Choose a Csv File For Your Inventory")
+        messagebox.showinfo("File Error", "You Must Choose a Csv File For Your Inventory")
         return None
     obj.delete(0, END)
     obj.insert(0, fname)
@@ -1279,9 +1281,9 @@ def save__as__file(obj):
         fname = asksaveasfilename(defaultextension='.csv', filetypes=[('Csv File', "*.csv"), ('TEXT File', "*.txt")])
     except[IOError]:
         fname = ""
-        showinfo("File Error", "You must Export And Have A Backup")
+        messagebox.showinfo("File Error", "You must Export And Have A Backup")
     if len(fname) == 0:
-        showinfo("File Error", "You Must Choose a Csv File For Your Inventory")
+        messagebox.showinfo("File Error", "You Must Choose a Csv File For Your Inventory")
         return None
     obj.delete(0, END)
     obj.insert(0, fname)
@@ -1289,20 +1291,20 @@ def save__as__file(obj):
 
 
 def import_csv(objentry1, objentry2):
-    from Src.ImportExport import ImportCsv
+    from src.ImportExport import ImportCsv
     importfile1 = Filter(str(objentry1))
     importfile2 = Filter(str(objentry2))
     if len(str(importfile1).split()) == 0:
         pass
     else:
-        ic = ImportCsv(importfile1, "Product", db)
+        ic = ImportCsv(importfile1, "Product", DB)
         if ic.returns:
             entry51.delete(0, END)
         del ic
     if len(str(importfile2).split()) == 0:
         pass
     else:
-        ic = ImportCsv(importfile2, "Customer", db)
+        ic = ImportCsv(importfile2, "Customer", DB)
         if ic.returns:
             entry52.delete(0, END)
         del ic
@@ -1318,7 +1320,7 @@ def invoice__option():
     rootn.title("Invoice Options")
     rootn.columnconfigure(0, weight=1)
     rootn.rowconfigure(0, weight=1)
-    ADDInvoice(rootn, db)
+    ADDInvoice(rootn, DB)
     rootn.wait_window()
     return 1
 
@@ -1333,7 +1335,7 @@ def category__opt():
     rootd.title("Category Options")
     rootd.columnconfigure(0, weight=1)
     rootd.rowconfigure(0, weight=1)
-    Category(rootd, db)
+    Category(rootd, DB)
     rootd.wait_window()
     return True
 
@@ -1362,7 +1364,7 @@ def d_click__on__c_list(event):
         return 0
 
 
-def getpdfdate(timestamp):
+def get_pdf_date(timestamp):
     p = timestamp.split()
     del p[3]
     return " ".join(p)
@@ -1401,7 +1403,7 @@ def process_cart(invid):
         listsw = [i, product_info, product_qty, product_price2, str(product_amount)]
         lik.append(listsw)
         sold_price = product_price2 - discount_per_product
-        db.addsells(costid, sold_price, invid, product_qty)
+        DB.addsells(costid, sold_price, invid, product_qty)
         i += 1
     mlb.delete(0, END)
     return lik
@@ -1426,12 +1428,12 @@ def generate__invoice(product__list_forpdf, custup, invoicetup, detail):
 
     PDfCompany_Adress = Company_Adress + "\n" + Detail_top + "\n" + email + "\n" + phone
     pdfcust_address = cust_address + "\n" + cust_phone
-    delegate = db.sqldb.get_delegate_for(custup[0])
+    delegate = DB.sqldb.get_delegate_for(custup[0])
     pdf_document(delegate,
                  pic_add="logo.png",
                  inv_no=str(invoi_num),
                  company_name=str(Company),
-                 date=getpdfdate(invoice__date2),
+                 date=get_pdf_date(invoice__date2),
                  company_add=str(PDfCompany_Adress),
                  cus_name=str(cust_name),
                  cus_add=str(pdfcust_address),
@@ -1468,27 +1470,27 @@ def generate__invoice(product__list_forpdf, custup, invoicetup, detail):
 
 def transfer():
     Invoi_num = invoice__maintain()
-    detail = db.sqldb.get_company_details
+    detail = DB.sqldb.get_company_details
     if Invoi_num is None:
         return 1
-    alooas = db.sqldb.get_invoice_ID(Invoi_num)
+    alooas = DB.sqldb.get_invoice_ID(Invoi_num)
     if alooas is not None:
-        return showinfo("Error", "Invoice Number Already Exists And Assigned To another Customer", parent=root)
+        return messagebox.showinfo("Error", "Invoice Number Already Exists And Assigned To another Customer", parent=root)
     if mlb.size() == 0:
-        showinfo("Input Error", "You Should Choose a Product", parent=root)
+        messagebox.showinfo("Input Error", "You Should Choose a Product", parent=root)
         return 1
     custup = pre_inv()
     if custup is None:
-        return showinfo("Error", "Customer Detail Incomplete", parent=root)
+        return messagebox.showinfo("Error", "Customer Detail Incomplete", parent=root)
     if len(detail['comp_name']) == 0 or len(detail['comp_add']) == 0 or len(detail['comp_phn']) == 0:
-        showinfo("Input Error", "Company Detail Incomplete", parent=root)
+        messagebox.showinfo("Input Error", "Company Detail Incomplete", parent=root)
         return 1
     ctmid, cust_name, cust_address, cust_phone = custup
     invoice__date2 = str(invoice_date.get())
     discount = str(Discount_var.get())
     amount = str(Amt_var.get())
     Grand_total = str(Gtol_var.get())
-    invid = db.addinvoice(ctmid, Invoi_num, Grand_total, invoice__date2)
+    invid = DB.addinvoice(ctmid, Invoi_num, Grand_total, invoice__date2)
     Product_List_forpdf = process_cart(invid)
     invoicetup = (invoice__date2, Invoi_num, Grand_total, amount, discount)
     generate__invoice(Product_List_forpdf, custup, invoicetup, detail)
@@ -1549,18 +1551,18 @@ def split_reconstruct(item):
 
 
 def invoice__maintain():
-    detail = db.sqldb.get_company_details
+    detail = DB.sqldb.get_company_details
     x = Filter(str(invoice_number.get()))
     if not x.isdigit():
-        showinfo("Warning", "Invoice Number have to be Number and Nothing else")
+        messagebox.showinfo("Warning", "Invoice Number have to be Number and Nothing else")
         return None
     detail['inv_start'] = str(x)
-    db.sqldb.save_company_details(detail)
+    DB.sqldb.save_company_details(detail)
     return detail['inv_start']
 
 
 def invoice_num():
-    detail = db.sqldb.get_company_details
+    detail = DB.sqldb.get_company_details
     num = detail['inv_start']
     num = int(num) + 1
     invoice_number['state'] = NORMAL
@@ -1578,7 +1580,7 @@ def invoice__date():
 def remove_from_cart():
     index = mlb.Select_index
     if index is None or index > mlb.size():
-        return showinfo(title='Error', message='Nothing is Selected To Remove')
+        return messagebox.showinfo(title='Error', message='Nothing is Selected To Remove')
     tup = mlb.get(index)
     a = float(tup[3]) * float(tup[4])
     amount = float(Amt_var.get()) - a
@@ -1594,7 +1596,7 @@ def add_discount(event):
         try:
             paid = float(paid)
         except ValueError:
-            showinfo("Entry Error", "Discount Must Be Numbers Before ADDING The Discount")
+            messagebox.showinfo("Entry Error", "Discount Must Be Numbers Before ADDING The Discount")
             return 1
     paid = float(paid)
     dis = float(subtol_var.get()) - paid
@@ -1611,30 +1613,30 @@ def add_2_cart():
     p_price = Filter(str(product_price.get()))
     qty = Filter(str(quantity.get()))
     if len(product) == 0:
-        showinfo("Empty Entry Error", "Product name Must Be Filled Before ADDING The Product")
+        messagebox.showinfo("Empty Entry Error", "Product name Must Be Filled Before ADDING The Product")
         return 1
     if len(p_price) == 0:
-        showinfo("Empty Entry Error", "Product Price Must Be Filled Before ADDING The Product")
+        messagebox.showinfo("Empty Entry Error", "Product Price Must Be Filled Before ADDING The Product")
         return 1
     try:
         p_price = float(p_price)
     except ValueError:
-        showinfo("Empty Entry Error", "Product Price Must Be Numbers Before ADDING The Product")
+        messagebox.showinfo("Empty Entry Error", "Product Price Must Be Numbers Before ADDING The Product")
         return 1
     if len(qty) == 0:
-        showinfo("Empty Entry", "Product Quantity Must Be Filled Before ADDING The Product")
+        messagebox.showinfo("Empty Entry", "Product Quantity Must Be Filled Before ADDING The Product")
         return 1
     try:
         qty = float(qty)
     except ValueError:
-        showinfo("Empty Entry Error", "Product quantity Must Be Numbers Before ADDING The Product")
+        messagebox.showinfo("Empty Entry Error", "Product quantity Must Be Numbers Before ADDING The Product")
         return 1
-    PID = db.sqldb.getproductID(product)
+    PID = DB.sqldb.getproductID(product)
     if PID is None:
-        return showinfo("Empty Entry Error", "Product Not Listed Try ADDING The Product")
-    costid = db.getanycostid(PID, p_price)
+        return messagebox.showinfo("Empty Entry Error", "Product Not Listed Try ADDING The Product")
+    costid = DB.getanycostid(PID, p_price)
     if costid is None:
-        return showinfo("Error", "No Purchase has Been Made For This Product, The Product Is Not In Stock")
+        return messagebox.showinfo("Error", "No Purchase has Been Made For This Product, The Product Is Not In Stock")
     boo = False
     for ITEM in xrange(int(mlb.size())):
         r = mlb.get(ITEM)
@@ -1661,18 +1663,18 @@ def pre_inv():
     address = Filter(str(customer_address.get(0.0, END)))
     phone = Filter(str(customer_phone.get()))
     if len(name) == 0 or len(address) == 0 or len(phone) == 0:
-        showinfo("Empty Entry", "You Should Enter Every Detail")
+        messagebox.showinfo("Empty Entry", "You Should Enter Every Detail")
         return None
     if not phone.isdigit():
-        showinfo(title="Error", message='Not a Valid Phone Number', parent=root)
+        messagebox.showinfo(title="Error", message='Not a Valid Phone Number', parent=root)
         return None
-    ctmid = db.sqldb.get_customer_ID(phone)
+    ctmid = DB.sqldb.get_customer_ID(phone)
     if ctmid is None:
-        ctmid = db.addcustomer(name, address, phone, "")
+        ctmid = DB.addcustomer(name, address, phone, "")
     else:
-        dbcmname = db.sqldb.get_cell("customers", "customer_id", "customer_name", ctmid)
+        dbcmname = DB.sqldb.get_cell("customers", "customer_id", "customer_name", ctmid)
         if dbcmname != name:
-            showinfo("Error", "Phone Number Already registerd in %s's Name" % dbcmname)
+            messagebox.showinfo("Error", "Phone Number Already registerd in %s's Name" % dbcmname)
             return None
     return ctmid, name, address, phone
 
@@ -1699,14 +1701,14 @@ def a_d_d__product(id=False, modify=False):
         arg = mlb31.tree.item(cur_item)
         id = arg["values"][0]
         if index is None or index > mlb31.size():
-            return showinfo(title='Error', message='Nothing is Selected To Modify')
-    root12 = Toplevel(master=root)
+            return messagebox.showinfo(title='Error', message='Nothing is Selected To Modify')
+    root12 = tk.Toplevel(master=root)
     root12.title(titlel)
     root12.grid()
     root12.focus()
     root12.rowconfigure(0, weight=1)
     root12.columnconfigure(0, weight=1)
-    np = NewProduct(root12, tup, modify, db, id)
+    np = NewProduct(root12, tup, modify, DB, id)
     np.grid(row=0, column=0, sticky=N + S + W + E)
     np.rowconfigure(0, weight=1)
     np.columnconfigure(0, weight=1)
@@ -1722,17 +1724,17 @@ def a_d_d__customer(modify=False):
         titlel = "Modify Customer"
         index = mlb41.Select_index
         if index is None or index > mlb41.size():
-            return showinfo('Error', 'Nothing is Selected To Modify')
+            return messagebox.showinfo('Error', 'Nothing is Selected To Modify')
         cur_item = mlb41.tree.focus()
         arg = mlb41.tree.item(cur_item)
         tup = arg["values"]
-    root13 = Toplevel(master=root)
+    root13 = tk.Toplevel(master=root)
     root13.title(titlel)
     root13.focus()
     root13.grid()
     root13.rowconfigure(0, weight=1)
     root13.columnconfigure(0, weight=1)
-    nc = NewCustomer(root13, modify, tup, db)
+    nc = NewCustomer(root13, modify, tup, DB)
     nc.grid(row=0, column=0, sticky=N + W + S + E)
     nc.rowconfigure(0, weight=1)
     nc.columnconfigure(0, weight=1)
@@ -1741,20 +1743,22 @@ def a_d_d__customer(modify=False):
 
 
 def call_save():
-    ans = askokcancel("WARNING", "Do You Want To save All Changes")
+    """ this is called each time we quit the application """
+    ans = messagebox.askokcancel("WARNING", "Do You Want To save All Changes")
     if ans:
-        db.save()
+        DB.save()
         root.destroy()
     else:
         root.destroy()
 
 
 def cdmp_del():
-    sapp = SampleApp(root, db)
-    sapp.load__de
+    sapp = SampleApp(root, DB)
+    sapp.load__de()
 
 
 def add_supplier(id=False, modify=False):
+    """ method that is called upon button call """
     tup = []
     if not modify:
         title = "New Supplier"
@@ -1768,14 +1772,14 @@ def add_supplier(id=False, modify=False):
         arg = mlb51.tree.item(cur_item)
         id = arg["values"][0]
         if index is None or index > mlb51.size():
-            return showinfo("Error", "Nothing is selected to modify")
-    root13 = Toplevel(master=root)
+            return messagebox.showinfo("Error", "Nothing is selected to modify")
+    root13 = tk.Toplevel(master=root)
     root13.title(title)
     root13.focus()
     root13.grid()
     root13.rowconfigure(0, weight=1)
     root13.columnconfigure(0, weight=1)
-    ns = NewSupplier(root13, modify, tup, db, id)
+    ns = NewSupplier(root13, modify, tup, DB, id)
     ns.grid(row=0, column=0, sticky=N + W + S + E)
     ns.rowconfigure(0, weight=1)
     ns.columnconfigure(0, weight=1)
