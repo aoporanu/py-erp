@@ -2,7 +2,7 @@ from tkinter import *
 from tkinter.messagebox import showinfo
 from tkinter.ttk import *
 
-from Src.Cython.proWrd1 import Filter
+from src.Cython.proWrd1 import Filter
 
 sty = N + W + S + E
 

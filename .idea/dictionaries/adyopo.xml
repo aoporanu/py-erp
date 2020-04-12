@@ -6,6 +6,7 @@
       <w>butn</w>
       <w>catid</w>
       <w>cdel</w>
+      <w>cdmp</w>
       <w>cgst</w>
       <w>costid</w>
       <w>ctmid</w>
@@ -26,6 +27,7 @@
       <w>piid</w>
       <w>qtytup</w>
       <w>rootd</w>
+      <w>sapp</w>
       <w>sgst</w>
       <w>subtol</w>
       <w>titlel</w>

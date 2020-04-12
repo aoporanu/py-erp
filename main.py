@@ -5,7 +5,8 @@ import tkinter.font as tkFont
 from pathlib import Path
 
 from tkinter.filedialog import askopenfilename, N, S, E, W, HORIZONTAL, asksaveasfilename
-from tkinter.ttk import *
+from tkinter.ttk import Style, Label, Frame, Combobox, Notebook, LabelFrame, Separator, Button, Entry, Spinbox, \
+    Labelframe
 from tkinter import DoubleVar, TOP, RIGHT, FLAT, LEFT, NORMAL, messagebox
 
 import PIL.Image
@@ -20,7 +21,7 @@ import src.TableTree as tableTree
 from src.Cato_Opt import Category
 from src.NewCustomer import NewCustomer
 from src.NewInvoice import ADDInvoice
-from src.NewProduct import NewProduct
+from src.NewProduct import NewProduct, ProductVariant
 from src.NewSupplier import NewSupplier
 from src.PdfGenarator import pdf_document, nir_document
 from src.PurchaseLog import PurchaseLog
@@ -28,6 +29,8 @@ from src.buttoncalender import CalendarButton, WORD, END
 from src.pcclass import InventoryDataBase
 from src.scroll_frame import SampleApp
 from src.UnitsOfMeasure import UnitsOfMeasure
+from src.Graph import Graph
+
 # variable access by all
 
 DB = InventoryDataBase()
@@ -50,7 +53,7 @@ FOREGROUND = "#cecece"
 root['background'] = color
 
 menubar = tk.Menu(root, background=color, activebackground=SEL_COLOR, foreground=FOREGROUND,
-                   activeforeground="#FFFFFF")
+                  activeforeground="#FFFFFF")
 filemenu = tk.Menu(menubar, tearoff=0, background=color, activebackground=SEL_COLOR, foreground=FOREGROUND,
                    activeforeground="#FFFFFF")
 editmenu = tk.Menu(menubar, tearoff=0, background=color, activebackground=SEL_COLOR, foreground=FOREGROUND,
@@ -63,7 +66,6 @@ filemenu.add_command(label="  Exit", command=lambda: call_save(), bitmap='error'
 editmenu.add_command(label="Company Details", command=lambda: cdmp_del(), bitmap='info', compound=LEFT)
 editmenu.add_command(label="Reset All", command=lambda: reset(), bitmap='info', compound=LEFT)
 root.config(menu=menubar)
-
 
 styl = Style()
 styl.configure("r.TFrame", background=color)
@@ -88,25 +90,25 @@ btnnote = Notebook(root, style="r.TFrame")
 btnnote.grid(row=3, column=0, columnspan=4, sticky=N + S + E + W)
 btnnote.columnconfigure(0, weight=1)
 btnnote.rowconfigure(0, weight=1)
-
-saveico = PIL.Image.open("data/floppy_disk_blue.png").resize((32, 32), PIL.Image.ANTIALIAS)
+saveico = os.path.normpath('data/floppy_disk_blue.png')
+saveico = PIL.Image.open(saveico).resize((32, 32), PIL.Image.ANTIALIAS)
 saveico = PIL.ImageTk.PhotoImage(image=saveico)
 Button(btnnote, text="save", command=lambda: DB.save(), compound=TOP, image=saveico, width=1).grid(row=0, column=0,
                                                                                                    sticky=N + S + W + E)
-
-npico = PIL.Image.open("data/new_file.png").resize((32, 32), PIL.Image.ANTIALIAS)
+NEW_ICO = os.path.normpath('data/new_file.png')
+npico = PIL.Image.open(NEW_ICO).resize((32, 32), PIL.Image.ANTIALIAS)
 npico = PIL.ImageTk.PhotoImage(image=npico)
 productbtn = Button(btnnote, text="New Product", command=lambda: a_d_d__product(modify=False), image=npico,
                     compound=TOP,
                     width=1).grid(row=0, column=1, sticky=N + S + W + E)
-
-ncico = PIL.Image.open("data/user_group_new.png").resize((32, 32), PIL.Image.ANTIALIAS)
+NEW_USER_GROUP = os.path.normpath('data/user_group_new.png')
+ncico = PIL.Image.open(NEW_USER_GROUP).resize((32, 32), PIL.Image.ANTIALIAS)
 ncico = PIL.ImageTk.PhotoImage(image=ncico)
 customerbtn = Button(btnnote, text="New Customer", command=lambda: a_d_d__customer(modify=False), image=ncico,
                      compound=TOP,
                      width=1).grid(row=0, column=2, sticky=N + S + W + E)
-
-setting_ico = PIL.Image.open("data/settings_ico2.png").resize((32, 32), PIL.Image.ANTIALIAS)
+SETTINGS_ICO = os.path.normpath('data/settings_ico2.png')
+setting_ico = PIL.Image.open(SETTINGS_ICO).resize((32, 32), PIL.Image.ANTIALIAS)
 setting_ico = PIL.ImageTk.PhotoImage(image=setting_ico)
 Button(btnnote, text="Edit Company Details", command=lambda: cdmp_del(),
        image=setting_ico, compound=TOP, width=1).grid(row=0,
@@ -121,8 +123,8 @@ app.columnconfigure(0, weight=1)
 app.rowconfigure(1, weight=1)
 app.rowconfigure(2, weight=5)
 
-Label(app, text="Create Invoice And Sell Product", foreground="#3496ff", font=('Berlin Sans FB Demi', 20),
-      background="#323232").grid(row=0, column=0, sticky=N + S + E + W)
+Label(app, text="Create Invoice And Sell Product", foreground="#3496ff",
+      font=('Berlin Sans FB Demi', 20), background="#323232").grid(row=0, column=0, sticky=N + S + E + W)
 
 add_together = Frame(app)
 add_together.grid(row=1, column=0, sticky=N + E + S + W)
@@ -225,16 +227,16 @@ Cartindeldbnfram.grid(row=9, column=0, columnspan=2, sticky=E + W + N + S, padx=
 Cartindeldbnfram.rowconfigure(0, weight=1)
 Cartindeldbnfram.columnconfigure(0, weight=1)
 Cartindeldbnfram.columnconfigure(1, weight=1)
-
-tmp = PIL.Image.open("data/cart_add.png").resize((25, 25), PIL.Image.ANTIALIAS)
+ADD_TO_CART = os.path.normpath('data/cart_add.png')
+tmp = PIL.Image.open(ADD_TO_CART).resize((25, 25), PIL.Image.ANTIALIAS)
 tmp = PIL.ImageTk.PhotoImage(image=tmp)
 Button(Cartindeldbnfram, text="Add To Cart", image=tmp,
        compound=LEFT, command=lambda: add_2_cart()).grid(row=0, column=0,
                                                          sticky=E + W + N + S,
                                                          padx=5,
                                                          pady=5)
-
-tmp2 = PIL.Image.open("data/cart_remove.png").resize((25, 25), PIL.Image.ANTIALIAS)
+REMOVE_FROM_CART = os.path.normpath('data/cart_remove.png')
+tmp2 = PIL.Image.open(REMOVE_FROM_CART).resize((25, 25), PIL.Image.ANTIALIAS)
 tmp2 = PIL.ImageTk.PhotoImage(image=tmp2)
 Button(Cartindeldbnfram, text="Remove From Cart", image=tmp2,
        compound=LEFT, command=lambda: remove_from_cart()).grid(row=0, column=1,
@@ -269,14 +271,17 @@ Amount.grid(row=0, column=1, sticky=N + E + S + W, padx=10, pady=10)
 # GST
 
 def get_sgst():
+    """ returns sgst """
     return DB.sqldb.get_company_details['sgst']
 
 
 def get_cgst():
+    """ gets cgst """
     return DB.sqldb.get_company_details['cgst']
 
 
-def tax_update(a, b, c):
+def tax_update():
+    """ UPDATE TAX """
     sgst_var.set(round(get_sgst() * (Amt_var.get() / 100), 2))
     cgst_var.set(round(get_cgst() * (Amt_var.get() / 100), 2))
     subtol_var.set(round(sgst_var.get() + cgst_var.get() + Amt_var.get(), 2))
@@ -343,7 +348,8 @@ Gtol = Label(Lf03, font=Fon, textvariable=Gtol_var, width=10)
 Gtol.grid(row=8, column=1, sticky=N + E + S + W, padx=10, pady=10)
 
 # Generate
-genico = PIL.Image.open("data/new_doc.png").resize((32, 32), PIL.Image.ANTIALIAS)
+NEW_DOC = os.path.normpath('data/new_doc.png')
+genico = PIL.Image.open(NEW_DOC).resize((32, 32), PIL.Image.ANTIALIAS)
 genico = PIL.ImageTk.PhotoImage(image=genico)
 
 butn_Gen = Button(Lf03, text="Generate Invoice", command=lambda: transfer(), image=genico, compound=LEFT)
@@ -358,6 +364,7 @@ mlb.grid(row=0, column=0, sticky=N + S + E + W, padx=10)
 
 
 def purchase_product_frame():
+    """ Build the Purchase frame """
     global product_name_search, qty_text, cost_price_text, btn64, selling_price_text, tmp4, tmp5, category_combo, \
         description_text, mlb21, supplier_combo_search, pentru_factura, lot_text
     #     note purchase product
@@ -406,13 +413,15 @@ def purchase_product_frame():
     editbtnfram.rowconfigure(0, weight=1)
     editbtnfram.columnconfigure(0, weight=1)
     editbtnfram.columnconfigure(1, weight=1)
-    tmp4 = PIL.Image.open("data/edit_add.png").resize((25, 25), PIL.Image.ANTIALIAS)
+    EDIT_ADD = os.path.normpath('data/edit_add.png')
+    tmp4 = PIL.Image.open(EDIT_ADD).resize((25, 25), PIL.Image.ANTIALIAS)
     tmp4 = PIL.ImageTk.PhotoImage(image=tmp4)
     Button(editbtnfram, text="Add",
            image=tmp4, compound=LEFT,
            command=lambda: add2_purchase_table()).grid(row=0, column=0, sticky=N + E + S + W,
                                                        padx=10, pady=5)
-    tmp5 = PIL.Image.open("data/symbol_remove.png").resize((25, 25), PIL.Image.ANTIALIAS)
+    SYMBOL_REMOVE = os.path.normpath('data/symbol_remove.png')
+    tmp5 = PIL.Image.open(SYMBOL_REMOVE).resize((25, 25), PIL.Image.ANTIALIAS)
     tmp5 = PIL.ImageTk.PhotoImage(image=tmp5)
     Button(editbtnfram, text="Remove",
            image=tmp5, compound=LEFT,
@@ -442,7 +451,8 @@ def purchase_product_frame():
                                                                                                                   15),
                                     ("Date", 35), ("LOT", 25), ("Pentru factura", 35)))
     mlb21.grid(row=3, column=0, columnspan=1, sticky=N + S + E + W)
-    tmp3 = PIL.Image.open("data/next.png").resize((70, 70), PIL.Image.ANTIALIAS)
+    NEXT_ICO = os.path.normpath('data/next.png')
+    tmp3 = PIL.Image.open(NEXT_ICO).resize((70, 70), PIL.Image.ANTIALIAS)
     tmp3 = PIL.ImageTk.PhotoImage(image=tmp3)
     btn62 = Button(app6, text="Complete Transaction", width=35,
                    image=tmp3, compound=LEFT,
@@ -455,6 +465,7 @@ purchase_product_frame()
 
 # Label(app6, background="Brown").grid(row=5, column=0, sticky=N + S + E + W)
 def inventory_product_list():
+    """ Inventory frame """
     global h, product_search, tmp6, tmp7, tmp_modify, tmp_extra, uom_opt_event, mlb31
     # page 3
     # frame 3
@@ -483,13 +494,15 @@ def inventory_product_list():
     Label(lf3, text="Search KeyWord").grid(row=0, column=0, sticky=N + W + S + E, padx=5, pady=7)
     product_search = Combobox(lf3, width=35, postcommand=lambda: product__search())
     product_search.grid(row=0, column=1, columnspan=2, sticky=N + W + S + E, padx=5, pady=7)
-    tmp6 = PIL.Image.open("data/search.png").resize((20, 20), PIL.Image.ANTIALIAS)
+    SEARCH_ICO = os.path.normpath('data/search.png')
+    tmp6 = PIL.Image.open(SEARCH_ICO).resize((20, 20), PIL.Image.ANTIALIAS)
     tmp6 = PIL.ImageTk.PhotoImage(image=tmp6)
     Button(lf3, text="Search", width=15,
            image=tmp6,
            command=lambda: b_product__search()).grid(row=1, column=1, sticky=N + W + S + E,
                                                      padx=5, pady=5)
-    tmp7 = PIL.Image.open("data/view_refresh.png").resize((20, 20), PIL.Image.ANTIALIAS)
+    VIEW_REFRESH_ICO = os.path.normpath('data/view_refresh.png')
+    tmp7 = PIL.Image.open(VIEW_REFRESH_ICO).resize((20, 20), PIL.Image.ANTIALIAS)
     tmp7 = PIL.ImageTk.PhotoImage(image=tmp7)
     Button(lf3, text="refresh", width=15, image=tmp7,
            command=lambda: b_product__search(refresh=True)).grid(row=1, column=2,
@@ -510,14 +523,15 @@ def inventory_product_list():
            command=lambda: remove__product(mlb31), width=20).grid(row=0, column=1,
                                                                   sticky=N + W + S + E, padx=5,
                                                                   pady=5)
-    tmp_modify = PIL.Image.open("data/settings.png").resize((20, 20), PIL.Image.ANTIALIAS)
+
+    tmp_modify = PIL.Image.open(SETTINGS_ICO).resize((20, 20), PIL.Image.ANTIALIAS)
     tmp_modify = PIL.ImageTk.PhotoImage(image=tmp_modify)
     Button(lf31, text="Modify Product",
            image=tmp_modify, compound=LEFT,
            command=lambda: a_d_d__product(modify=True), width=20).grid(row=1, column=0,
                                                                        sticky=N + W + S + E,
                                                                        padx=5, pady=5)
-    tmp_extra = PIL.Image.open("data/settings_2.png").resize((20, 20), PIL.Image.ANTIALIAS)
+    tmp_extra = PIL.Image.open(SETTINGS_ICO).resize((20, 20), PIL.Image.ANTIALIAS)
     tmp_extra = PIL.ImageTk.PhotoImage(image=tmp_extra)
     Button(lf31, text="Category Options",
            image=tmp_extra, compound=LEFT,
@@ -549,6 +563,7 @@ inventory_product_list()
 # listing
 
 def customer_database_list():
+    """ Customer listing """
     global h, customer_search, mlb41
     app3 = Frame(note)
     app3.grid(row=0, column=0)
@@ -618,6 +633,7 @@ customer_database_list()
 # Page  5
 
 def import_export():
+    """ import export function """
     global h, entry51, entry52, entry53
     app4 = Frame(note)
     app4.grid(row=0, column=0)
@@ -674,6 +690,7 @@ import_export()
 
 
 def suppliers_frame():
+    """ Suppliers frame """
     global h, supplier_combo_search, mlb51
     # Suppliers frame
     app5 = Frame(note)
@@ -745,16 +762,15 @@ def suppliers_frame():
 
 suppliers_frame()
 
+from Graph import Graph
 
-#
-# import Graph
-#
-# app72 = Graph(note, currency.get(), db)
-# app72.grid(row=0, column=0, sticky=N + S + E + W)
-# note.add(app72, text='    Statistics   ')
-# app72.columnconfigure(0, weight=6)
-# app72.columnconfigure(1, weight=1)
-# app72.rowconfigure(0, weight=1)
+app72 = Graph(note, 'RON', DB)
+app72.grid(row=0, column=0, sticky=N + S + E + W)
+note.add(app72, text='    Statistics   ')
+app72.columnconfigure(0, weight=6)
+app72.columnconfigure(1, weight=1)
+app72.rowconfigure(0, weight=1)
+
 
 # function
 def supplier_search(refresh=False):
@@ -890,12 +906,12 @@ def add2_purchase_table():
         qty = float(qty)
     except ValueError:
         return messagebox.showinfo(title="Input Error", message='Product Quantity or Cost Price or Selling price Must '
-                                                               'Be Numbers',
-                        parent=root)
+                                                                'Be Numbers',
+                                   parent=root)
     pid = DB.sqldb.getproductID(name)
     if pid is None:
         aut = messagebox.askokcancel("Authenticate", "The Product is not in the Product list \nLike To Add IT ?",
-                                parent=root)
+                                     parent=root)
         if not aut:
             return 0
         pid = DB.addproduct(name, cat, des)
@@ -958,7 +974,7 @@ def add2_inventory():
             nir_document(tup_not_for, pur_id, supplier)
         except ValueError:
             ans = messagebox.askokcancel("Purchase already listed",
-                              "The purchase is already Listed \nLike to increase the product Quantity ?")
+                                         "The purchase is already Listed \nLike to increase the product Quantity ?")
             if ans:
                 pur_i_d = DB.sqldb.getpurchaseID(costid, date, qty)
                 qty += DB.sqldb.get_cell("purchase", "purchase_id", "QTY", "\"" + pur_i_d + "\"")
@@ -994,7 +1010,7 @@ def remove__product(obj):
         else:
             messagebox.showinfo('Error', 'Sorry Cannot delete, Product is attached to Invoices or Purchase. delete '
                                          'Them '
-                                  'first.')
+                                         'first.')
     return b_product__search(refresh=True)
 
 
@@ -1475,7 +1491,8 @@ def transfer():
         return 1
     alooas = DB.sqldb.get_invoice_ID(Invoi_num)
     if alooas is not None:
-        return messagebox.showinfo("Error", "Invoice Number Already Exists And Assigned To another Customer", parent=root)
+        return messagebox.showinfo("Error", "Invoice Number Already Exists And Assigned To another Customer",
+                                   parent=root)
     if mlb.size() == 0:
         messagebox.showinfo("Input Error", "You Should Choose a Product", parent=root)
         return 1

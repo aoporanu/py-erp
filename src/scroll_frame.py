@@ -1,7 +1,7 @@
 from tkinter import *  # from x import * is bad practice
 from tkinter.ttk import *
 from PIL import ImageTk, Image
-from Src.Cython.proWrd1 import Filter
+from src.Cython.proWrd1 import Filter
 from tkinter.messagebox import showinfo
 from tkinter.filedialog import askopenfilename
 from tkinter.filedialog import asksaveasfilename
@@ -189,7 +189,7 @@ class SampleApp:
         self.pics = Label(app1)
         self.pics.grid(row=13, column=1, columnspan=2, rowspan=10, sticky=NE, padx=10, pady=10)
 
-        self.s1ico = Image.open("data/floppy_disk_blue.png").resize((25, 25), Image.ANTIALIAS)
+        self.s1ico = Image.open("../data/floppy_disk_blue.png").resize((25, 25), Image.ANTIALIAS)
         self.s1ico = ImageTk.PhotoImage(image=self.s1ico)
 
         self.save = Button(app1, text="save",command=lambda: self.De_Save(), width=30, image=self.s1ico,compound=LEFT)

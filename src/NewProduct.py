@@ -1,10 +1,10 @@
 from tkinter import *
 from tkinter.ttk import *
-from Src.Cython.proWrd1 import Filter
+from src.Cython.proWrd1 import Filter
 from tkinter.messagebox import showinfo
 from tkinter.messagebox import askokcancel, askyesno
-from Src.TableTree import MultiListbox
-from Src.Cython.buttoncalender import CalendarButton
+from src.TableTree import MultiListbox
+from src.Cython.buttoncalender import CalendarButton
 
 sty = N + W + S + E
 
@@ -115,9 +115,9 @@ class NewProduct(Frame):
         if not modify:
             copy['state'] = DISABLED
         if modify:
-            d = self.db.sqldb.execute(""" SELECT product_name,category_name,product_description FROM  
-            products 
-                        JOIN category USING (category_id) join units_of_measure on products.um_id=units_of_measure.id 
+            d = self.db.sqldb.execute(""" SELECT product_name,category_name,product_description FROM
+            products
+                        JOIN category USING (category_id) join units_of_measure on products.um_id=units_of_measure.id
                         WHERE product_id = "%s" """ %
                                       (id)).fetchone()
             name = d[0]
@@ -320,7 +320,7 @@ class NewProduct(Frame):
         brou = 0
         ins = self.mlb21.insert
         if self.modify:
-            row = self.db.sqldb.execute("""SELECT purchase_id,purchase_date,cost,price,QTY FROM purchase JOIN costs 
+            row = self.db.sqldb.execute("""SELECT purchase_id,purchase_date,cost,price,QTY FROM purchase JOIN costs
             USING (cost_id) JOIN products USING (product_id)  WHERE product_id = "%s"  """ % (
                 self.tup[0])).fetchall()
             for i in row:
@@ -361,7 +361,7 @@ class NewProduct(Frame):
             row=0, column=0, columnspan=2, sticky=sty, pady=8, padx=7)
 
         r = self.db.sqldb.execute(
-            """ SELECT purchase_date,QTY,cost,price FROM purchase JOIN costs USING (cost_id) WHERE purchase_id = "%s" 
+            """ SELECT purchase_date,QTY,cost,price FROM purchase JOIN costs USING (cost_id) WHERE purchase_id = "%s"
             """ % (
                 self.purid)).fetchone()
         Label(lf, text="Purchase Date").grid(row=1, column=0, sticky=sty, pady=8, padx=2)
@@ -465,9 +465,9 @@ class NewProduct(Frame):
         tis = 0
         ins = self.mlb22.insert
         if self.modify:
-            row = self.db.sqldb.execute(""" SELECT selling_id,invoice_date,cost,sold_price,QTY FROM (SELECT * FROM 
+            row = self.db.sqldb.execute(""" SELECT selling_id,invoice_date,cost,sold_price,QTY FROM (SELECT * FROM
             sells JOIN invoices USING (invoice_id) )
-                                            JOIN costs USING (cost_id) JOIN products USING (product_id) WHERE 
+                                            JOIN costs USING (cost_id) JOIN products USING (product_id) WHERE
                                             product_id = "%s" """ % (
                 self.tup[0])).fetchall()
             for i in row:
@@ -506,9 +506,9 @@ class NewProduct(Frame):
         Label(lf, text="Selling ID : %s" % (self.selid), foreground="#3496ff", font=('Berlin Sans FB Demi', 18)).grid(
             row=0, column=0, columnspan=2, sticky=sty, pady=8, padx=7)
 
-        r = self.db.sqldb.execute(""" SELECT invoice_date,invoice_no,QTY,cost,price,sold_price FROM (SELECT * FROM 
+        r = self.db.sqldb.execute(""" SELECT invoice_date,invoice_no,QTY,cost,price,sold_price FROM (SELECT * FROM
         sells JOIN invoices USING (invoice_id) )
-                                            JOIN costs USING (cost_id) JOIN products USING (product_id) WHERE 
+                                            JOIN costs USING (cost_id) JOIN products USING (product_id) WHERE
                                             selling_id = "%s" """ % (
             self.selid)).fetchone()
         Label(lf, text="Selling Date", width=15).grid(row=1, column=0, sticky=sty, pady=8, padx=2)
@@ -624,3 +624,8 @@ class NewProduct(Frame):
         self.tis = Label(lf, text="0")
         self.tis.grid(row=2, column=1, sticky=sty, padx=2)
         self.Add2Mlb22()
+
+
+class ProductVariant():
+    pass
+

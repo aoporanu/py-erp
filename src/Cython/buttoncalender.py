@@ -7,7 +7,7 @@ from tkinter import *
 from tkinter.ttk import *
 import time as t
 import datetime
-from Src.Cython.proWrd1 import Filter,InvoiceSplit
+from src.Cython.proWrd1 import Filter,InvoiceSplit
 
 class CalendarButton(Frame):
     def __init__(self,master,**kw):

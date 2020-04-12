@@ -8,8 +8,8 @@ from reportlab.lib.units import inch, mm
 from reportlab.lib.utils import ImageReader
 from reportlab.pdfgen import canvas
 
-from Src.Table import Table, N, S, E, W
-from Src.pcclass import InventoryDataBase
+from src.Table import Table, N, S, E, W
+from src.pcclass import InventoryDataBase
 from fpdf import FPDF, HTMLMixin
 
 db = InventoryDataBase()
@@ -57,6 +57,7 @@ def nir_document(tup_not_for, pur_id, supplier):
     pdf = MyFPDF('L')
     pdf.add_page('L')
     details = db.sqldb.get_company_details
+    print(supplier)
     html = """
     <table border="0" width="100%">
         <tr>
@@ -77,7 +78,7 @@ def nir_document(tup_not_for, pur_id, supplier):
         html = html + """<tr style="border: 1px dotted black"><td width="10%">""" + str(i) + """</td><td width="40%">"""\
                + \
                tup_not_for[i][
-            0] + """</td><td width="10%">""" + tup_not_for[i][4] + """</td><td width="20%">""" + tup_not_for[i][1] + """</td><td width="10%">""" +  tup_not_for[i][2] + """</td><td width="10%">""" + tup_not_for[i][2] * details['cgst'] + """</td></tr> """
+            0] + """</td><td width="10%">""" + tup_not_for[i][4] + """</td><td width="20%">""" + tup_not_for[i][1] + """</td><td width="10%">""" +  tup_not_for[i][2] + """</td><td width="10%">""" + float(tup_not_for[i][2] * details['cgst']) + """</td></tr> """
     html = html + """</tbody></table>"""
     pdf.write_html(html)
     pdf.output('NIR-' + pur_id + '.pdf', 'F')

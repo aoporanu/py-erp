@@ -99,11 +99,3 @@ class MultiListbox(Frame):
     def selection_set(self, first, last=None):
         for l in self.lists:
             l.selection_set(first, last)
-
-
-
-
-
-
-        
-

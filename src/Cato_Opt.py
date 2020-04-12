@@ -1,8 +1,8 @@
 import tkinter as tk
 from tkinter import N, W, S, E, END
 
-from Src.Cython.proWrd1 import Filter
-from Src.TableTree import MultiListbox
+from src.Cython.proWrd1 import Filter
+from src.TableTree import MultiListbox
 from tkinter.ttk import *
 from tkinter.messagebox import showinfo
 from tkinter.messagebox import askokcancel

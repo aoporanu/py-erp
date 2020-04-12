@@ -6,13 +6,13 @@ import tkinter.font as F
 
 from reportlab import xrange
 
-from Src.Cython.proWrd1 import Filter, InvoiceSplit
+from src.Cython.proWrd1 import Filter, InvoiceSplit
 from tkinter.messagebox import showinfo
 from tkinter.messagebox import askokcancel
 
-from Src.Cython.proWrd1 import Filter
-from Src.TableTree import MultiListbox
-from Src.buttoncalender import CalendarButton, END, DISABLED, Toplevel, WORD
+from src.Cython.proWrd1 import Filter
+from src.TableTree import MultiListbox
+from src.buttoncalender import CalendarButton, END, DISABLED, Toplevel, WORD
 
 sty = N + W + S + E
 

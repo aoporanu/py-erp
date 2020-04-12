@@ -1,8 +1,8 @@
 from tkinter import *
 from tkinter.messagebox import showinfo
 from tkinter.ttk import *
-from Src.TableTree import MultiListbox
-from Src.pcclass import InventoryDataBase
+from src.TableTree import MultiListbox
+from src.pcclass import InventoryDataBase
 
 sty = N + S + E + W
 db = InventoryDataBase()

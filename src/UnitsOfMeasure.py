@@ -2,9 +2,9 @@ from tkinter import N, S, E, W, Toplevel, END
 from tkinter.messagebox import showinfo, askokcancel
 from tkinter.ttk import Frame, Label, Button, Entry
 
-from Src.Cython.proWrd1 import Filter
-from Src.TableTree import MultiListbox
-import Src.TableTree as tableTree
+from src.Cython.proWrd1 import Filter
+from src.TableTree import MultiListbox
+import src.TableTree as tableTree
 
 
 class NewUnitOfMeasure():

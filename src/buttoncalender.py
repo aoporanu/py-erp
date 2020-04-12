@@ -1,4 +1,5 @@
 import time as t
+import os
 from datetime import datetime
 from tkinter import *
 from tkinter.ttk import *
@@ -7,15 +8,17 @@ from PIL import ImageTk, Image
 from imath import cmp
 from tkcalendar import Calendar
 
-from Src.Cython.proWrd1 import Filter
+from src.Cython.proWrd1 import Filter
 
 
 class CalendarButton(Frame):
     def __init__(self, master, **kw):
+        super().__init__(master, **kw)
         self.datevar = StringVar()
         self.master = master
         Frame.__init__(self, master, **kw)
-        self.tmp = Image.open("data/calender.png").resize((30, 30), Image.ANTIALIAS)
+        CALENDAR_ICO = os.path.normpath('data/calender.png')
+        self.tmp = Image.open(CALENDAR_ICO).resize((30, 30), Image.ANTIALIAS)
         self.tmp = ImageTk.PhotoImage(image=self.tmp)
         self.btn = Button(self, textvariable=self.datevar,
                           image=self.tmp, compound=RIGHT,

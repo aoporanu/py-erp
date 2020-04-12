@@ -1,4 +1,4 @@
-import Src.sqldatabase as sqldb
+import src.sqldatabase as sqldb
 from tkinter.messagebox import showinfo
 
 

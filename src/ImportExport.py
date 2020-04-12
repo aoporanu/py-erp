@@ -6,7 +6,7 @@ from tkinter.messagebox import showinfo
 
 from reportlab import xrange
 
-from Src.Cython.proWrd1 import Filter, InvoiceSplit
+from src.Cython.proWrd1 import Filter, InvoiceSplit
 import tkinter.font as F
 
 
