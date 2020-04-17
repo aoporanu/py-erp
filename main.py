@@ -61,7 +61,7 @@ editmenu = tk.Menu(menubar, tearoff=0, background=color, activebackground=SEL_CO
 menubar.add_cascade(label="File", menu=filemenu)
 menubar.add_cascade(label="Edit", menu=editmenu)
 filemenu.add_command(label="  save Customer and Product", command=lambda: DB.Save(), bitmap='info', compound=LEFT)
-filemenu.add_command(label="  Load database File", command=lambda: ask_dbfile(), bitmap='question', compound=LEFT)
+filemenu.add_command(label="  Load database File", command=lambda: ask_db_file(), bitmap='question', compound=LEFT)
 filemenu.add_command(label="  Exit", command=lambda: call_save(), bitmap='error', compound=LEFT)
 editmenu.add_command(label="Company Details", command=lambda: cdmp_del(), bitmap='info', compound=LEFT)
 editmenu.add_command(label="Reset All", command=lambda: reset(), bitmap='info', compound=LEFT)
@@ -363,10 +363,21 @@ mlb = tableTree.MultiListbox(dframe,
 mlb.grid(row=0, column=0, sticky=N + S + E + W, padx=10)
 
 
+def supplier_keys():
+    """
+
+    @return:
+    """
+
+    return DB.get_supplier_names
+    # supplier_combo_search['values'] = (*supplier_combo_search['values'], DB.get_supplier_names)
+    # return None
+
+
 def purchase_product_frame():
     """ Build the Purchase frame """
     global product_name_search, qty_text, cost_price_text, btn64, selling_price_text, tmp4, tmp5, category_combo, \
-        description_text, mlb21, supplier_combo_search, pentru_factura, lot_text
+        description_text, mlb21, supplier_combo_search_purchase, pentru_factura, lot_text
     #     note purchase product
     upf = Frame(note)
     upf.grid(row=0, column=0, sticky=N + W + S + E)
@@ -441,15 +452,15 @@ def purchase_product_frame():
     pentru_factura = Entry(lfp)
     pentru_factura.grid(row=6, column=1, sticky=W + E, padx=5, pady=5)
     Label(lfp, text="Supplier").grid(row=6, column=2, sticky=E, padx=10, pady=5)
-    supplier_combo_search = Combobox(lfp, postcommand=lambda: supplier_keys(), width=40)
-    supplier_combo_search.grid(row=6, column=3, sticky=N + E + W + S, padx=5, pady=10)
+    supplier_combo_search_purchase = Combobox(lfp, values=supplier_keys(), postcommand=lambda: supplier_keys())
+    supplier_combo_search_purchase.grid(row=6, column=3, sticky=N + E + W + S, padx=10, pady=10)
     Label(lfp, text="LOT   ").grid(row=6, column=4, sticky=E, padx=10, pady=5)
     lot_text = Entry(lfp)
     lot_text.grid(row=6, column=5, sticky=W + E, padx=10, pady=5)
     mlb21 = tableTree.MultiListbox(app6,
                                    (('Product name', 35), ("UM", 10), ("Cost Price", 25), ("Selling Price", 25), ("QTY",
                                                                                                                   15),
-                                    ("Date", 35), ("LOT", 25), ("Pentru factura", 35)))
+                                    ("Date", 35), ("LOT", 25), ("Pentru factura", 35), ('Furnizor', 20)))
     mlb21.grid(row=3, column=0, columnspan=1, sticky=N + S + E + W)
     NEXT_ICO = os.path.normpath('data/next.png')
     tmp3 = PIL.Image.open(NEXT_ICO).resize((70, 70), PIL.Image.ANTIALIAS)
@@ -806,16 +817,8 @@ def b_supplier_search(refresh=False):
 
 
 def ckeys():
+    print(DB.categorylist)
     category_combo['values'] = DB.categorylist
-    return None
-
-
-def supplier_keys():
-    """
-
-    @return:
-    """
-    supplier_combo_search["values"] = DB.get_supplier_names
     return None
 
 
@@ -917,7 +920,9 @@ def add2_purchase_table():
     cat = Filter(category_combo.get()).title()
     des = split_reconstruct(description_text.get(0.0, END).split(" ")).title()
     lot = Filter(lot_text.get()).title()
-    supplier = Filter(supplier_combo_search.get()).title()
+    print('supplier_box')
+    print(Filter(supplier_combo_search_purchase.get()).title())
+    supplier = Filter(supplier_combo_search_purchase.get()).title()
     for_invoice = Filter(pentru_factura.get()).title()
     if len(qty.split()) == 0:
         return messagebox.showinfo("Input Error", "The Quantity provided Is Not Valid", parent=root)
@@ -990,6 +995,7 @@ def add2_inventory():
         return messagebox.showinfo("Error", "The purchase list is empty")
     for item in mlb21.tree.get_children():
         tup = mlb21.tree.item(item)
+        print(tup)
         name = tup['values'][0]
         cost = round(float(tup['values'][2]), 2)
         price = round(float(tup['values'][3]), 2)
@@ -999,14 +1005,17 @@ def add2_inventory():
         costid = DB.sqldb.getcostID(pid, cost, price)
         lot = tup['values'][6]
         for_factura = tup['values'][7]
-        supplier = tup["values"][8]
+        supplier = tup['values'][8]
+        print(supplier)
+        supplier_id = DB.get_supplier(supplier)
+        print(supplier_id)
         um = get_um_for_product(pid)
 
         # tup.insert(9, um)
         # tup.append(9)
         # tup[9] = um
         try:
-            pur_id = DB.addpurchase(pid, costid, date, qty, lot, for_factura, supplier)
+            pur_id = DB.addpurchase(pid, costid, date, qty, lot, for_factura, supplier_id)
             tup_not_for.append(tup["values"])
             nir_document(tup_not_for, pur_id, supplier)
         except ValueError:
@@ -1335,7 +1344,7 @@ def add(obj, l):
     obj["value"] = list(l)
 
 
-def ask_dbfile():
+def ask_db_file():
     fname = askopenfilename(filetypes=(('Inventory Manager database File', "*.ic"), ('All File', "*.*")))
     try:
         ds = open(fname, 'r')
@@ -1494,7 +1503,6 @@ mlb41.tree.bind('<Double-Button-1>', d_click__on__c_list)
 mlb31.tree.bind('<Double-Button-1>', d_click__on__list)
 product_name_search.bind('<Any-KeyRelease>', call_purchase_search)
 product_name_search.bind('<<ComboboxSelected>>', special_purchase_search)
-supplier_combo_search.bind('<Any-KeyRelease>', call_supplier_search)
 
 
 def process_cart(invid):

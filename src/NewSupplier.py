@@ -2,7 +2,6 @@ from tkinter import *
 from tkinter.messagebox import showinfo
 from tkinter.ttk import *
 
-import Purchase
 from src.Cython.proWrd1 import Filter
 
 sty = N + W + S + E

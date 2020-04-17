@@ -1,7 +1,6 @@
 from tkinter import *
 from tkinter.ttk import *
 
-import Purchase
 from src.Cython.proWrd1 import Filter
 from tkinter.messagebox import showinfo
 from tkinter.messagebox import askokcancel, askyesno

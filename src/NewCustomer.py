@@ -6,7 +6,6 @@ import tkinter.font as F
 
 from reportlab import xrange
 
-import Purchase
 from src.Cython.proWrd1 import Filter, InvoiceSplit
 from tkinter.messagebox import showinfo
 from tkinter.messagebox import askokcancel
