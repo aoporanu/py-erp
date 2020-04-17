@@ -6,6 +6,7 @@ import tkinter.font as F
 
 from reportlab import xrange
 
+import Purchase
 from src.Cython.proWrd1 import Filter, InvoiceSplit
 from tkinter.messagebox import showinfo
 from tkinter.messagebox import askokcancel
@@ -145,7 +146,7 @@ class NewCustomer(Frame):
         self.invid = None
         app1 = Frame(note)
         app1.grid(row=0, column=0, sticky=sty)
-        note.add(app1, text=' Invoices ')
+        Purchase.add(app1, text=' Invoices ')
         for i in range(5):
             app1.rowconfigure(i, weight=1)
         for i in range(3):
@@ -174,7 +175,7 @@ class NewCustomer(Frame):
     def notepage3(self, note, modify, tup):
         app1 = Frame(note)
         app1.grid(row=0, column=0, sticky=sty)
-        note.add(app1, text=' Delegates ')
+        Purchase.add(app1, text=' Delegates ')
         for i in range(5):
             app1.rowconfigure(i, weight=1)
         for i in range(3):
@@ -316,7 +317,7 @@ class NewCustomer(Frame):
     def notepage1(self, note, modify, tup):
         app = Frame(note)
         app.grid(row=0, column=0, sticky=sty)
-        note.add(app, text='Customer')
+        Purchase.add(app, text='Customer')
         for i in range(20):
             app.rowconfigure(i, weight=1)
         for i in range(3):

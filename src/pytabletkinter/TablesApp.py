@@ -38,6 +38,9 @@ from TableModels import TableModel
 from Tables_IO import TableImporter
 from Prefs import Preferences
 
+import Purchase
+
+
 class TablesApp(Frame):
     """
     Tables app
@@ -328,7 +331,7 @@ class TablesApp(Frame):
             sheetname = tkSimpleDialog.askstring("New sheet name?", "Enter sheet name:",
                                                 initialvalue='sheet'+str(noshts+1))
         checksheet_name(sheetname)    
-        page = self.notebook.add(sheetname)    
+        page = Purchase.add(sheetname)
         #Create the table and model
         if sheetdata !=None:
             model = TableModel(sheetdata)   

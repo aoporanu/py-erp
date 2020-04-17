@@ -1,5 +1,7 @@
 from tkinter import *
 from tkinter.ttk import *
+
+import Purchase
 from src.Cython.proWrd1 import Filter
 from tkinter.messagebox import showinfo
 from tkinter.messagebox import askokcancel, askyesno
@@ -61,7 +63,7 @@ class NewProduct(Frame):
         app.grid(row=0, column=0)
         self.f.rowconfigure(0, weight=1)
         self.f.columnconfigure(0, weight=1)
-        note.add(app, text='Detail')
+        Purchase.add(app, text='Detail')
         for i in range(17):
             app.rowconfigure(i, weight=1)
         for i in range(8):
@@ -284,7 +286,7 @@ class NewProduct(Frame):
         for i in range(3):
             app15.columnconfigure(i, weight=1)
         app15.rowconfigure(0, weight=1)
-        note.add(app15, text=' Costs ')
+        Purchase.add(app15, text=' Costs ')
         Label(app15, text="Product Costs", foreground="#3496ff", font=('Berlin Sans FB Demi', 25)).grid(row=0, column=0,
                                                                                                         columnspan=1,
                                                                                                         sticky=sty,
@@ -430,7 +432,7 @@ class NewProduct(Frame):
         for i in range(3):
             app1.columnconfigure(i, weight=1)
         app1.rowconfigure(0, weight=1)
-        note.add(app1, text=' Purchase ')
+        Purchase.add(app1, text=' Purchase ')
         Label(app1, text="Purchase Records", foreground="#3496ff", font=('Berlin Sans FB Demi', 25)).grid(row=0,
                                                                                                           column=0,
                                                                                                           columnspan=1,
@@ -597,7 +599,7 @@ class NewProduct(Frame):
             app2.rowconfigure(i, weight=1)
         for i in range(3):
             app2.columnconfigure(i, weight=1)
-        note.add(app2, text=' Sales ')
+        Purchase.add(app2, text=' Sales ')
         Label(app2, text="Sales Records", foreground="#3496ff", font=('Berlin Sans FB Demi', 25)).grid(row=0, column=0,
                                                                                                        columnspan=1,
                                                                                                        sticky=sty,

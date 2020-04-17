@@ -258,7 +258,7 @@ class MyDatabase(object):
             return True
         return False
 
-    def getpurchaseID(self, costid, date, qty):
+    def get_purchase_ID(self, costid, date, qty):
         row = self.cursor.execute(
             """SELECT purchase_id FROM purchase WHERE cost_id = "%s" AND QTY = %.2f AND purchase_date = "%s" """ % (
                 costid, qty, date))
@@ -270,7 +270,7 @@ class MyDatabase(object):
     def add_new_purchase(self, PID, costid, date, qty, lot, pentru_factura, supplier):
         s = costid + date + str(qty) + hex(int(t.time() * 10000))
         purid = "PUR" + str(hash(s))
-        if self.getpurchaseID(costid, date, qty) is not None:
+        if self.get_purchase_ID(costid, date, qty) is not None:
             raise ValueError("purchase already listed")
         self.cursor.execute(
             """ INSERT INTO purchase (purchase_id,cost_id,QTY,purchase_date,lot,for_invoice,supplier_id, 
@@ -553,3 +553,13 @@ class MyDatabase(object):
             self.cursor.execute("""DELETE FROM category WHERE category_id = "%s" """ % umid)
             return True
         return False
+
+    def get_supplier(self, supplier):
+        print(supplier)
+        """
+
+        @param supplier:
+        @return:
+        """
+        row = self.cursor.execute("""select * from suppliers where id = "%s" """ % supplier).fetchone()
+        return row

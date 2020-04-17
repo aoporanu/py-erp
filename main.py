@@ -811,11 +811,18 @@ def ckeys():
 
 
 def supplier_keys():
+    """
+
+    @return:
+    """
     supplier_combo_search["values"] = DB.get_supplier_names
     return None
 
 
 def ipurlog():
+    """
+
+    """
     root23 = tk.Tk()
     root23.grid()
     root23.title("Purchase Log")
@@ -827,6 +834,10 @@ def ipurlog():
 
 
 def product_entry_search():
+    """
+
+    @return:
+    """
     inp = str(product_name_search.get())
     if inp == " ":
         inp = ""
@@ -835,6 +846,10 @@ def product_entry_search():
 
 
 def call_purchase_search(event):
+    """
+
+    @param event:
+    """
     product_entry_search()
 
 
@@ -843,6 +858,11 @@ def call_supplier_search(event):
 
 
 def special_purchase_search(event):
+    """
+
+    @param event:
+    @return:
+    """
     inp = str(product_name_search.get())
     l = DB.sqldb.execute("""SELECT cost,price,category_name,product_description FROM costs JOIN products USING (
     product_id)
@@ -876,10 +896,19 @@ def special_purchase_search(event):
 
 
 def get_um_for_product(pid):
+    """
+
+    @param pid:
+    @return:
+    """
     return DB.sqldb.get_um_for_product(pid)
 
 
 def add2_purchase_table():
+    """
+
+    @return:
+    """
     name = Filter(product_name_search.get()).title()
     qty = Filter(qty_text.get()).title()
     cost = Filter(cost_price_text.get()).title()
@@ -941,6 +970,10 @@ def add2_purchase_table():
 
 
 def delete_from_purchase_table():
+    """
+
+    @return:
+    """
     index = mlb21.Select_index
     if index is None or index > mlb21.size():
         return messagebox.showinfo('Error', 'Nothing is Selected To Remove')
@@ -948,6 +981,10 @@ def delete_from_purchase_table():
 
 
 def add2_inventory():
+    """
+
+    @return:
+    """
     tup_not_for = []
     if not mlb21.tree.get_children():
         return messagebox.showinfo("Error", "The purchase list is empty")
@@ -986,6 +1023,10 @@ def add2_inventory():
 
 
 def reset():
+    """
+
+    @return:
+    """
     s = messagebox.askokcancel("Warning", "Are you sure you want to reset every thing ?")
     if s:
         reset_coform()
@@ -993,11 +1034,20 @@ def reset():
 
 
 def reset_coform():
+    """
+
+    @return:
+    """
     DB.sqldb.resetdatabase()
     return None
 
 
 def remove__product(obj):
+    """
+
+    @param obj:
+    @return:
+    """
     del_row = obj.Select_index
     if del_row is None or del_row > obj.size():
         return messagebox.showinfo('Error', 'Nothing is Selected To Remove')
@@ -1015,6 +1065,11 @@ def remove__product(obj):
 
 
 def remove__customer(obj):
+    """
+
+    @param obj:
+    @return:
+    """
     del_row = obj.Select_index
     if del_row is None or del_row > obj.size():
         return messagebox.showinfo('Error', 'Nothing is Selected To Remove')
@@ -1036,6 +1091,11 @@ BP_log1 = [""]
 
 
 def b_product__search(refresh=False):
+    """
+
+    @param refresh:
+    @return:
+    """
     if not refresh:
         fst = split_reconstruct(str(product_search.get()).split())
         BP_log1[0] = fst
@@ -1046,6 +1106,11 @@ def b_product__search(refresh=False):
 
 
 def print__p_table(lists):
+    """
+
+    @param lists:
+    @return:
+    """
     lists = list(lists)
     lists.sort()
     mlb31.delete(0, END)
@@ -1075,6 +1140,11 @@ def print__p_table(lists):
 
 
 def b_customer__search(refresh=False):
+    """
+
+    @param refresh:
+    @return:
+    """
     if not refresh:
         fst = Filter(str(customer_search.get()))
         BC_log1[0] = fst
@@ -1085,6 +1155,11 @@ def b_customer__search(refresh=False):
 
 
 def print__c_table(lists):
+    """
+
+    @param lists:
+    @return:
+    """
     lists = list(lists)
     lists.sort()
     mlb41.delete(0, END)
@@ -1114,6 +1189,10 @@ def print__c_table(lists):
 
 
 def special__p_search(event):
+    """
+
+    @param event:
+    """
     st = str(product_name.get())
     l = DB.sqldb.execute("""SELECT product_description,price FROM costs JOIN products USING (product_id)
                  WHERE product_name =  "%s" """ % st).fetchone()
@@ -1129,6 +1208,10 @@ def special__p_search(event):
 
 
 def special__c_search(event):
+    """
+
+    @param event:
+    """
     st = str(customer_name.get())
     l = DB.sqldb.execute("""SELECT customer_address,phone_no FROM customers JOIN contacts USING (customer_id)
                  WHERE customer_name =  "%s" """ % st).fetchone()
@@ -1141,10 +1224,19 @@ def special__c_search(event):
 
 
 def call__pn_search(event):
+    """
+
+    @param event:
+    """
     product_name__search()
 
 
 def product_name_search_func(string):
+    """
+
+    @param string:
+    @return:
+    """
     return DB.searchproduct(string.title())
 
 
@@ -1292,7 +1384,7 @@ def brow__file(obj):
 
 
 def save__as__file(obj):
-    """Should alawys use entry widget as obj"""
+    """Should always use entry widget as obj"""
     try:
         fname = asksaveasfilename(defaultextension='.csv', filetypes=[('Csv File', "*.csv"), ('TEXT File', "*.txt")])
     except[IOError]:
@@ -1307,6 +1399,12 @@ def save__as__file(obj):
 
 
 def import_csv(objentry1, objentry2):
+    """
+
+    @param objentry1:
+    @param objentry2:
+    @return:
+    """
     from src.ImportExport import ImportCsv
     importfile1 = Filter(str(objentry1))
     importfile2 = Filter(str(objentry2))

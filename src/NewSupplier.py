@@ -2,6 +2,7 @@ from tkinter import *
 from tkinter.messagebox import showinfo
 from tkinter.ttk import *
 
+import Purchase
 from src.Cython.proWrd1 import Filter
 
 sty = N + W + S + E
@@ -51,7 +52,7 @@ class NewSupplier(Frame):
         app.grid(row=0, column=0)
         self.f.rowconfigure(0, weight=1)
         self.f.columnconfigure(0, weight=1)
-        note.add(app, text='Detail')
+        Purchase.add(app, text='Detail')
         Label(app, text='Supplier Detail', font=('Berlin Sans FB Demi', 23), foreground="#3496ff").grid(row=0, column=0,
                                                                                                        columnspan=2,
                                                                                                        sticky=sty)

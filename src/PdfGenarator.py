@@ -1,6 +1,4 @@
-from prettytable import PrettyTable
 from PIL import Image
-from PyPDF2 import PdfFileWriter
 from reportlab.lib import colors
 from reportlab.lib.colors import HexColor
 from reportlab.lib.pagesizes import A4, landscape
@@ -11,6 +9,7 @@ from reportlab.pdfgen import canvas
 from src.Table import Table, N, S, E, W
 from src.pcclass import InventoryDataBase
 from fpdf import FPDF, HTMLMixin
+import tkinter as tk
 
 db = InventoryDataBase()
 
@@ -22,6 +21,7 @@ extra_for_nir = [["", "", "", "", "", "", "", "", ""]]
 
 
 class MyFPDF(FPDF, HTMLMixin):
+    """ cannot parse table unless I override the FPDF and HTMLMixin classes """
     pass
 
 
@@ -33,6 +33,7 @@ def calculate_y(y, lines, offset):
 
 
 def draw_string(string, canvas_instance, x, y, lead):
+    """ draws string on canvas """
     textobject = canvas_instance.beginText()
     textobject.setTextOrigin(x, y)
     textobject.setLeading(lead)
@@ -54,31 +55,40 @@ def draw_string(string, canvas_instance, x, y, lead):
 
 
 def nir_document(tup_not_for, pur_id, supplier):
+    """ called when new products are purchased """
     pdf = MyFPDF('L')
+    pdf.set_font('Arial', '', 8)
     pdf.add_page('L')
     details = db.sqldb.get_company_details
     print(supplier)
+    # print(supplier)
+
     html = """
     <table border="0" width="100%">
         <tr>
-            <td width="50%">""" + details['comp_name'] + """</td><td width="50%">""" + supplier + """</td>
+            <td width="50%">""" + details['comp_name'] + """</td><td width="50%">""" + str(supplier) + """</td>
         </tr>
     </table>
     <table border="0" align="center" width="100%">
 <thead><tr>
-<th width="10%">#</th>
+<th width="3%">#</th>
 <th width="40%">Denumire</th>
-<th width="10%">Cantitate</th>
-<th width="20%">UM</th>
-<th width="10%">Pret pe UM</th>
-<th width="10%">Pret cu TVA</th></tr></thead>
+<th width="6%">Cantitate</th>
+<th width="2%">UM</th>
+<th width="5%">Pret pe UM</th>
+<th width="6%">Total fara TVA</th>
+<th width="6%">Pret cu TVA</th></tr></thead>
 <tbody>
 """
     for i in range(len(tup_not_for)):
-        html = html + """<tr style="border: 1px dotted black"><td width="10%">""" + str(i) + """</td><td width="40%">"""\
-               + \
-               tup_not_for[i][
-            0] + """</td><td width="10%">""" + tup_not_for[i][4] + """</td><td width="20%">""" + tup_not_for[i][1] + """</td><td width="10%">""" +  tup_not_for[i][2] + """</td><td width="10%">""" + float(tup_not_for[i][2] * details['cgst']) + """</td></tr> """
+        total_w_vat = (float(tup_not_for[i][2]) * (float(details['cgst']) / 100))
+        total_w_vat = str(total_w_vat)
+        total_wo_vat = (float(tup_not_for[i][2]) * float(tup_not_for[i][4]))
+        # print([float(tup_not_for[i][2]), float(details['cgst'])])
+        html = html + """<tr style="border: 1px dotted black"><td width="3%">""" + str(i) + """</td><td 
+        width="40%">""" + tup_not_for[i][0] + """</td><td width="6%">""" + tup_not_for[i][4] + """</td><td width="2%">""" + tup_not_for[
+                   i][1] + """</td><td width="5%">""" + tup_not_for[i][2] + """</td><td width="6%">""" + \
+               str(total_wo_vat) + """</td><td width="6%">""" + total_w_vat + """</td></tr> """
     html = html + """</tbody></table>"""
     pdf.write_html(html)
     pdf.output('NIR-' + pur_id + '.pdf', 'F')

@@ -3,13 +3,13 @@ Simple calendar using ttk Treeview together with calendar and datetime
 classes.
 """
 import calendar
+from tkinter import Button, Label, Frame
+from tkinter.ttk import Treeview, Style
 
+from tkinter import *
 
-from Tkinter import *
-import tkFont
+from tkinter.ttk import *
 
-
-from ttk import *
 
 def get_calendar(locale, fwday):
     # instantiate proper calendar class
@@ -17,6 +17,7 @@ def get_calendar(locale, fwday):
         return calendar.TextCalendar(fwday)
     else:
         return calendar.LocaleTextCalendar(fwday, locale)
+
 
 class Calendar(Frame):
     # XXX ToDo: cget and configure
@@ -40,25 +41,23 @@ class Calendar(Frame):
         sel_fg = kw.pop('selectforeground', '#05640e')
 
         self._date = self.datetime(year, month, 1)
-        self._selection = None # no date selected
+        self._selection = None  # no date selected
 
         Frame.__init__(self, master, **kw)
 
         self._cal = get_calendar(locale, fwday)
 
-        self.__setup_styles()       # creates custom styles
-        self.__place_widgets()      # pack/grid used widgets
-        self.__config_calendar()    # adjust calendar columns and setup tags
+        self.__setup_styles()  # creates custom styles
+        self.__place_widgets()  # pack/grid used widgets
+        self.__config_calendar()  # adjust calendar columns and setup tags
         # configure a canvas, and proper bindings, for selecting dates
         self.__setup_selection(sel_bg, sel_fg)
 
         # store items ids, used for insertion later
         self._items = [self._calendar.insert('', 'end', values='')
-                            for _ in range(6)]
+                       for _ in range(6)]
         # insert dates in the currently empty calendar
         self._build_calendar()
-
-        
 
     def __setitem__(self, item, value):
         if item in ('year', 'month'):
@@ -93,24 +92,24 @@ class Calendar(Frame):
     def __place_widgets(self):
         # header frame and its widgets
         s = Style(self.master)
-        s.configure("fm.TFrame",background = 'gray50')
-        hframe = Frame(self,style = "fm.TFrame")
+        s.configure("fm.TFrame", background='gray50')
+        hframe = Frame(self, style="fm.TFrame")
         for i in range(3):
-            hframe.columnconfigure(i,weight = 1)
+            hframe.columnconfigure(i, weight=1)
         for i in range(2):
-            hframe.rowconfigure(i,weight = 1)
+            hframe.rowconfigure(i, weight=1)
         lbtn = Button(hframe, style='L.TButton', command=self._prev_month)
         rbtn = Button(hframe, style='R.TButton', command=self._next_month)
-        self._header = Label(hframe, width=15, anchor='center',background = 'brown',foreground = 'White')
+        self._header = Label(hframe, width=15, anchor='center', background='brown', foreground='White')
         # the calendar
-        self._calendar = Treeview(hframe,show='', selectmode='none', height=7)
+        self._calendar = Treeview(hframe, show='', selectmode='none', height=7)
 
         # pack the widgets
-        hframe.pack(side='top', pady=4, anchor='center',expand = YES,fill = BOTH)
-        lbtn.grid(row = 0,column =0,padx=0,pady=0,sticky = N+S+E+W)
-        self._header.grid(row=0,column = 1,sticky = N+S+E+W)
-        rbtn.grid(row=0,column=2,padx=0,pady=0,sticky = N+S+E+W)
-        self._calendar.grid(row = 1,column = 0,columnspan = 3,sticky = N+S+E+W)
+        hframe.pack(side='top', pady=4, anchor='center', expand=YES, fill=BOTH)
+        lbtn.grid(row=0, column=0, padx=0, pady=0, sticky=N + S + E + W)
+        self._header.grid(row=0, column=1, sticky=N + S + E + W)
+        rbtn.grid(row=0, column=2, padx=0, pady=0, sticky=N + S + E + W)
+        self._calendar.grid(row=1, column=0, columnspan=3, sticky=N + S + E + W)
 
     def __config_calendar(self):
         cols = self._cal.formatweekheader(3).split()
@@ -122,12 +121,12 @@ class Calendar(Frame):
         maxwidth = max(font.measure(col) for col in cols) + 3
         for col in cols:
             self._calendar.column(col, width=maxwidth, minwidth=maxwidth,
-                anchor='e')
+                                  anchor='e')
 
     def __setup_selection(self, sel_bg, sel_fg):
         self._font = tkFont.Font()
         self._canvas = canvas = Canvas(self._calendar,
-            background=sel_bg, borderwidth=0, highlightthickness=0)
+                                       background=sel_bg, borderwidth=0, highlightthickness=0)
         canvas.text = canvas.create_text(0, 0, fill=sel_fg, anchor='w')
 
         canvas.bind('<ButtonPress-1>', lambda evt: canvas.place_forget())
@@ -173,25 +172,25 @@ class Calendar(Frame):
             return 0
 
         item_values = widget.item(item)['values']
-        if not len(item_values): # row is empty for this month
+        if not len(item_values):  # row is empty for this month
             return
 
         text = item_values[int(column[1]) - 1]
-        if not text: # date is empty
+        if not text:  # date is empty
             return
 
         bbox = widget.bbox(item, column)
-        if not bbox: # calendar not visible yet
+        if not bbox:  # calendar not visible yet
             return
 
         # update and then show selection
         text = '%02d' % text
         self._selection = (text, item, column)
         self._show_selection(text, bbox)
-        
+
     def get_date(self):
         d = self.selection
-        if d == None :
+        if d == None:
             return None
         return d
 
@@ -201,7 +200,7 @@ class Calendar(Frame):
 
         self._date = self._date - self.timedelta(days=1)
         self._date = self.datetime(self._date.year, self._date.month, 1)
-        self._build_calendar() # reconstuct calendar
+        self._build_calendar()  # reconstuct calendar
 
     def _next_month(self):
         """Update calendar to show the next month."""
@@ -211,7 +210,7 @@ class Calendar(Frame):
         self._date = self._date + self.timedelta(
             days=calendar.monthrange(year, month)[1] + 1)
         self._date = self.datetime(self._date.year, self._date.month, 1)
-        self._build_calendar() # reconstruct calendar
+        self._build_calendar()  # reconstruct calendar
 
     # Properties
 
@@ -223,8 +222,3 @@ class Calendar(Frame):
 
         year, month = self._date.year, self._date.month
         return (year, month, int(self._selection[0]))
-
-    
-
-
-
