@@ -1,4 +1,5 @@
-import subprocess, sys
+import subprocess
+import sys
 import os
 import tkinter as tk
 import tkinter.font as tkFont
@@ -53,19 +54,45 @@ SEL_COLOR = '#273f5c'
 FOREGROUND = "#cecece"
 root['background'] = color
 
-menubar = tk.Menu(root, background=color, activebackground=SEL_COLOR, foreground=FOREGROUND,
+menubar = tk.Menu(root,
+                  background=color,
+                  activebackground=SEL_COLOR,
+                  foreground=FOREGROUND,
                   activeforeground="#FFFFFF")
-filemenu = tk.Menu(menubar, tearoff=0, background=color, activebackground=SEL_COLOR, foreground=FOREGROUND,
+filemenu = tk.Menu(menubar,
+                   tearoff=0,
+                   background=color,
+                   activebackground=SEL_COLOR,
+                   foreground=FOREGROUND,
                    activeforeground="#FFFFFF")
-editmenu = tk.Menu(menubar, tearoff=0, background=color, activebackground=SEL_COLOR, foreground=FOREGROUND,
+editmenu = tk.Menu(menubar,
+                   tearoff=0,
+                   background=color,
+                   activebackground=SEL_COLOR,
+                   foreground=FOREGROUND,
                    activeforeground="#FFFFFF")
 menubar.add_cascade(label="Fisier", menu=filemenu)
 menubar.add_cascade(label="Editare", menu=editmenu)
-filemenu.add_command(label="  Salvare modificari", command=lambda: DB.Save(), bitmap='info', compound=LEFT)
-filemenu.add_command(label="  Incarca o baza de date", command=lambda: ask_db_file(), bitmap='question', compound=LEFT)
-filemenu.add_command(label="  Iesire", command=lambda: call_save(), bitmap='error', compound=LEFT)
-editmenu.add_command(label="Detalii Firma", command=lambda: cdmp_del(), bitmap='info', compound=LEFT)
-editmenu.add_command(label="Resetare", command=lambda: reset(), bitmap='info', compound=LEFT)
+filemenu.add_command(label="  Salvare modificari",
+                     command=lambda: DB.Save(),
+                     bitmap='info',
+                     compound=LEFT)
+filemenu.add_command(label="  Incarca o baza de date",
+                     command=lambda: ask_db_file(),
+                     bitmap='question',
+                     compound=LEFT)
+filemenu.add_command(label="  Iesire",
+                     command=lambda: call_save(),
+                     bitmap='error',
+                     compound=LEFT)
+editmenu.add_command(label="Detalii Firma",
+                     command=lambda: cdmp_del(),
+                     bitmap='info',
+                     compound=LEFT)
+editmenu.add_command(label="Resetare",
+                     command=lambda: reset(),
+                     bitmap='info',
+                     compound=LEFT)
 root.config(menu=menubar)
 
 styl = Style()
@@ -94,27 +121,40 @@ btnnote.rowconfigure(0, weight=1)
 saveico = os.path.normpath('data/floppy_disk_blue.png')
 saveico = PIL.Image.open(saveico).resize((32, 32), PIL.Image.ANTIALIAS)
 saveico = PIL.ImageTk.PhotoImage(image=saveico)
-Button(btnnote, text="Salvare", command=lambda: DB.save(), compound=TOP, image=saveico, width=1).grid(row=0, column=0,
-                                                                                                   sticky=N + S + W + E)
+Button(btnnote,
+       text="Salvare",
+       command=lambda: DB.save(),
+       compound=TOP,
+       image=saveico,
+       width=1).grid(row=0, column=0, sticky=N + S + W + E)
 NEW_ICO = os.path.normpath('data/new_file.png')
 npico = PIL.Image.open(NEW_ICO).resize((32, 32), PIL.Image.ANTIALIAS)
 npico = PIL.ImageTk.PhotoImage(image=npico)
-productbtn = Button(btnnote, text="Produs Nou", command=lambda: a_d_d__product(modify=False), image=npico,
+productbtn = Button(btnnote,
+                    text="Produs Nou",
+                    command=lambda: a_d_d__product(modify=False),
+                    image=npico,
                     compound=TOP,
                     width=1).grid(row=0, column=1, sticky=N + S + W + E)
 NEW_USER_GROUP = os.path.normpath('data/user_group_new.png')
 ncico = PIL.Image.open(NEW_USER_GROUP).resize((32, 32), PIL.Image.ANTIALIAS)
 ncico = PIL.ImageTk.PhotoImage(image=ncico)
-customerbtn = Button(btnnote, text="Client nou", command=lambda: a_d_d__customer(modify=False), image=ncico,
+customerbtn = Button(btnnote,
+                     text="Client nou",
+                     command=lambda: a_d_d__customer(modify=False),
+                     image=ncico,
                      compound=TOP,
                      width=1).grid(row=0, column=2, sticky=N + S + W + E)
 SETTINGS_ICO = os.path.normpath('data/settings_ico2.png')
-setting_ico = PIL.Image.open(SETTINGS_ICO).resize((32, 32), PIL.Image.ANTIALIAS)
+setting_ico = PIL.Image.open(SETTINGS_ICO).resize((32, 32),
+                                                  PIL.Image.ANTIALIAS)
 setting_ico = PIL.ImageTk.PhotoImage(image=setting_ico)
-Button(btnnote, text="Editare detalii firma", command=lambda: cdmp_del(),
-       image=setting_ico, compound=TOP, width=1).grid(row=0,
-                                                      column=3,
-                                                      sticky=N + S + W + E)
+Button(btnnote,
+       text="Editare detalii firma",
+       command=lambda: cdmp_del(),
+       image=setting_ico,
+       compound=TOP,
+       width=1).grid(row=0, column=3, sticky=N + S + W + E)
 
 app = Frame(note)
 app.grid(row=0, column=0, sticky=N + S + E + W)
@@ -124,8 +164,11 @@ app.columnconfigure(0, weight=1)
 app.rowconfigure(1, weight=1)
 app.rowconfigure(2, weight=5)
 
-Label(app, text="Creare facturi de iesire bunuri", foreground="#3496ff",
-      font=('Berlin Sans FB Demi', 20), background="#323232").grid(row=0, column=0, sticky=N + S + E + W)
+Label(app,
+      text="Creare facturi de iesire bunuri",
+      foreground="#3496ff",
+      font=('Berlin Sans FB Demi', 20),
+      background="#323232").grid(row=0, column=0, sticky=N + S + E + W)
 
 add_together = Frame(app)
 add_together.grid(row=1, column=0, sticky=N + E + S + W)
@@ -134,7 +177,11 @@ add_together.rowconfigure(0, weight=1)
 for h in range(3):
     add_together.columnconfigure(h, weight=1)
 
-Lf01 = LabelFrame(add_together, text="Optiuni clienti", labelanchor=N, style="r.TLabelframe", width=2500)
+Lf01 = LabelFrame(add_together,
+                  text="Optiuni clienti",
+                  labelanchor=N,
+                  style="r.TLabelframe",
+                  width=2500)
 Lf01.grid(row=0, column=0, sticky=N + E + S + W, padx=10, pady=10)
 for h in range(3):
     Lf01.rowconfigure(h, weight=1)
@@ -145,7 +192,9 @@ for h in range(1, 2):
 lbl0 = Label(Lf01, text="Nume", anchor=E)
 lbl0.grid(row=0, column=0, sticky=N + E + S + W, pady=10, padx=5)
 
-customer_name = Combobox(Lf01, postcommand=lambda: customer_name__search(), width=35)
+customer_name = Combobox(Lf01,
+                         postcommand=lambda: customer_name__search(),
+                         width=35)
 customer_name.grid(row=0, column=1, sticky=N + E + S + W, pady=8, padx=10)
 
 # Phone
@@ -158,13 +207,14 @@ customer_phone.grid(row=1, column=1, sticky=N + S + E + W, pady=10, padx=10)
 
 # Address
 
-
 lbl1 = Label(Lf01, text="Adresa", anchor=E)
 lbl1.grid(row=2, column=0, sticky=N + E + W, pady=10, padx=5)
 
 customer_address = tk.Text(Lf01, width=5, height=5, wrap=WORD, relief=FLAT)
 customer_address.grid(row=2, column=1, sticky=N + E + S + W, pady=10, padx=10)
-customer_address.configure(highlightthickness=1, highlightbackground="Grey", relief=FLAT)
+customer_address.configure(highlightthickness=1,
+                           highlightbackground="Grey",
+                           relief=FLAT)
 
 #       Product name
 Lf02 = LabelFrame(add_together, text="Optiuni produs", labelanchor=N)
@@ -176,7 +226,9 @@ for h in range(5):
 lbl6 = Label(Lf02, text="Nume", anchor=E)
 lbl6.grid(row=0, column=0, sticky=N + E + S + W, padx=5, pady=10)
 
-product_name = Combobox(Lf02, postcommand=lambda: product_name__search(), width=40)
+product_name = Combobox(Lf02,
+                        postcommand=lambda: product_name__search(),
+                        width=40)
 product_name.grid(row=0, column=1, sticky=N + E + W + S, padx=5, pady=10)
 
 # Product Detail
@@ -184,8 +236,15 @@ lbl8 = Label(Lf02, text="Descriere")
 lbl8.grid(row=1, column=0, sticky=N + E, padx=5, pady=10)
 
 product_detail = tk.Text(Lf02, width=4, height=2, wrap=WORD, relief=FLAT)
-product_detail.grid(row=1, column=1, rowspan=2, sticky=N + E + S + W, pady=10, padx=5)
-product_detail.configure(highlightthickness=1, highlightbackground="Grey", relief=FLAT)
+product_detail.grid(row=1,
+                    column=1,
+                    rowspan=2,
+                    sticky=N + E + S + W,
+                    pady=10,
+                    padx=5)
+product_detail.configure(highlightthickness=1,
+                         highlightbackground="Grey",
+                         relief=FLAT)
 
 # Product Price
 
@@ -211,38 +270,65 @@ for h in range(1, 10):
     Lf04.rowconfigure(h, weight=1)
 # Invoice Date
 
-Label(Lf04, text="Data facturare", anchor=N + W).grid(row=0, column=0, sticky=N + E + W + S, padx=0, pady=0)
+Label(Lf04, text="Data facturare", anchor=N + W).grid(row=0,
+                                                      column=0,
+                                                      sticky=N + E + W + S,
+                                                      padx=0,
+                                                      pady=0)
 
 invoice_date = CalendarButton(Lf04)
-invoice_date.grid(row=1, column=0, columnspan=2, sticky=N + E + S + W, padx=5, pady=0)
+invoice_date.grid(row=1,
+                  column=0,
+                  columnspan=2,
+                  sticky=N + E + S + W,
+                  padx=5,
+                  pady=0)
 
 # Invoice Number
-Label(Lf04, text="Numar factura", anchor=N + W).grid(row=2, column=0, sticky=N + E + W + S, padx=5, pady=5)
+Label(Lf04, text="Numar factura", anchor=N + W).grid(row=2,
+                                                     column=0,
+                                                     sticky=N + E + W + S,
+                                                     padx=5,
+                                                     pady=5)
 
 invoice_number = Spinbox(Lf04, from_=0, to=10000, increment=1.0, wrap=True)
 invoice_number.grid(row=2, column=1, sticky=N + E + W + S, padx=5, pady=5)
 # +- Button
 
 Cartindeldbnfram = Frame(Lf04)
-Cartindeldbnfram.grid(row=9, column=0, columnspan=2, sticky=E + W + N + S, padx=0, pady=0)
+Cartindeldbnfram.grid(row=9,
+                      column=0,
+                      columnspan=2,
+                      sticky=E + W + N + S,
+                      padx=0,
+                      pady=0)
 Cartindeldbnfram.rowconfigure(0, weight=1)
 Cartindeldbnfram.columnconfigure(0, weight=1)
 Cartindeldbnfram.columnconfigure(1, weight=1)
 ADD_TO_CART = os.path.normpath('data/cart_add.png')
 tmp = PIL.Image.open(ADD_TO_CART).resize((25, 25), PIL.Image.ANTIALIAS)
 tmp = PIL.ImageTk.PhotoImage(image=tmp)
-Button(Cartindeldbnfram, text="Adaugare in cos", image=tmp,
-       compound=LEFT, command=lambda: add_2_cart()).grid(row=0, column=0,
-                                                         sticky=E + W + N + S,
-                                                         padx=5,
-                                                         pady=5)
+Button(Cartindeldbnfram,
+       text="Adaugare in cos",
+       image=tmp,
+       compound=LEFT,
+       command=lambda: add_2_cart()).grid(row=0,
+                                          column=0,
+                                          sticky=E + W + N + S,
+                                          padx=5,
+                                          pady=5)
 REMOVE_FROM_CART = os.path.normpath('data/cart_remove.png')
 tmp2 = PIL.Image.open(REMOVE_FROM_CART).resize((25, 25), PIL.Image.ANTIALIAS)
 tmp2 = PIL.ImageTk.PhotoImage(image=tmp2)
-Button(Cartindeldbnfram, text="Stergere din cos", image=tmp2,
-       compound=LEFT, command=lambda: remove_from_cart()).grid(row=0, column=1,
-                                                               sticky=E + W + N + S, padx=5,
-                                                               pady=5)
+Button(Cartindeldbnfram,
+       text="Stergere din cos",
+       image=tmp2,
+       compound=LEFT,
+       command=lambda: remove_from_cart()).grid(row=0,
+                                                column=1,
+                                                sticky=E + W + N + S,
+                                                padx=5,
+                                                pady=5)
 
 # side
 
@@ -268,8 +354,8 @@ Amt_var = tk.DoubleVar()
 Amount = Label(Lf03, font=Fon1, textvariable=Amt_var)
 Amount.grid(row=0, column=1, sticky=N + E + S + W, padx=10, pady=10)
 
-
 # GST
+
 
 def get_sgst():
     """ returns sgst """
@@ -294,29 +380,42 @@ def tax_update():
 
 Amt_var.trace('w', tax_update)
 
-Label(Lf03, text="Adaos @ " + str(get_sgst()) + "% : ", font=Fon1).grid(row=1, column=0, sticky=E + N + S, padx=10,
-                                                                       pady=10)
+Label(Lf03, text="Adaos @ " + str(get_sgst()) + "% : ",
+      font=Fon1).grid(row=1, column=0, sticky=E + N + S, padx=10, pady=10)
 
 sgst_var = tk.DoubleVar()
 
 sgst = Label(Lf03, font=Fon1, textvariable=sgst_var)
 sgst.grid(row=1, column=1, sticky=N + E + S + W, padx=10, pady=10)
 
-Label(Lf03, text="TVA @ " + str(get_cgst()) + "% : ", font=Fon1).grid(row=2, column=0, sticky=E + N + S, padx=10,
-                                                                       pady=10)
+Label(Lf03, text="TVA @ " + str(get_cgst()) + "% : ",
+      font=Fon1).grid(row=2, column=0, sticky=E + N + S, padx=10, pady=10)
 
 cgst_var = tk.DoubleVar()
 
 cgst = Label(Lf03, font=Fon1, textvariable=cgst_var)
 cgst.grid(row=2, column=1, sticky=N + E + S + W, padx=10, pady=10)
 
-Separator(Lf03, orient=HORIZONTAL).grid(row=3, column=0, columnspan=2, sticky="ew", padx=8, pady=4)
+Separator(Lf03, orient=HORIZONTAL).grid(row=3,
+                                        column=0,
+                                        columnspan=2,
+                                        sticky="ew",
+                                        padx=8,
+                                        pady=4)
 
 # subtotal
 
-Label(Lf03, text="Sub Total :", font=Fon1).grid(row=4, column=0, sticky=E + N + S, padx=10, pady=10)
+Label(Lf03, text="Sub Total :", font=Fon1).grid(row=4,
+                                                column=0,
+                                                sticky=E + N + S,
+                                                padx=10,
+                                                pady=10)
 subtol_var = tk.DoubleVar()
-Label(Lf03, font=Fon1, textvariable=subtol_var).grid(row=4, column=1, sticky=W + N + S, padx=10, pady=10)
+Label(Lf03, font=Fon1, textvariable=subtol_var).grid(row=4,
+                                                     column=1,
+                                                     sticky=W + N + S,
+                                                     padx=10,
+                                                     pady=10)
 
 # Paid
 
@@ -338,7 +437,12 @@ Discount.grid(row=6, column=1, sticky=W + N + S, padx=10, pady=10)
 
 # Grand Total
 
-Separator(Lf03, orient=HORIZONTAL).grid(row=7, column=0, columnspan=2, sticky="ew", padx=8, pady=4)
+Separator(Lf03, orient=HORIZONTAL).grid(row=7,
+                                        column=0,
+                                        columnspan=2,
+                                        sticky="ew",
+                                        padx=8,
+                                        pady=4)
 
 lbl25 = Label(Lf03, text="Total:", font=Fon)
 lbl25.grid(row=8, column=0, sticky=E + N + S, padx=10, pady=10)
@@ -353,14 +457,23 @@ NEW_DOC = os.path.normpath('data/new_doc.png')
 genico = PIL.Image.open(NEW_DOC).resize((32, 32), PIL.Image.ANTIALIAS)
 genico = PIL.ImageTk.PhotoImage(image=genico)
 
-butn_Gen = Button(Lf03, text="Generare factura", command=lambda: transfer(), image=genico, compound=LEFT)
-butn_Gen.grid(row=9, column=0, columnspan=2, sticky=E + W + S + N, pady=10, padx=8)
+butn_Gen = Button(Lf03,
+                  text="Generare factura",
+                  command=lambda: transfer(),
+                  image=genico,
+                  compound=LEFT)
+butn_Gen.grid(row=9,
+              column=0,
+              columnspan=2,
+              sticky=E + W + S + N,
+              pady=10,
+              padx=8)
 
 # Table
 
-mlb = tableTree.MultiListbox(dframe,
-                             (("ID Pret", 20), ('Produs', 35), ('Descriere', 45), ("Cantitate", 6), ("Pret Unitar", 9),
-                              ("LOT", 35)))
+mlb = tableTree.MultiListbox(dframe, (("ID Pret", 20), ('Produs', 35),
+                                      ('Descriere', 45), ("Cantitate", 6),
+                                      ("Pret Unitar", 9), ("LOT", 35)))
 mlb.grid(row=0, column=0, sticky=N + S + E + W, padx=10)
 
 
@@ -383,9 +496,12 @@ def purchase_product_frame():
     note.add(upf, text="    Achizitii    ")
     upf.columnconfigure(0, weight=1)
     upf.rowconfigure(1, weight=1)
-    Label(upf, text="Achizitie Produse", foreground="#3496ff", font=('Berlin Sans FB Demi', 20)).grid(row=0, column=0,
-                                                                                                      sticky=N + S +
-                                                                                                             E + W)
+    Label(upf,
+          text="Achizitie Produse",
+          foreground="#3496ff",
+          font=('Berlin Sans FB Demi', 20)).grid(row=0,
+                                                 column=0,
+                                                 sticky=N + S + E + W)
     app6 = Frame(upf)
     app6.grid(row=1, column=0, sticky=N + W + S + E)
     for i in range(1):
@@ -404,18 +520,35 @@ def purchase_product_frame():
     for i in range(0, 7):
         lfp.rowconfigure(i, weight=1)
     Label(lfp, text="Nume").grid(row=1, column=0, sticky=E, padx=10, pady=5)
-    product_name_search = Combobox(lfp, postcommand=lambda: product_entry_search())
+    product_name_search = Combobox(lfp,
+                                   postcommand=lambda: product_entry_search())
     product_name_search.grid(row=1, column=1, sticky=W + E, padx=10, pady=5)
-    Label(lfp, text="Cantitate").grid(row=3, column=0, sticky=E, padx=10, pady=5)
+    Label(lfp, text="Cantitate").grid(row=3,
+                                      column=0,
+                                      sticky=E,
+                                      padx=10,
+                                      pady=5)
     qty_text = Entry(lfp)
     qty_text.grid(row=3, column=1, sticky=W + E, padx=10, pady=5)
-    Label(lfp, text="Pret Achizitie").grid(row=5, column=0, sticky=E, padx=10, pady=5)
+    Label(lfp, text="Pret Achizitie").grid(row=5,
+                                           column=0,
+                                           sticky=E,
+                                           padx=10,
+                                           pady=5)
     cost_price_text = Entry(lfp)
     cost_price_text.grid(row=5, column=1, sticky=W + E, padx=10, pady=5)
-    Label(lfp, text="Data achizitie").grid(row=1, column=2, sticky=E, padx=10, pady=5)
+    Label(lfp, text="Data achizitie").grid(row=1,
+                                           column=2,
+                                           sticky=E,
+                                           padx=10,
+                                           pady=5)
     btn64 = CalendarButton(lfp)
     btn64.grid(row=1, column=3, sticky=W + E + S + N, padx=10, pady=5)
-    Label(lfp, text="Pret comercializare").grid(row=3, column=2, sticky=E, padx=10, pady=5)
+    Label(lfp, text="Pret comercializare").grid(row=3,
+                                                column=2,
+                                                sticky=E,
+                                                padx=10,
+                                                pady=5)
     selling_price_text = Entry(lfp)
     selling_price_text.grid(row=3, column=3, sticky=W + E, padx=10, pady=5)
     editbtnfram = Frame(lfp)
@@ -426,46 +559,90 @@ def purchase_product_frame():
     EDIT_ADD = os.path.normpath('data/edit_add.png')
     tmp4 = PIL.Image.open(EDIT_ADD).resize((25, 25), PIL.Image.ANTIALIAS)
     tmp4 = PIL.ImageTk.PhotoImage(image=tmp4)
-    Button(editbtnfram, text="Adaugare",
-           image=tmp4, compound=LEFT,
-           command=lambda: add2_purchase_table()).grid(row=0, column=0, sticky=N + E + S + W,
-                                                       padx=10, pady=5)
+    Button(editbtnfram,
+           text="Adaugare",
+           image=tmp4,
+           compound=LEFT,
+           command=lambda: add2_purchase_table()).grid(row=0,
+                                                       column=0,
+                                                       sticky=N + E + S + W,
+                                                       padx=10,
+                                                       pady=5)
     SYMBOL_REMOVE = os.path.normpath('data/symbol_remove.png')
     tmp5 = PIL.Image.open(SYMBOL_REMOVE).resize((25, 25), PIL.Image.ANTIALIAS)
     tmp5 = PIL.ImageTk.PhotoImage(image=tmp5)
-    Button(editbtnfram, text="Stergere",
-           image=tmp5, compound=LEFT,
-           command=lambda: delete_from_purchase_table()).grid(row=0, column=1,
-                                                              sticky=N + W + S + E, padx=10,
+    Button(editbtnfram,
+           text="Stergere",
+           image=tmp5,
+           compound=LEFT,
+           command=lambda: delete_from_purchase_table()).grid(row=0,
+                                                              column=1,
+                                                              sticky=N + W +
+                                                              S + E,
+                                                              padx=10,
                                                               pady=5)
-    btn65 = Button(lfp, text=" Jurnal achizitii", width=20, command=lambda: ipurlog())
+    btn65 = Button(lfp,
+                   text=" Jurnal achizitii",
+                   width=20,
+                   command=lambda: ipurlog())
     btn65.grid(row=5, column=2, sticky=N + S + E + W, padx=10, pady=5)
-    Label(lfp, text="Categorie ").grid(row=1, column=4, sticky=E, padx=10, pady=5)
+    Label(lfp, text="Categorie ").grid(row=1,
+                                       column=4,
+                                       sticky=E,
+                                       padx=10,
+                                       pady=5)
     category_combo = Combobox(lfp, postcommand=lambda: ckeys())
     category_combo.grid(row=1, column=5, sticky=W + E, padx=10, pady=5)
-    Label(lfp, text="Descriere").grid(row=3, column=4, sticky=E + N, padx=10, pady=5)
+    Label(lfp, text="Descriere").grid(row=3,
+                                      column=4,
+                                      sticky=E + N,
+                                      padx=10,
+                                      pady=5)
     description_text = tk.Text(lfp, width=0, height=2, wrap=WORD, relief=FLAT)
-    description_text.grid(row=3, column=5, rowspan=3, sticky=W + E + N + S, padx=10, pady=5)
-    description_text.configure(highlightthickness=1, highlightbackground="Grey", relief=FLAT)
-    Label(lfp, text="Pentru factura").grid(row=6, column=0, sticky=E, padx=5, pady=5)
+    description_text.grid(row=3,
+                          column=5,
+                          rowspan=3,
+                          sticky=W + E + N + S,
+                          padx=10,
+                          pady=5)
+    description_text.configure(highlightthickness=1,
+                               highlightbackground="Grey",
+                               relief=FLAT)
+    Label(lfp, text="Pentru factura").grid(row=6,
+                                           column=0,
+                                           sticky=E,
+                                           padx=5,
+                                           pady=5)
     pentru_factura = Entry(lfp)
     pentru_factura.grid(row=6, column=1, sticky=W + E, padx=5, pady=5)
-    Label(lfp, text="Furnizor").grid(row=6, column=2, sticky=E, padx=10, pady=5)
-    supplier_combo_search_purchase = Combobox(lfp, values=supplier_keys(), postcommand=lambda: supplier_keys())
-    supplier_combo_search_purchase.grid(row=6, column=3, sticky=N + E + W + S, padx=10, pady=10)
+    Label(lfp, text="Furnizor").grid(row=6,
+                                     column=2,
+                                     sticky=E,
+                                     padx=10,
+                                     pady=5)
+    supplier_combo_search_purchase = Combobox(
+        lfp, values=supplier_keys(), postcommand=lambda: supplier_keys())
+    supplier_combo_search_purchase.grid(row=6,
+                                        column=3,
+                                        sticky=N + E + W + S,
+                                        padx=10,
+                                        pady=10)
     Label(lfp, text="LOT   ").grid(row=6, column=4, sticky=E, padx=10, pady=5)
     lot_text = Entry(lfp)
     lot_text.grid(row=6, column=5, sticky=W + E, padx=10, pady=5)
-    mlb21 = tableTree.MultiListbox(app6,
-                                   (('Nume produs', 35), ("UM", 10), ("Pret achizitie", 25), ("Pret comercializare", 25), ("Cantitate",
-                                                                                                                  15),
-                                    ("Data", 35), ("LOT", 25), ("Pentru factura", 35), ('Furnizor', 20)))
+    mlb21 = tableTree.MultiListbox(
+        app6, (('Nume produs', 35), ("UM", 10), ("Pret achizitie", 25),
+               ("Pret comercializare", 25), ("Cantitate", 15), ("Data", 35),
+               ("LOT", 25), ("Pentru factura", 35), ('Furnizor', 20)))
     mlb21.grid(row=3, column=0, columnspan=1, sticky=N + S + E + W)
     NEXT_ICO = os.path.normpath('data/next.png')
     tmp3 = PIL.Image.open(NEXT_ICO).resize((70, 70), PIL.Image.ANTIALIAS)
     tmp3 = PIL.ImageTk.PhotoImage(image=tmp3)
-    btn62 = Button(app6, text="Terminare achizitie", width=35,
-                   image=tmp3, compound=LEFT,
+    btn62 = Button(app6,
+                   text="Terminare achizitie",
+                   width=35,
+                   image=tmp3,
+                   compound=LEFT,
                    command=lambda: add2_inventory())
     btn62.grid(row=8, column=0, sticky=N + E + S, pady=10)
 
@@ -485,11 +662,15 @@ def inventory_product_list():
     app2.columnconfigure(1, weight=7)
     app2.rowconfigure(2, weight=1)
     note.add(app2, text='    Inventar')
-    Label(app2, text='Produse inventar',
-          foreground="#3496ff", font=('Berlin Sans FB Demi', 20)).grid(row=0, column=0,
-                                                                       columnspan=2,
-                                                                       sticky=E + N + W + S,
-                                                                       padx=10, pady=0)
+    Label(app2,
+          text='Produse inventar',
+          foreground="#3496ff",
+          font=('Berlin Sans FB Demi', 20)).grid(row=0,
+                                                 column=0,
+                                                 columnspan=2,
+                                                 sticky=E + N + W + S,
+                                                 padx=10,
+                                                 pady=0)
     app2sub2 = Frame(app2)
     app2sub2.grid(row=1, column=0, sticky=N + S + W + E, padx=5, pady=0)
     app2sub2.columnconfigure(1, weight=1)
@@ -501,22 +682,45 @@ def inventory_product_list():
         lf3.columnconfigure(h, weight=1)
     for h in xrange(2):
         lf3.rowconfigure(h, weight=1)
-    Label(lf3, text="Termen de cautare").grid(row=0, column=0, sticky=N + W + S + E, padx=5, pady=7)
-    product_search = Combobox(lf3, width=35, postcommand=lambda: product__search())
-    product_search.grid(row=0, column=1, columnspan=2, sticky=N + W + S + E, padx=5, pady=7)
+    Label(lf3, text="Termen de cautare").grid(row=0,
+                                              column=0,
+                                              sticky=N + W + S + E,
+                                              padx=5,
+                                              pady=7)
+    product_search = Combobox(lf3,
+                              width=35,
+                              postcommand=lambda: product__search())
+    product_search.grid(row=0,
+                        column=1,
+                        columnspan=2,
+                        sticky=N + W + S + E,
+                        padx=5,
+                        pady=7)
     SEARCH_ICO = os.path.normpath('data/search.png')
     tmp6 = PIL.Image.open(SEARCH_ICO).resize((20, 20), PIL.Image.ANTIALIAS)
     tmp6 = PIL.ImageTk.PhotoImage(image=tmp6)
-    Button(lf3, text="Cautare", width=15,
+    Button(lf3,
+           text="Cautare",
+           width=15,
            image=tmp6,
-           command=lambda: b_product__search()).grid(row=1, column=1, sticky=N + W + S + E,
-                                                     padx=5, pady=5)
+           command=lambda: b_product__search()).grid(row=1,
+                                                     column=1,
+                                                     sticky=N + W + S + E,
+                                                     padx=5,
+                                                     pady=5)
     VIEW_REFRESH_ICO = os.path.normpath('data/view_refresh.png')
-    tmp7 = PIL.Image.open(VIEW_REFRESH_ICO).resize((20, 20), PIL.Image.ANTIALIAS)
+    tmp7 = PIL.Image.open(VIEW_REFRESH_ICO).resize((20, 20),
+                                                   PIL.Image.ANTIALIAS)
     tmp7 = PIL.ImageTk.PhotoImage(image=tmp7)
-    Button(lf3, text="Reincarcare", width=15, image=tmp7,
-           command=lambda: b_product__search(refresh=True)).grid(row=1, column=2,
-                                                                 sticky=N + W + S + E, padx=5,
+    Button(lf3,
+           text="Reincarcare",
+           width=15,
+           image=tmp7,
+           command=lambda: b_product__search(refresh=True)).grid(row=1,
+                                                                 column=2,
+                                                                 sticky=N + W +
+                                                                 S + E,
+                                                                 padx=5,
                                                                  pady=5)
     lf31 = LabelFrame(app2sub2, text="Optiuni Editare Produs")
     lf31.grid(row=0, column=1, sticky=N + W + S + E, padx=2, pady=10)
@@ -524,30 +728,53 @@ def inventory_product_list():
         lf31.columnconfigure(h, weight=1)
     for h in range(2):
         lf31.rowconfigure(h, weight=1)
-    Button(lf31, text="Adaugare Produs",
-           image=tmp4, compound=LEFT,
-           command=lambda: a_d_d__product(), width=20).grid(row=0, column=0, sticky=N + W + E + S,
-                                                            padx=5, pady=5)
-    Button(lf31, text="Stergere Produs",
-           image=tmp5, compound=LEFT,
-           command=lambda: remove__product(mlb31), width=20).grid(row=0, column=1,
-                                                                  sticky=N + W + S + E, padx=5,
-                                                                  pady=5)
+    Button(lf31,
+           text="Adaugare Produs",
+           image=tmp4,
+           compound=LEFT,
+           command=lambda: a_d_d__product(),
+           width=20).grid(row=0,
+                          column=0,
+                          sticky=N + W + E + S,
+                          padx=5,
+                          pady=5)
+    Button(lf31,
+           text="Stergere Produs",
+           image=tmp5,
+           compound=LEFT,
+           command=lambda: remove__product(mlb31),
+           width=20).grid(row=0,
+                          column=1,
+                          sticky=N + W + S + E,
+                          padx=5,
+                          pady=5)
 
-    tmp_modify = PIL.Image.open(SETTINGS_ICO).resize((20, 20), PIL.Image.ANTIALIAS)
+    tmp_modify = PIL.Image.open(SETTINGS_ICO).resize((20, 20),
+                                                     PIL.Image.ANTIALIAS)
     tmp_modify = PIL.ImageTk.PhotoImage(image=tmp_modify)
-    Button(lf31, text="Modificare Produs",
-           image=tmp_modify, compound=LEFT,
-           command=lambda: a_d_d__product(modify=True), width=20).grid(row=1, column=0,
-                                                                       sticky=N + W + S + E,
-                                                                       padx=5, pady=5)
-    tmp_extra = PIL.Image.open(SETTINGS_ICO).resize((20, 20), PIL.Image.ANTIALIAS)
+    Button(lf31,
+           text="Modificare Produs",
+           image=tmp_modify,
+           compound=LEFT,
+           command=lambda: a_d_d__product(modify=True),
+           width=20).grid(row=1,
+                          column=0,
+                          sticky=N + W + S + E,
+                          padx=5,
+                          pady=5)
+    tmp_extra = PIL.Image.open(SETTINGS_ICO).resize((20, 20),
+                                                    PIL.Image.ANTIALIAS)
     tmp_extra = PIL.ImageTk.PhotoImage(image=tmp_extra)
-    Button(lf31, text="Optiuni Categorie",
-           image=tmp_extra, compound=LEFT,
-           command=lambda: category_opt_event(), width=20).grid(row=1, column=1,
-                                                                sticky=N + W + S + E, padx=5,
-                                                                pady=5)
+    Button(lf31,
+           text="Optiuni Categorie",
+           image=tmp_extra,
+           compound=LEFT,
+           command=lambda: category_opt_event(),
+           width=20).grid(row=1,
+                          column=1,
+                          sticky=N + W + S + E,
+                          padx=5,
+                          pady=5)
 
     def uom_opt_event():
         rootd = tk.Toplevel(master=root)
@@ -558,19 +785,27 @@ def inventory_product_list():
         rootd.wait_window()
         return True
 
-    Button(lf31, text="Unitati de masura", image=tmp_extra, compound=LEFT, command=lambda: uom_opt_event(),
-           width=20).grid(row=2, column=0, sticky=N + W + S + E, padx=5, pady=5)
-    mlb31 = tableTree.MultiListbox(app2,
-                                   (('ID', 5), ('Nume', 45), ('Categorie', 25), ('Descriere', 65),
-                                    ("Unitate de masura", 10), ("Cantitate", 10)))
+    Button(lf31,
+           text="Unitati de masura",
+           image=tmp_extra,
+           compound=LEFT,
+           command=lambda: uom_opt_event(),
+           width=20).grid(row=2,
+                          column=0,
+                          sticky=N + W + S + E,
+                          padx=5,
+                          pady=5)
+    mlb31 = tableTree.MultiListbox(
+        app2, (('ID', 5), ('Nume', 45), ('Categorie', 25), ('Descriere', 65),
+               ("Unitate de masura", 10), ("Cantitate", 10)))
     mlb31.grid(row=2, column=0, columnspan=2, sticky=N + S + E + W)
 
 
 inventory_product_list()
 
-
 # page 4
 # listing
+
 
 def customer_database_list():
     """ Customer listing """
@@ -581,66 +816,115 @@ def customer_database_list():
     app3.columnconfigure(1, weight=5)
     app3.rowconfigure(2, weight=1)
     note.add(app3, text="    Clienti")
-    Label(app3, text='Lista clienti',
-          foreground="#3496ff", font=('Berlin Sans FB Demi', 20)).grid(row=0, column=0,
-                                                                       columnspan=2,
-                                                                       sticky=E + N + W + S,
-                                                                       padx=10, pady=0)
+    Label(app3,
+          text='Lista clienti',
+          foreground="#3496ff",
+          font=('Berlin Sans FB Demi', 20)).grid(row=0,
+                                                 column=0,
+                                                 columnspan=2,
+                                                 sticky=E + N + W + S,
+                                                 padx=10,
+                                                 pady=0)
     df = Frame(app3)
     df.grid(row=1, column=0, sticky=N + S + W + E)
     df.columnconfigure(0, weight=5)
     df.columnconfigure(1, weight=1)
-    lf41 = LabelFrame(df, text="Customer Search Options")
+    lf41 = LabelFrame(df, text="Optiuni Cautare Clienti")
     lf41.grid(row=0, column=0, sticky=N + S + W + E, padx=2, pady=0)
     lf41.columnconfigure(1, weight=1)
     lf41.columnconfigure(2, weight=1)
     for h in xrange(2):
         lf41.rowconfigure(h, weight=1)
-    Label(lf41, text="Search KeyWord").grid(row=0, column=0, sticky=N + S + E, padx=5, pady=5)
-    customer_search = Combobox(lf41, postcommand=lambda: customer__search(), width=35)
-    customer_search.grid(row=0, column=1, columnspan=2, sticky=N + W + S + E, padx=5, pady=5)
-    Button(lf41, text="Search", width=15, image=tmp6,
-           command=lambda: b_customer__search()).grid(row=1, column=1, sticky=N + W + S + E,
-                                                      padx=5, pady=5)
-    Button(lf41, text="refresh", width=15, image=tmp7,
-           command=lambda: b_customer__search(refresh=True)).grid(row=1, column=2,
-                                                                  sticky=N + W + S + E,
-                                                                  padx=5, pady=5)
-    lf42 = LabelFrame(df, text="Customer Edit Options")
+    Label(lf41, text="Termen de cautare").grid(row=0,
+                                               column=0,
+                                               sticky=N + S + E,
+                                               padx=5,
+                                               pady=5)
+    customer_search = Combobox(lf41,
+                               postcommand=lambda: customer__search(),
+                               width=35)
+    customer_search.grid(row=0,
+                         column=1,
+                         columnspan=2,
+                         sticky=N + W + S + E,
+                         padx=5,
+                         pady=5)
+    Button(lf41,
+           text="Cauta",
+           width=15,
+           image=tmp6,
+           command=lambda: b_customer__search()).grid(row=1,
+                                                      column=1,
+                                                      sticky=N + W + S + E,
+                                                      padx=5,
+                                                      pady=5)
+    Button(lf41,
+           text="Reincarcare",
+           width=15,
+           image=tmp7,
+           command=lambda: b_customer__search(refresh=True)).grid(row=1,
+                                                                  column=2,
+                                                                  sticky=N +
+                                                                  W + S + E,
+                                                                  padx=5,
+                                                                  pady=5)
+    lf42 = LabelFrame(df, text="Optiuni Editare Clienti")
     lf42.grid(row=0, column=1, sticky=N + W + S + E, padx=2, pady=0)
     lf42.columnconfigure(0, weight=1)
     lf42.columnconfigure(1, weight=1)
     for h in xrange(2):
         lf42.rowconfigure(h, weight=1)
-    Button(lf42, text="Add Customer", width=20,
-           image=tmp4, compound=LEFT,
-           command=lambda: a_d_d__customer()).grid(row=0, column=0, sticky=N + W + S + E,
-                                                   padx=5, pady=5)
-    Button(lf42, text="Remove Customer", width=20,
-           image=tmp5, compound=LEFT,
-           command=lambda: remove__customer(mlb41)).grid(row=0, column=1,
+    Button(lf42,
+           text="Adaugare Client",
+           width=20,
+           image=tmp4,
+           compound=LEFT,
+           command=lambda: a_d_d__customer()).grid(row=0,
+                                                   column=0,
+                                                   sticky=N + W + S + E,
+                                                   padx=5,
+                                                   pady=5)
+    Button(lf42,
+           text="Stergere Client",
+           width=20,
+           image=tmp5,
+           compound=LEFT,
+           command=lambda: remove__customer(mlb41)).grid(row=0,
+                                                         column=1,
                                                          sticky=N + W + S + E,
-                                                         padx=5, pady=5)
-    Button(lf42, text="Modify Customer", width=20,
-           image=tmp_modify, compound=LEFT,
-           command=lambda: a_d_d__customer(modify=True)).grid(row=1, column=0,
-                                                              sticky=N + W + E + S,
-                                                              padx=5, pady=5)
-    Button(lf42, text="Invoice Option", width=20,
-           image=tmp_extra, compound=LEFT,
-           command=lambda: invoice_opt_event()).grid(row=1, column=1,
-                                                     sticky=N + W + E + S, padx=5,
+                                                         padx=5,
+                                                         pady=5)
+    Button(lf42,
+           text="Modificare Client",
+           width=20,
+           image=tmp_modify,
+           compound=LEFT,
+           command=lambda: a_d_d__customer(modify=True)).grid(row=1,
+                                                              column=0,
+                                                              sticky=N + W +
+                                                              E + S,
+                                                              padx=5,
+                                                              pady=5)
+    Button(lf42,
+           text="Optiuni Facturare",
+           width=20,
+           image=tmp_extra,
+           compound=LEFT,
+           command=lambda: invoice_opt_event()).grid(row=1,
+                                                     column=1,
+                                                     sticky=N + W + E + S,
+                                                     padx=5,
                                                      pady=5)
-    mlb41 = tableTree.MultiListbox(app3,
-                                   (('Customer ID', 5), ('Customer Name', 40), ('Phone No', 15), ('Address', 70),
-                                    ("Email", 30)))
+    mlb41 = tableTree.MultiListbox(app3, (('ID', 5), ('Nume Client', 40),
+                                          ('Telefon', 15), ('Adresa', 70),
+                                          ("Email", 30)))
     mlb41.grid(row=2, column=0, columnspan=2, sticky=N + S + E + W, pady=10)
 
 
 customer_database_list()
 
-
 # Page  5
+
 
 def import_export():
     """ import export function """
@@ -650,50 +934,101 @@ def import_export():
     for h in range(8):
         app4.columnconfigure(h, weight=1)
     app4.columnconfigure(24, weight=1)
-    note.add(app4, text="    Imports and Exports    ")
-    Label(app4, text='Import and Export CSV',
-          foreground="#3496ff", font=('Berlin Sans FB Demi', 20)).grid(row=0, column=0,
-                                                                       sticky=E + N + W + S,
-                                                                       padx=10, pady=0)
-    lf2 = LabelFrame(app4, text="Import Option")
-    lf2.grid(row=2, column=0, rowspan=5, columnspan=6, sticky=N + W + S + E, padx=10, pady=10)
+    note.add(app4, text="    Importuri si Exporturi    ")
+    Label(app4,
+          text='Importare si Exportare CSV',
+          foreground="#3496ff",
+          font=('Berlin Sans FB Demi', 20)).grid(row=0,
+                                                 column=0,
+                                                 sticky=E + N + W + S,
+                                                 padx=10,
+                                                 pady=0)
+    lf2 = LabelFrame(app4, text="Optiuni Importare")
+    lf2.grid(row=2,
+             column=0,
+             rowspan=5,
+             columnspan=6,
+             sticky=N + W + S + E,
+             padx=10,
+             pady=10)
     for h in range(7):
         lf2.columnconfigure(h, weight=1)
-    lbl54 = Label(lf2, text="Import Product List From   ")
+    lbl54 = Label(lf2, text="Importare lista de produse din")
     lbl54.grid(row=2, column=1, sticky=N + E + S + W, padx=10, pady=10)
     entry51 = Entry(lf2, width=35)
-    entry51.grid(row=2, column=2, columnspan=2, sticky=N + E + S + W, padx=10, pady=10)
-    btn51 = Button(lf2, text="Browse File", command=lambda: brow__file(entry51))
+    entry51.grid(row=2,
+                 column=2,
+                 columnspan=2,
+                 sticky=N + E + S + W,
+                 padx=10,
+                 pady=10)
+    btn51 = Button(lf2, text="Rasfoire", command=lambda: brow__file(entry51))
     btn51.grid(row=2, column=5, sticky=N + E + S + W, padx=10, pady=10)
     C51 = tk.Canvas(app4, width=350, height=350, bg="White")
-    C51.grid(row=2, rowspan=15, column=8, columnspan=15, sticky=N + E + W + S, padx=10, pady=10)
+    C51.grid(row=2,
+             rowspan=15,
+             column=8,
+             columnspan=15,
+             sticky=N + E + W + S,
+             padx=10,
+             pady=10)
     Fon3 = tkFont.Font(family='Times', size=24)
     Fon4 = tkFont.Font(family='Times', size=16)
-    ir3 = C51.create_text(205, 280, text="Total Solution To Inventory \n                         Management", font=Fon4)
-    ir = C51.create_text(150, 50, text="     Inventory   Manager", font=Fon3)
-    ir1 = C51.create_text(220, 90, text="         Powered by", font=Fon4)
-    ir2 = C51.create_text(127, 215, text="Das \n      Enterprise", font=Fon3)
-    lbl58 = Label(lf2, text="Import Customer List From   ")
+    #    ir3 = C51.create_text(205, 280, text="Total Solution To Inventory \n                         Management", font=Fon4)
+    #    ir = C51.create_text(150, 50, text="     Inventory   Manager", font=Fon3)
+    #    ir1 = C51.create_text(220, 90, text="         Powered by", font=Fon4)
+    #    ir2 = C51.create_text(127, 215, text="Das \n      Enterprise", font=Fon3)
+    lbl58 = Label(lf2, text="Importa Lista de Clienti din   ")
     lbl58.grid(row=4, column=1, sticky=N + E + S + W, padx=10, pady=10)
     entry52 = Entry(lf2, width=35)
-    entry52.grid(row=4, column=2, columnspan=2, sticky=N + E + S + W, padx=10, pady=10)
-    btn52 = Button(lf2, text="Browse File", command=lambda: brow__file(entry52))
+    entry52.grid(row=4,
+                 column=2,
+                 columnspan=2,
+                 sticky=N + E + S + W,
+                 padx=10,
+                 pady=10)
+    btn52 = Button(lf2, text="Rasfoire", command=lambda: brow__file(entry52))
     btn52.grid(row=4, column=5, sticky=N + E + S + W, padx=10, pady=10)
-    btn55 = Button(lf2, text="Import", command=lambda: import_csv(entry51.get(), entry52.get()))
-    btn55.grid(row=6, column=4, columnspan=2, sticky=N + E + S + W, padx=10, pady=10)
+    btn55 = Button(lf2,
+                   text="Imporare",
+                   command=lambda: import_csv(entry51.get(), entry52.get()))
+    btn55.grid(row=6,
+               column=4,
+               columnspan=2,
+               sticky=N + E + S + W,
+               padx=10,
+               pady=10)
     # LabelFrame Export Option
-    lf1 = LabelFrame(app4, text="Export Option")
-    lf1.grid(row=8, column=0, rowspan=9, columnspan=6, sticky=N + W + S + E, padx=10, pady=10)
+    lf1 = LabelFrame(app4, text="Optiuni Export")
+    lf1.grid(row=8,
+             column=0,
+             rowspan=9,
+             columnspan=6,
+             sticky=N + W + S + E,
+             padx=10,
+             pady=10)
     for h in range(7):
         lf1.columnconfigure(h, weight=1)
-    lbl511 = Label(lf1, text="Export To  Folder ")
+    lbl511 = Label(lf1, text="Exportare in Dosar")
     lbl511.grid(row=8, column=1, sticky=N + E + S + W, padx=10, pady=10)
     entry53 = Entry(lf1, width=35)
-    entry53.grid(row=8, column=2, columnspan=2, sticky=N + E + S + W, padx=10, pady=10)
-    btn53 = Button(lf1, text="Choose File", command=lambda: save__as__file(entry53))
+    entry53.grid(row=8,
+                 column=2,
+                 columnspan=2,
+                 sticky=N + E + S + W,
+                 padx=10,
+                 pady=10)
+    btn53 = Button(lf1,
+                   text="Alegere Fisier",
+                   command=lambda: save__as__file(entry53))
     btn53.grid(row=8, column=5, sticky=N + E + S + W, padx=10, pady=10)
     btn55 = Button(lf1, text="Export", command=lambda: export(entry53))
-    btn55.grid(row=12, column=4, columnspan=2, sticky=N + E + S + W, padx=10, pady=10)
+    btn55.grid(row=12,
+               column=4,
+               columnspan=2,
+               sticky=N + E + S + W,
+               padx=10,
+               pady=10)
 
 
 import_export()
@@ -708,65 +1043,97 @@ def suppliers_frame():
     for h in range(8):
         app5.columnconfigure(h, weight=1)
     app5.columnconfigure(24, weight=1)
-    note.add(app5, text="    Suppliers    ")
-    Label(app5, text='Manage Suppliers',
-          foreground="#3496ff", font=('Berlin Sans FB Demi', 20)).grid(row=0, column=0,
-                                                                       sticky=E + N + W + S,
-                                                                       padx=10, pady=0)
+    note.add(app5, text="    Furnizori    ")
+    Label(app5,
+          text='Management Furnizori',
+          foreground="#3496ff",
+          font=('Berlin Sans FB Demi', 20)).grid(row=0,
+                                                 column=0,
+                                                 sticky=E + N + W + S,
+                                                 padx=10,
+                                                 pady=0)
     ef = Frame(app5)
     ef.grid(row=1, column=0, sticky=N + S + W + E)
     ef.columnconfigure(0, weight=5)
     ef.columnconfigure(1, weight=1)
-    lf51 = LabelFrame(ef, text="Supplier search Options")
+    lf51 = LabelFrame(ef, text="Optiuni cautare furnizori")
     lf51.grid(row=0, column=0, sticky=N + S + W + E, padx=2, pady=0)
     lf51.columnconfigure(1, weight=1)
     lf51.columnconfigure(2, weight=1)
     for h in xrange(2):
         lf51.rowconfigure(h, weight=1)
-    Label(lf51, text="Search Keyword").grid(row=0, column=0, sticky=N + S + E, padx=5, pady=5)
-    supplier_combo_search = Combobox(lf51, postcommand=lambda: supplier_search(), width=35)
-    supplier_combo_search.grid(row=0, column=1, columnspan=2, sticky=N + W + S + E, padx=5, pady=5)
-    Button(lf51, text="Search", width=15, image=tmp6, command=lambda: b_supplier_search()).grid(row=1, column=1,
-                                                                                                sticky=N + W + S + E,
-                                                                                                padx=5, pady=5)
-    Button(lf51, text="refresh", width=15, image=tmp7, command=lambda: b_supplier_search(refresh=True)).grid(row=1,
-                                                                                                             column=2,
-                                                                                                             sticky=N
-                                                                                                                    + W
-                                                                                                                    +
-                                                                                                                    S +
-                                                                                                                    E,
-                                                                                                             padx=5,
-                                                                                                             pady=5)
-    lf52 = Labelframe(ef, text="Supplier Edit Options")
+    Label(lf51, text="Termen de cautare").grid(row=0,
+                                               column=0,
+                                               sticky=N + S + E,
+                                               padx=5,
+                                               pady=5)
+    supplier_combo_search = Combobox(lf51,
+                                     postcommand=lambda: supplier_search(),
+                                     width=35)
+    supplier_combo_search.grid(row=0,
+                               column=1,
+                               columnspan=2,
+                               sticky=N + W + S + E,
+                               padx=5,
+                               pady=5)
+    Button(lf51,
+           text="Cauta",
+           width=15,
+           image=tmp6,
+           command=lambda: b_supplier_search()).grid(row=1,
+                                                     column=1,
+                                                     sticky=N + W + S + E,
+                                                     padx=5,
+                                                     pady=5)
+    Button(lf51,
+           text="Reincarcare",
+           width=15,
+           image=tmp7,
+           command=lambda: b_supplier_search(refresh=True)).grid(row=1,
+                                                                 column=2,
+                                                                 sticky=N + W +
+                                                                 S + E,
+                                                                 padx=5,
+                                                                 pady=5)
+    lf52 = Labelframe(ef, text="Optiuni editare Furnizori")
     lf52.grid(row=0, column=1, sticky=N + W + S + E, padx=2, pady=0)
     lf52.columnconfigure(0, weight=1)
     lf52.rowconfigure(0, weight=1)
     for h in xrange(2):
         lf52.rowconfigure(h, weight=1)
-    Button(lf52, text="Add Supplier", width=20, image=tmp4, compound=LEFT, command=lambda: add_supplier()).grid(row=0,
-                                                                                                                column=0,
-                                                                                                                sticky=N
-                                                                                                                       +
-                                                                                                                       W
-                                                                                                                       +
-                                                                                                                       S
-                                                                                                                       +
-                                                                                                                       E,
-                                                                                                                padx=5,
-                                                                                                                pady=5)
-    Button(lf52, text="Remove Supplier", width=20, image=tmp5, compound=LEFT,
-           command=lambda: remove_supplier(mlb51)).grid(
-        row=0, column=1,
-        sticky=N + W + S + E,
-        padx=5, pady=5)
-    Button(lf52, text="Modify Supplier", width=20, image=tmp_modify, compound=LEFT, command=lambda: add_supplier(
-        modify=True)).grid(row=1, column=0,
-                           sticky=N + W + E + S,
-                           padx=5, pady=5)
-    mlb51 = tableTree.MultiListbox(app5, (("Supplier ID", 5), ("Supplier Name", 40), ("Supplier RO", 12), ("Supplier "
-                                                                                                           "Address",
-                                                                                                           70)))
+    Button(lf52,
+           text="Adaugare Furnizor",
+           width=20,
+           image=tmp4,
+           compound=LEFT,
+           command=lambda: add_supplier()).grid(row=0,
+                                                column=0,
+                                                sticky=N + W + S + E,
+                                                padx=5,
+                                                pady=5)
+    Button(lf52,
+           text="Stergere furnizor",
+           width=20,
+           image=tmp5,
+           compound=LEFT,
+           command=lambda: remove_supplier(mlb51)).grid(row=0,
+                                                        column=1,
+                                                        sticky=N + W + S + E,
+                                                        padx=5,
+                                                        pady=5)
+    Button(lf52,
+           text="Modificare furnizor",
+           width=20,
+           image=tmp_modify,
+           compound=LEFT,
+           command=lambda: add_supplier(modify=True)).grid(row=1,
+                                                           column=0,
+                                                           sticky=N + W + E +
+                                                           S,
+                                                           padx=5,
+                                                           pady=5)
+    mlb51 = tableTree.MultiListbox(app5, (("ID", 5), ("Nume", 40), ("RO", 12),
+                                          ("Adresa", 70)))
     mlb51.grid(row=2, column=0, columnspan=2, sticky=N + S + E + W, pady=10)
 
 
@@ -796,7 +1163,8 @@ def print_supplier_table(fst_l):
     lists.sort()
     mlb51.delete(0, END)
     for item in lists:
-        tup = DB.sqldb.execute(""" select id, name, ro, address from suppliers""").fetchall()
+        tup = DB.sqldb.execute(
+            """ select id, name, ro, address from suppliers""").fetchall()
         for p in tup:
             p = list(p)
             bg = None
@@ -866,12 +1234,16 @@ def special_purchase_search(event):
     @return:
     """
     inp = str(product_name_search.get())
-    l = DB.sqldb.execute("""SELECT cost,price,category_name,product_description FROM costs JOIN products USING (
+    l = DB.sqldb.execute(
+        """SELECT cost,price,category_name,product_description FROM costs JOIN products USING (
     product_id)
-                JOIN category USING (category_id) WHERE product_name =  "%s" """ % (inp.title())).fetchone()
+                JOIN category USING (category_id) WHERE product_name =  "%s" """
+        % (inp.title())).fetchone()
     if l is None:
-        l = DB.sqldb.execute("""SELECT category_name,product_description FROM  products
-                JOIN category USING (category_id) WHERE product_name =  "%s" """ % (inp.title())).fetchone()
+        l = DB.sqldb.execute(
+            """SELECT category_name,product_description FROM  products
+                JOIN category USING (category_id) WHERE product_name =  "%s" """
+            % (inp.title())).fetchone()
         category = l[0]
         des = l[1]
         qty_text.delete(0, END)
@@ -919,18 +1291,27 @@ def add2_purchase_table():
     cat = Filter(category_combo.get()).title()
     des = split_reconstruct(description_text.get(0.0, END).split(" ")).title()
     lot = Filter(lot_text.get()).title()
-    print('supplier_box')
-    print(Filter(supplier_combo_search_purchase.get()).title())
+    #    print('supplier_box')
+    #    print(Filter(supplier_combo_search_purchase.get()).title())
     supplier = Filter(supplier_combo_search_purchase.get()).title()
     for_invoice = Filter(pentru_factura.get()).title()
     if len(qty.split()) == 0:
-        return messagebox.showinfo("Input Error", "The Quantity provided Is Not Valid", parent=root)
+        return messagebox.showinfo("Eroare",
+                                   "Cantitatea introdusa este invalida",
+                                   parent=root)
     if len(date.split()) == 0:
-        return messagebox.showinfo("Input Error", "The Date provided Is Not Valid", parent=root)
+        return messagebox.showinfo("Eroare",
+                                   "Data introdusa nu este buna",
+                                   parent=root)
     if len(cat.split()) == 0:
-        return messagebox.showinfo("Input Error", "The Category provided Is Not Valid", parent=root)
+        return messagebox.showinfo("Eroare",
+                                   "Categoria introdusa nu este valida",
+                                   parent=root)
     if len(cost.split()) == 0:
-        return messagebox.showinfo(title="Input Error", message='Product Cost Must Be Specified', parent=root)
+        return messagebox.showinfo(
+            title="Eroare",
+            message='Pretul de achizitie trebuie specificat',
+            parent=root)
     if len(price.split()) == 0:
         price = cost
     try:
@@ -938,13 +1319,17 @@ def add2_purchase_table():
         cost = float(cost)
         qty = float(qty)
     except ValueError:
-        return messagebox.showinfo(title="Input Error", message='Product Quantity or Cost Price or Selling price Must '
-                                                                'Be Numbers',
-                                   parent=root)
+        return messagebox.showinfo(
+            title="Eroare",
+            message=
+            'Cantitatea, pretul de achizitie sau cel de vanzare trebuie sa fie formate numerice',
+            parent=root)
     pid = DB.sqldb.getproductID(name)
     if pid is None:
-        aut = messagebox.askokcancel("Authenticate", "The Product is not in the Product list \nLike To Add IT ?",
-                                     parent=root)
+        aut = messagebox.askokcancel(
+            "Autentificare",
+            "Produsul nu se afla in lista de produse \nVrei sa-l adaug ?",
+            parent=root)
         if not aut:
             return 0
         pid = DB.addproduct(name, cat, des)
@@ -980,7 +1365,8 @@ def delete_from_purchase_table():
     """
     index = mlb21.Select_index
     if index is None or index > mlb21.size():
-        return messagebox.showinfo('Error', 'Nothing is Selected To Remove')
+        return messagebox.showinfo('Eroare',
+                                   'Selecteaza randul care trebuie sters')
     mlb21.delete(index)
 
 
@@ -991,7 +1377,7 @@ def add2_inventory():
     """
     tup_not_for = []
     if not mlb21.tree.get_children():
-        return messagebox.showinfo("Error", "The purchase list is empty")
+        return messagebox.showinfo("Eroare", "Lista de achizitii este goala")
     for item in mlb21.tree.get_children():
         tup = mlb21.tree.item(item)
         print(tup)
@@ -1005,29 +1391,31 @@ def add2_inventory():
         lot = tup['values'][6]
         for_factura = tup['values'][7]
         supplier = tup['values'][8]
-        print(supplier)
         supplier_id = DB.get_supplier(supplier)
-        print(supplier_id)
         um = get_um_for_product(pid)
 
         # tup.insert(9, um)
         # tup.append(9)
         # tup[9] = um
         try:
-            pur_id = DB.addpurchase(pid, costid, date, qty, lot, for_factura, supplier_id)
+            pur_id = DB.addpurchase(pid, costid, date, qty, lot, for_factura,
+                                    supplier_id)
             tup_not_for.append(tup["values"])
             nir_document(tup_not_for, pur_id, supplier)
         except ValueError:
-            ans = messagebox.askokcancel("Purchase already listed",
-                                         "The purchase is already Listed \nLike to increase the product Quantity ?")
+            ans = messagebox.askokcancel(
+                "Achizitie existenta",
+                "Achizitia pe acest produs in acest lot exista deja\nDoresti sa maresti cantitatea ?"
+            )
             if ans:
                 pur_i_d = DB.sqldb.getpurchaseID(costid, date, qty)
-                qty += DB.sqldb.get_cell("purchase", "purchase_id", "QTY", "\"" + pur_i_d + "\"")
+                qty += DB.sqldb.get_cell("purchase", "purchase_id", "QTY",
+                                         "\"" + pur_i_d + "\"")
 
                 DB.sqldb.edit_purchase(pur_i_d, 2, qty)
     mlb21.delete(0, END)
     # make nir
-    return messagebox.showinfo("Info", "All Products Has Been Added to the Inventory")
+    return messagebox.showinfo("Info", "Toate produsele au fost achizitionate")
 
 
 def reset():
@@ -1035,7 +1423,8 @@ def reset():
 
     @return:
     """
-    s = messagebox.askokcancel("Warning", "Are you sure you want to reset every thing ?")
+    s = messagebox.askokcancel("Avertisment",
+                               "Esti sigur ca vrei sa resetezi totul?")
     if s:
         reset_coform()
     return 1
@@ -1058,17 +1447,21 @@ def remove__product(obj):
     """
     del_row = obj.Select_index
     if del_row is None or del_row > obj.size():
-        return messagebox.showinfo('Error', 'Nothing is Selected To Remove')
+        return messagebox.showinfo('Eroare',
+                                   'Nu ai ales nimic pentru stergere')
     tup = obj.get(del_row)
-    ans = messagebox.askokcancel('WARNING', "Do You Really Want To delete " + tup[1] + " ?")
+    ans = messagebox.askokcancel(
+        'Avertisment',
+        "Esti sigur ca vrei sa stergi produsul " + tup[1] + " ?")
     if ans:
         ie = DB.deleteproduct(tup[0])
         if ie:
-            messagebox.showinfo('Info', tup[1] + ' Successfully Deleted')
+            messagebox.showinfo('Info', tup[1] + ' Sters cu succes')
         else:
-            messagebox.showinfo('Error', 'Sorry Cannot delete, Product is attached to Invoices or Purchase. delete '
-                                         'Them '
-                                         'first.')
+            messagebox.showinfo(
+                'Eroare',
+                'Nu putem sterge produsul, deoarece se afla deja pe o intrare sau pe o iesire.'
+            )
     return b_product__search(refresh=True)
 
 
@@ -1082,13 +1475,16 @@ def remove__customer(obj):
     if del_row is None or del_row > obj.size():
         return messagebox.showinfo('Error', 'Nothing is Selected To Remove')
     tup = obj.get(del_row)
-    ans = messagebox.askokcancel('WARNING', "Do You Really Want To delete " + tup[1] + " ?")
+    ans = messagebox.askokcancel(
+        'WARNING', "Do You Really Want To delete " + tup[1] + " ?")
     if ans:
         ie = DB.deletecustomer(tup[0])
         if ie:
             messagebox.showinfo('Info', tup[1] + 'Has Been Deleted')
         else:
-            messagebox.showinfo('Error', 'Sorry Cannot delete, Customer is attached to invoices')
+            messagebox.showinfo(
+                'Error',
+                'Sorry Cannot delete, Customer is attached to invoices')
         return b_customer__search(refresh=True)
     else:
         return b_customer__search(refresh=True)
@@ -1123,7 +1519,8 @@ def print__p_table(lists):
     lists.sort()
     mlb31.delete(0, END)
     for item in lists:
-        tup = DB.sqldb.execute(""" SELECT product_id,product_name,category_name,product_description,
+        tup = DB.sqldb.execute(
+            """ SELECT product_id,product_name,category_name,product_description,
         units_of_measure.name FROM
         products
                         JOIN category USING (category_id) join units_of_measure on products.um_id=units_of_measure.id
@@ -1172,25 +1569,53 @@ def print__c_table(lists):
     lists.sort()
     mlb41.delete(0, END)
     for item in lists:
-        tup = DB.sqldb.execute("""SELECT customer_id,customer_name,phone_no,customer_address,customer_email
-                       FROM customers JOIN contacts USING (customer_id)  WHERE customer_name = "%s" """ % (
-            item)).fetchall()
+        tup = DB.sqldb.execute(
+            """SELECT customer_id,customer_name,phone_no,customer_address,customer_email
+                       FROM customers JOIN contacts USING (customer_id)  WHERE customer_name = "%s" """
+            % (item)).fetchall()
         for c in tup:
             guiid = mlb41.insert(END, c, bg=None, tag="ta")
-            tup1 = DB.sqldb.execute("""SELECT invoice_id,invoice_no,invoice_date,paid
-                           FROM invoices WHERE customer_id = "%s" ORDER BY invoice_no """ % (c[0])).fetchall()
-            mlb41.insert(END, ("Invoice ID", "Invoice No", "Invoice Time Stamp", "Paid"), parent=guiid,
-                         row_name="",
-                         bg='grey93', fg='Red', tag="lo")
+            tup1 = DB.sqldb.execute(
+                """SELECT invoice_id,invoice_no,invoice_date,paid
+                           FROM invoices WHERE customer_id = "%s" ORDER BY invoice_no """
+                % (c[0])).fetchall()
+            mlb41.insert(
+                END,
+                ("Invoice ID", "Invoice No", "Invoice Time Stamp", "Paid"),
+                parent=guiid,
+                row_name="",
+                bg='grey93',
+                fg='Red',
+                tag="lo")
             for p in tup1:
-                mlb41.see(mlb41.insert(END, p, parent=guiid, row_name="", bg='White', fg='Blue', tag="lol"))
-            tup2 = DB.sqldb.execute(""" select id, name, cnp, car_no from delegates where customer_id = "%s" order by
-            id """ % (
-                c[0])).fetchall()
-            mlb41.insert(END, ("Delegate ID", "Delegate Name", "Delegate CNP", "# Auto"), parent=guiid, row_name="",
-                         bg="grey93", fg="Green", tag="lo")
+                mlb41.see(
+                    mlb41.insert(END,
+                                 p,
+                                 parent=guiid,
+                                 row_name="",
+                                 bg='White',
+                                 fg='Blue',
+                                 tag="lol"))
+            tup2 = DB.sqldb.execute(
+                """ select id, name, cnp, car_no from delegates where customer_id = "%s" order by
+            id """ % (c[0])).fetchall()
+            mlb41.insert(
+                END,
+                ("Delegate ID", "Delegate Name", "Delegate CNP", "# Auto"),
+                parent=guiid,
+                row_name="",
+                bg="grey93",
+                fg="Green",
+                tag="lo")
             for d in tup2:
-                mlb41.see(mlb41.insert(END, d, parent=guiid, row_name="", bg="White", fg="Brown", tag="lol"))
+                mlb41.see(
+                    mlb41.insert(END,
+                                 d,
+                                 parent=guiid,
+                                 row_name="",
+                                 bg="White",
+                                 fg="Brown",
+                                 tag="lol"))
     mlb41.see("")
     customer_search.delete(0, END)
     return 1
@@ -1202,7 +1627,8 @@ def special__p_search(event):
     @param event:
     """
     st = str(product_name.get())
-    l = DB.sqldb.execute("""SELECT product_description,price FROM costs JOIN products USING (product_id)
+    l = DB.sqldb.execute(
+        """SELECT product_description,price FROM costs JOIN products USING (product_id)
                  WHERE product_name =  "%s" """ % st).fetchone()
     des = l[0]
     price = l[1]
@@ -1221,7 +1647,8 @@ def special__c_search(event):
     @param event:
     """
     st = str(customer_name.get())
-    l = DB.sqldb.execute("""SELECT customer_address,phone_no FROM customers JOIN contacts USING (customer_id)
+    l = DB.sqldb.execute(
+        """SELECT customer_address,phone_no FROM customers JOIN contacts USING (customer_id)
                  WHERE customer_name =  "%s" """ % st).fetchone()
     add_inner = l[0]
     phn = l[1]
@@ -1249,26 +1676,53 @@ def product_name_search_func(string):
 
 
 def customer_name_search(string):
+    """
+
+    @param string:
+    @return string
+    """
     return DB.searchcustomer(string.title())
 
 
 def supplier_name_search(string):
+    """
+
+    @param string:
+    @return string
+    """
     return DB.search_supplier(string.title())
 
 
 def unit_name_search(string):
+    """
+
+    @param string:
+    @return string
+    """
     return DB.search_um(string.title())
 
 
 def invoice_no_search(string):
+    """
+    @param string:
+    @return string
+    """
     return DB.searchinvoice(string.title())
 
 
 def category_name_search(string):
+    """
+    @param string:
+    @return string
+    """
     return DB.searchcategory(string.title())
 
 
 def product_name__search():
+    """
+
+    @return self.add
+    """
     inp = str(product_name.get())
     if inp == " ":
         inp = ""
@@ -1277,10 +1731,19 @@ def product_name__search():
 
 
 def call__cn_search(event):
+    """
+
+    Event for calling customer search
+    @param event:
+    """
     customer_name__search()
 
 
 def customer_name__search():
+    """
+
+    Searching customer names
+    """
     inp = Filter(customer_name.get())
     if inp == " ":
         inp = ""
@@ -1289,6 +1752,11 @@ def customer_name__search():
 
 
 def call__cu_search(event):
+    """
+
+    Event for calling customer search
+    @param event
+    """
     customer__search()
 
 
@@ -1344,24 +1812,27 @@ def add(obj, l):
 
 
 def ask_db_file():
-    fname = askopenfilename(filetypes=(('Inventory Manager database File', "*.ic"), ('All File', "*.*")))
+    fname = askopenfilename(filetypes=(('Fisier FitoGest', "*.ic"),
+                                       ('All File', "*.*")))
     try:
         ds = open(fname, 'r')
     except IOError:
-        messagebox.showinfo("No File", "No File With Such name Found !")
+        messagebox.showinfo("Fisier inexistent",
+                            "Nu am gasit niciun fisier cu acest nume!")
         return 0
     del ds
     boo = DB.load(fname)
     b_customer__search(refresh=True)
     b_product__search(refresh=True)
     if not boo:
-        return messagebox.showinfo("Message", "Loading of product Not Completed")
-    return messagebox.showinfo("Message", "Loading of product successful")
+        return messagebox.showinfo("Mesaj", "Eroare la incarcarea produselor")
+    return messagebox.showinfo("Mesaj", "S-a finalizat incarcarea produselor")
 
 
 def export(objentry1):
     from src.ImportExport import ExportCsv
-    ans = messagebox.askokcancel("WARNING", "2 FILES WILL BE EXPORTED SURE YOU WANT EXPORT IN THIS FOLDER ?")
+    ans = messagebox.askokcancel(
+        "Avertisment", "2 fisiere vor fi exportate in acest dosar ?")
     if not ans:
         return False
     exportfile1 = Filter(str(objentry1.get()))
@@ -1372,19 +1843,21 @@ def export(objentry1):
         if ec.returns:
             objentry1.delete(0, END)
         del ec
-    return messagebox.showinfo("Message", "Your File Has Been Exported Successfully")
+    return messagebox.showinfo("Mesaj", "Fisierul tau a fost exportat")
 
 
 def brow__file(obj):
     """Should alawys use entry widget as obj"""
     from tkinter.filedialog import askopenfilename
     try:
-        fname = askopenfilename(filetypes=(('Csv File', "*.csv"), ('All File', "*.*")))
-    except[IOError]:
+        fname = askopenfilename(filetypes=(('Csv File', "*.csv"), ('All File',
+                                                                   "*.*")))
+    except [IOError]:
         fname = ""
-        messagebox.showinfo("File Error", "Choose Again")
+        messagebox.showinfo("Eroare fisier", "Alege din nou")
     if len(fname) == 0:
-        messagebox.showinfo("File Error", "You Must Choose a Csv File For Your Inventory")
+        messagebox.showinfo("Eroare fisier",
+                            "Trebuie sa alegi un fisier CSV pentru inventar")
         return None
     obj.delete(0, END)
     obj.insert(0, fname)
@@ -1392,14 +1865,23 @@ def brow__file(obj):
 
 
 def save__as__file(obj):
-    """Should always use entry widget as obj"""
+    """
+    Should always use entry widget as obj
+
+    @param obj
+    """
     try:
-        fname = asksaveasfilename(defaultextension='.csv', filetypes=[('Csv File', "*.csv"), ('TEXT File', "*.txt")])
-    except[IOError]:
+        fname = asksaveasfilename(defaultextension='.csv',
+                                  filetypes=[('Csv File', "*.csv"),
+                                             ('TEXT File', "*.txt")])
+    except [IOError]:
         fname = ""
-        messagebox.showinfo("File Error", "You must Export And Have A Backup")
+        messagebox.showinfo(
+            "Eroare fisier",
+            "Ar trebui sa exporti ca sa ai o copie de rezerva")
     if len(fname) == 0:
-        messagebox.showinfo("File Error", "You Must Choose a Csv File For Your Inventory")
+        messagebox.showinfo("Eroare fisier",
+                            "Trebuie sa alegi un fisier CSV pentru inventar")
         return None
     obj.delete(0, END)
     obj.insert(0, fname)
@@ -1521,7 +2003,10 @@ def process_cart(invid):
         product_price2 = float(r['values'][4])
         product_amount = product_qty * product_price2
         product_info = product_name2 + ' ' + product_description
-        listsw = [i, product_info, product_qty, product_price2, str(product_amount)]
+        listsw = [
+            i, product_info, product_qty, product_price2,
+            str(product_amount)
+        ]
         lik.append(listsw)
         sold_price = product_price2 - discount_per_product
         DB.addsells(costid, sold_price, invid, product_qty)
@@ -1531,6 +2016,11 @@ def process_cart(invid):
 
 
 def generate__invoice(product__list_forpdf, custup, invoicetup, detail):
+    """
+    Generarea facturilor
+
+    @param product__list_forpdf, custup, invoicetup, detail
+    """
     invoi_num = invoicetup[1]
     invoice__date2 = invoicetup[0]
     # Discount = invoicetup[4]
@@ -1547,7 +2037,8 @@ def generate__invoice(product__list_forpdf, custup, invoicetup, detail):
     Extra_Info = detail['extra']
     Currency = detail['curry']
 
-    PDfCompany_Adress = Company_Adress + "\n" + Detail_top + "\n" + email + "\n" + phone
+    PDfCompany_Adress = Company_Adress + "\n" + \
+        Detail_top + "\n" + email + "\n" + phone
     pdfcust_address = cust_address + "\n" + cust_phone
     delegate = DB.sqldb.get_delegate_for(custup[0])
     pdf_document(delegate,
@@ -1566,9 +2057,8 @@ def generate__invoice(product__list_forpdf, custup, invoicetup, detail):
                  s_g_s_t=sgst_var.get(),
                  c_g_s_t=cgst_var.get(),
                  discount=Discount_var.get(),
-                 sub_total=subtol_var.get()
-                 )
-    fileline = "Invoice   " + invoi_num + ".pdf"
+                 sub_total=subtol_var.get())
+    fileline = "Factura-" + invoi_num + ".pdf"
     p = Path('Invoices')
     p.mkdir(exist_ok=True)
 
@@ -1579,8 +2069,10 @@ def generate__invoice(product__list_forpdf, custup, invoicetup, detail):
             opener = "open" if sys.platform == "darwin" else "xdg-open"
             subprocess.call([opener, fileline])
     except:
-        fileline = askopenfilename(
-            filetypes=(('Microsoft Word Document File', "*.docx"), ("Portable Document File", "*.pdf")))
+        fileline = askopenfilename(filetypes=(('Microsoft Word Document File',
+                                               "*.docx"),
+                                              ("Portable Document File",
+                                               "*.pdf")))
         if sys.platform is "win32":
             os.startfile(fileline)
         else:
@@ -1596,16 +2088,25 @@ def transfer():
         return 1
     alooas = DB.sqldb.get_invoice_ID(Invoi_num)
     if alooas is not None:
-        return messagebox.showinfo("Error", "Invoice Number Already Exists And Assigned To another Customer",
-                                   parent=root)
+        return messagebox.showinfo(
+            "Eroare",
+            "Numarul de factura exista deja si este asignat unui alt client",
+            parent=root)
     if mlb.size() == 0:
-        messagebox.showinfo("Input Error", "You Should Choose a Product", parent=root)
+        messagebox.showinfo("Eroare Intrare",
+                            "Ar trebui sa adaugi un produs",
+                            parent=root)
         return 1
     custup = pre_inv()
     if custup is None:
-        return messagebox.showinfo("Error", "Customer Detail Incomplete", parent=root)
-    if len(detail['comp_name']) == 0 or len(detail['comp_add']) == 0 or len(detail['comp_phn']) == 0:
-        messagebox.showinfo("Input Error", "Company Detail Incomplete", parent=root)
+        return messagebox.showinfo("Eroare Intrare",
+                                   "Detaliile clientului sunt incomplete",
+                                   parent=root)
+    if len(detail['comp_name']) == 0 or len(detail['comp_add']) == 0 or len(
+            detail['comp_phn']) == 0:
+        messagebox.showinfo("Eroare Intrare",
+                            "Detaliile firmei sunt incomplete",
+                            parent=root)
         return 1
     ctmid, cust_name, cust_address, cust_phone = custup
     invoice__date2 = str(invoice_date.get())
@@ -1676,7 +2177,8 @@ def invoice__maintain():
     detail = DB.sqldb.get_company_details
     x = Filter(str(invoice_number.get()))
     if not x.isdigit():
-        messagebox.showinfo("Warning", "Invoice Number have to be Number and Nothing else")
+        messagebox.showinfo("Avertisment",
+                            "Nu sunt permise litere in cadrul facturarii")
         return None
     detail['inv_start'] = str(x)
     DB.sqldb.save_company_details(detail)
@@ -1702,7 +2204,8 @@ def invoice__date():
 def remove_from_cart():
     index = mlb.Select_index
     if index is None or index > mlb.size():
-        return messagebox.showinfo(title='Error', message='Nothing is Selected To Remove')
+        return messagebox.showinfo(title='Error',
+                                   message='Nothing is Selected To Remove')
     tup = mlb.get(index)
     a = float(tup[3]) * float(tup[4])
     amount = float(Amt_var.get()) - a
@@ -1718,7 +2221,8 @@ def add_discount(event):
         try:
             paid = float(paid)
         except ValueError:
-            messagebox.showinfo("Entry Error", "Discount Must Be Numbers Before ADDING The Discount")
+            messagebox.showinfo("Eroare Intrare",
+                                "Discoutul trebuie sa fie numeric")
             return 1
     paid = float(paid)
     dis = float(subtol_var.get()) - paid
@@ -1735,30 +2239,37 @@ def add_2_cart():
     p_price = Filter(str(product_price.get()))
     qty = Filter(str(quantity.get()))
     if len(product) == 0:
-        messagebox.showinfo("Empty Entry Error", "Product name Must Be Filled Before ADDING The Product")
+        messagebox.showinfo("Eroare Intrare",
+                            "Numele produsului trebuie sa fie completat")
         return 1
     if len(p_price) == 0:
-        messagebox.showinfo("Empty Entry Error", "Product Price Must Be Filled Before ADDING The Product")
+        messagebox.showinfo("Eroare Intrare",
+                            "Pretul produsului trebuie sa fie prezent")
         return 1
     try:
         p_price = float(p_price)
     except ValueError:
-        messagebox.showinfo("Empty Entry Error", "Product Price Must Be Numbers Before ADDING The Product")
+        messagebox.showinfo("Eroare Intrare",
+                            "Pretul produsului trebuie sa fie numeric")
         return 1
     if len(qty) == 0:
-        messagebox.showinfo("Empty Entry", "Product Quantity Must Be Filled Before ADDING The Product")
+        messagebox.showinfo("Eroare Intrare",
+                            "Produsul nu poate fi adaugat fara cantitate")
         return 1
     try:
         qty = float(qty)
     except ValueError:
-        messagebox.showinfo("Empty Entry Error", "Product quantity Must Be Numbers Before ADDING The Product")
+        messagebox.showinfo(
+            "Eroare Intrare",
+            "Cantitatea prodului trebuie sa fie o valoare numerica")
         return 1
     PID = DB.sqldb.getproductID(product)
     if PID is None:
-        return messagebox.showinfo("Empty Entry Error", "Product Not Listed Try ADDING The Product")
+        return messagebox.showinfo("Eroare Intrare",
+                                   "ID-ul produsului nu exista")
     costid = DB.getanycostid(PID, p_price)
     if costid is None:
-        return messagebox.showinfo("Error", "No Purchase has Been Made For This Product, The Product Is Not In Stock")
+        return messagebox.showinfo("Eroare", "Produsul nu este in inventar")
     boo = False
     for ITEM in xrange(int(mlb.size())):
         r = mlb.get(ITEM)
@@ -1781,22 +2292,34 @@ def add_2_cart():
 
 
 def pre_inv():
+    """
+    Se apeleaza pentru validare inainte de generarea unei facturi
+
+    @return ctmid, name, address, phone
+    """
     name = Filter(str(customer_name.get()))
     address = Filter(str(customer_address.get(0.0, END)))
     phone = Filter(str(customer_phone.get()))
     if len(name) == 0 or len(address) == 0 or len(phone) == 0:
-        messagebox.showinfo("Empty Entry", "You Should Enter Every Detail")
+        messagebox.showinfo("Goliciune",
+                            "Ar trebui sa introduci toate detaliile")
         return None
     if not phone.isdigit():
-        messagebox.showinfo(title="Error", message='Not a Valid Phone Number', parent=root)
+        messagebox.showinfo(title="Eroare",
+                            message='Acesta nu este un numar valid de telefon',
+                            parent=root)
         return None
     ctmid = DB.sqldb.get_customer_ID(phone)
     if ctmid is None:
         ctmid = DB.addcustomer(name, address, phone, "")
     else:
-        dbcmname = DB.sqldb.get_cell("customers", "customer_id", "customer_name", ctmid)
+        dbcmname = DB.sqldb.get_cell("customers", "customer_id",
+                                     "customer_name", ctmid)
         if dbcmname != name:
-            messagebox.showinfo("Error", "Phone Number Already registerd in %s's Name" % dbcmname)
+            messagebox.showinfo(
+                "Eroare",
+                "Numarul de telefon exista deja si ii este asociat lui %s" %
+                dbcmname)
             return None
     return ctmid, name, address, phone
 
@@ -1804,8 +2327,8 @@ def pre_inv():
 def make_sure_path_exist(path):
     import os
     filepath = os.getcwd()
-    if not os.path.exists(filepath + "\\" + path):
-        os.mkdir(filepath + "\\" + path)
+    if not os.path.exists(filepath + os.path.sep + path):
+        os.mkdir(filepath + os.path.sep + path)
     else:
         pass
     return 1
@@ -1814,16 +2337,17 @@ def make_sure_path_exist(path):
 def a_d_d__product(id=False, modify=False):
     tup = []
     if not modify:
-        titlel = "New Product"
+        titlel = "Create Produs"
     else:
-        titlel = "Modify Product"
+        titlel = "Modificare Produs"
         index = mlb31.Select_index
         tup = mlb31.get(index)
         cur_item = mlb31.tree.focus()
         arg = mlb31.tree.item(cur_item)
         id = arg["values"][0]
         if index is None or index > mlb31.size():
-            return messagebox.showinfo(title='Error', message='Nothing is Selected To Modify')
+            return messagebox.showinfo(title='Eroare',
+                                       message='Nu ai ales nimic de modificat')
     root12 = tk.Toplevel(master=root)
     root12.title(titlel)
     root12.grid()
@@ -1841,12 +2365,13 @@ def a_d_d__product(id=False, modify=False):
 def a_d_d__customer(modify=False):
     tup = []
     if not modify:
-        titlel = "New Customer"
+        titlel = "Creare client"
     else:
-        titlel = "Modify Customer"
+        titlel = "Modificare client"
         index = mlb41.Select_index
         if index is None or index > mlb41.size():
-            return messagebox.showinfo('Error', 'Nothing is Selected To Modify')
+            return messagebox.showinfo('Eroare',
+                                       'Nu ai ales nimic ca sa modifici.')
         cur_item = mlb41.tree.focus()
         arg = mlb41.tree.item(cur_item)
         tup = arg["values"]
@@ -1866,7 +2391,8 @@ def a_d_d__customer(modify=False):
 
 def call_save():
     """ this is called each time we quit the application """
-    ans = messagebox.askokcancel("WARNING", "Do You Want To save All Changes")
+    ans = messagebox.askokcancel("Avertisment",
+                                 "Doresti sa salvezi modificarile?")
     if ans:
         DB.save()
         root.destroy()
@@ -1883,9 +2409,9 @@ def add_supplier(id=False, modify=False):
     """ method that is called upon button call """
     tup = []
     if not modify:
-        title = "New Supplier"
+        title = "Furnizor nou"
     else:
-        title = "Modify Supplier"
+        title = "Modificare furnizor"
         index = mlb51.Select_index
         piid = mlb51.true_parent(mlb51.Select_iid)
         index = mlb51.index(piid)
@@ -1894,7 +2420,8 @@ def add_supplier(id=False, modify=False):
         arg = mlb51.tree.item(cur_item)
         id = arg["values"][0]
         if index is None or index > mlb51.size():
-            return messagebox.showinfo("Error", "Nothing is selected to modify")
+            return messagebox.showinfo(
+                "Eroare", "Selecteaza ceva pentru a fi modificat")
     root13 = tk.Toplevel(master=root)
     root13.title(title)
     root13.focus()

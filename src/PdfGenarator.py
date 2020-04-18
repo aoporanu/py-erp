@@ -57,16 +57,15 @@ def draw_string(string, canvas_instance, x, y, lead):
 def nir_document(tup_not_for, pur_id, supplier):
     """ called when new products are purchased """
     pdf = MyFPDF('L')
-    pdf.set_font('Arial', '', 8)
+    pdf.set_font('Helvetica', '', 8)
     pdf.add_page('L')
     details = db.sqldb.get_company_details
-    print(supplier)
-    # print(supplier)
 
     html = """
     <table border="0" width="100%">
         <tr>
-            <td width="50%">""" + details['comp_name'] + """</td><td width="50%">""" + str(supplier) + """</td>
+            <td width="50%">""" + details[
+        'comp_name'] + """</td><td width="50%">""" + str(supplier) + """</td>
         </tr>
     </table>
     <table border="0" align="center" width="100%">
@@ -81,11 +80,11 @@ def nir_document(tup_not_for, pur_id, supplier):
 <tbody>
 """
     for i in range(len(tup_not_for)):
-        total_w_vat = (float(tup_not_for[i][2]) * (float(details['cgst']) / 100))
+        total_w_vat = (float(tup_not_for[i][2]) *
+                       (float(details['cgst']) / 100))
         total_w_vat = str(total_w_vat)
         total_wo_vat = (float(tup_not_for[i][2]) * float(tup_not_for[i][4]))
-        # print([float(tup_not_for[i][2]), float(details['cgst'])])
-        html = html + """<tr style="border: 1px dotted black"><td width="3%">""" + str(i) + """</td><td 
+        html = html + """<tr style="border: 1px dotted black"><td width="3%">""" + str(i) + """</td><td
         width="40%">""" + tup_not_for[i][0] + """</td><td width="6%">""" + tup_not_for[i][4] + """</td><td width="2%">""" + tup_not_for[
                    i][1] + """</td><td width="5%">""" + tup_not_for[i][2] + """</td><td width="6%">""" + \
                str(total_wo_vat) + """</td><td width="6%">""" + total_w_vat + """</td></tr> """
@@ -105,10 +104,14 @@ def nir_document(tup_not_for, pur_id, supplier):
 
 
 def pdf_document(delegate, pic_add, inv_no, company_name, date, company_add,
-                 cus_name, cus_add, plist, currency, total_amt, s_g_s_t, c_g_s_t,
-                 sub_total, grand_total, discount, bottom_detail):
+                 cus_name, cus_add, plist, currency, total_amt, s_g_s_t,
+                 c_g_s_t, sub_total, grand_total, discount, bottom_detail):
+    """
+    this is only used for invoice generation
+    """
     try:
-        pil = Image.open(pic_add).resize((250, 43), Image.ANTIALIAS).transpose(Image.FLIP_TOP_BOTTOM)
+        pil = Image.open(pic_add).resize(
+            (250, 43), Image.ANTIALIAS).transpose(Image.FLIP_TOP_BOTTOM)
     except IOError:
         pil = Image.new('RGB', (250, 43))
     p = ImageReader(pil)
@@ -120,7 +123,8 @@ def pdf_document(delegate, pic_add, inv_no, company_name, date, company_add,
     c.drawString(L_margin, heading, company_name)
     c.setFillColor(HexColor('#9558fb'))
     c.setLineWidth(0.1)
-    c.rect(5.65 * inch - 15, heading - 20, (7.8500000000000005 * inch - 5.65 * inch) + 15, 0.34 * inch, 1, 1)
+    c.rect(5.65 * inch - 15, heading - 20,
+           (7.8500000000000005 * inch - 5.65 * inch) + 15, 0.34 * inch, 1, 1)
     c.setFillColor(colors.white)
     c.setFont("Times-Bold", 20)
     c.drawString(5.65 * inch, heading, "Invoice")
@@ -133,16 +137,25 @@ def pdf_document(delegate, pic_add, inv_no, company_name, date, company_add,
     c.drawString(5.65 * inch - 15, (heading + 0.35 * inch), "Invoice Date")
     c.drawRightString(7.8500000000000005 * inch, (heading + 0.35 * inch), date)
     c.setFont("Helvetica", 11)
-    c.drawRightString(7.8500000000000005 * inch, (heading + 0.55 * inch), "Delegate name: " + delegate[1])
-    c.drawRightString(7.8500000000000005 * inch, (heading + 0.75 * inch), "Delegate #" + delegate[4])
-    c.drawRightString(7.8500000000000005 * inch, (heading + 0.95 * inch), "CNP Delegate" + delegate[3])
+    c.drawRightString(7.8500000000000005 * inch, (heading + 0.55 * inch),
+                      "Delegate name: " + delegate[1])
+    c.drawRightString(7.8500000000000005 * inch, (heading + 0.75 * inch),
+                      "Delegate #" + delegate[4])
+    c.drawRightString(7.8500000000000005 * inch, (heading + 0.95 * inch),
+                      "CNP Delegate" + delegate[3])
     draw_string(company_add, c, L_margin, (heading + 0.5 * inch), 15)
     c.setFont("Times-Bold", 15)
-    c.drawString(L_margin, calculate_y((heading + 0.5 * inch), company_add, 0.23 * inch), "Bill To :")
+    c.drawString(L_margin,
+                 calculate_y((heading + 0.5 * inch), company_add, 0.23 * inch),
+                 "Bill To :")
     c.setFont("Times-Bold", 16)
-    c.drawString(L_margin, calculate_y((heading + 0.5 * inch), company_add, 0.23 * inch) + 0.3 * inch,
-                 cus_name)
-    hei = calculate_y((heading + 0.5 * inch), company_add, 0.23 * inch) + 0.3 * inch
+    c.drawString(
+        L_margin,
+        calculate_y(
+            (heading + 0.5 * inch), company_add, 0.23 * inch) + 0.3 * inch,
+        cus_name)
+    hei = calculate_y(
+        (heading + 0.5 * inch), company_add, 0.23 * inch) + 0.3 * inch
     c.setFont("Helvetica", 11)
     draw_string(cus_add, c, L_margin, hei + 0.25 * inch, 15)
     ori = (hei + inch, L_margin)
@@ -152,7 +165,12 @@ def pdf_document(delegate, pic_add, inv_no, company_name, date, company_add,
     if len(item) < 11:
         itemmultiply = 10 - len(item)
         item = item + extra * itemmultiply
-    s = Table(c, ori, no_of_rows=len(item) + 1, no_of_column=len(item[0]), rowheight=rowheight, columnwidth=columnwidth)
+    s = Table(c,
+              ori,
+              no_of_rows=len(item) + 1,
+              no_of_column=len(item[0]),
+              rowheight=rowheight,
+              columnwidth=columnwidth)
     for i in range(5):
         if i == 0:
             lining = N + W + S
@@ -160,8 +178,15 @@ def pdf_document(delegate, pic_add, inv_no, company_name, date, company_add,
             lining = N + E + S
         else:
             lining = N + S
-        s.modify(0, i, text=data[i], fontcolour=colors.white, bg=HexColor('#9558fb'), bpad=2 * mm,
-                 font=("Helvetica", 11), justify='center', lining=lining)
+        s.modify(0,
+                 i,
+                 text=data[i],
+                 fontcolour=colors.white,
+                 bg=HexColor('#9558fb'),
+                 bpad=2 * mm,
+                 font=("Helvetica", 11),
+                 justify='center',
+                 lining=lining)
     for i in range(len(item)):
         las = len(item) - 1
         if i == 0:
@@ -181,8 +206,15 @@ def pdf_document(delegate, pic_add, inv_no, company_name, date, company_add,
                 justify = 'right'
             else:
                 justify = 'center'
-            s.modify(i + 1, t, text=item[i][t], fontcolour=colors.black, bpad=2 * mm, font=("Helvetica", 11),
-                     justify=justify, lining=lining, bg=bg)
+            s.modify(i + 1,
+                     t,
+                     text=item[i][t],
+                     fontcolour=colors.black,
+                     bpad=2 * mm,
+                     font=("Helvetica", 11),
+                     justify=justify,
+                     lining=lining,
+                     bg=bg)
     s.Draw()
     tab2_ori = s.Get_Cor(-1, -2)
     x2, y2 = tab2_ori[0][0]
@@ -191,39 +223,134 @@ def pdf_document(delegate, pic_add, inv_no, company_name, date, company_add,
     tab2_ori.reverse()
     cw = [0.9 * inch, 0.5 * inch, 1 * inch]
     rh = [0.25 * inch, 0.25 * inch, 0.25 * inch, 0.25 * inch, 0.25 * inch]
-    tab = Table(c, tab2_ori, rowheight=rh, columnwidth=cw, no_of_rows=5, no_of_column=3)
-    tab.modify(0, 0, text="Total Amt", justify='right', bpad=2 * mm, font=("Helvetica", 11), fontcolour=colors.black)
-    tab.modify(1, 0, text="SGST", justify='right', bpad=2 * mm, font=("Helvetica", 11), fontcolour=colors.black)
-    tab.modify(2, 0, text="CGST", justify='right', bpad=2 * mm, font=("Helvetica", 11), fontcolour=colors.black)
-    tab.modify(3, 0, text="SubTotal", justify='right', bpad=2 * mm, font=("Helvetica", 11), fontcolour=colors.black)
-    tab.modify(4, 0, text="Discount", justify='right', bpad=2 * mm, font=("Helvetica", 11), fontcolour=colors.black)
+    tab = Table(c,
+                tab2_ori,
+                rowheight=rh,
+                columnwidth=cw,
+                no_of_rows=5,
+                no_of_column=3)
+    tab.modify(0,
+               0,
+               text="Total Amt",
+               justify='right',
+               bpad=2 * mm,
+               font=("Helvetica", 11),
+               fontcolour=colors.black)
+    tab.modify(1,
+               0,
+               text="SGST",
+               justify='right',
+               bpad=2 * mm,
+               font=("Helvetica", 11),
+               fontcolour=colors.black)
+    tab.modify(2,
+               0,
+               text="CGST",
+               justify='right',
+               bpad=2 * mm,
+               font=("Helvetica", 11),
+               fontcolour=colors.black)
+    tab.modify(3,
+               0,
+               text="SubTotal",
+               justify='right',
+               bpad=2 * mm,
+               font=("Helvetica", 11),
+               fontcolour=colors.black)
+    tab.modify(4,
+               0,
+               text="Discount",
+               justify='right',
+               bpad=2 * mm,
+               font=("Helvetica", 11),
+               fontcolour=colors.black)
 
-    tab.modify(0, 1, text=currency, justify='right', bpad=2 * mm, font=("Helvetica", 11), fontcolour=colors.black,
+    tab.modify(0,
+               1,
+               text=currency,
+               justify='right',
+               bpad=2 * mm,
+               font=("Helvetica", 11),
+               fontcolour=colors.black,
                lining=N + S + W)
-    tab.modify(1, 1, text=currency, justify='right', bpad=2 * mm, font=("Helvetica", 11), fontcolour=colors.black,
+    tab.modify(1,
+               1,
+               text=currency,
+               justify='right',
+               bpad=2 * mm,
+               font=("Helvetica", 11),
+               fontcolour=colors.black,
                lining=N + S + W)
-    tab.modify(2, 1, text=currency, justify='right', bpad=2 * mm, font=("Helvetica", 11), fontcolour=colors.black,
+    tab.modify(2,
+               1,
+               text=currency,
+               justify='right',
+               bpad=2 * mm,
+               font=("Helvetica", 11),
+               fontcolour=colors.black,
                lining=N + S + W)
-    tab.modify(3, 1, text=currency, justify='right', bpad=2 * mm, font=("Helvetica", 11), fontcolour=colors.black,
+    tab.modify(3,
+               1,
+               text=currency,
+               justify='right',
+               bpad=2 * mm,
+               font=("Helvetica", 11),
+               fontcolour=colors.black,
                lining=N + S + W)
-    tab.modify(4, 1, text=currency, justify='right', bpad=2 * mm, font=("Helvetica", 11), fontcolour=colors.black,
+    tab.modify(4,
+               1,
+               text=currency,
+               justify='right',
+               bpad=2 * mm,
+               font=("Helvetica", 11),
+               fontcolour=colors.black,
                lining=N + S + W)
 
-    tab.modify(0, 2, text=str(total_amt), justify='right', bpad=2 * mm, font=("Helvetica", 11),
+    tab.modify(0,
+               2,
+               text=str(total_amt),
+               justify='right',
+               bpad=2 * mm,
+               font=("Helvetica", 11),
                fontcolour=colors.black,
-               rightpadding=5.5 * mm, lining=N + S + E)
-    tab.modify(1, 2, text=str(s_g_s_t), justify='right', bpad=2 * mm, font=("Helvetica", 11),
+               rightpadding=5.5 * mm,
+               lining=N + S + E)
+    tab.modify(1,
+               2,
+               text=str(s_g_s_t),
+               justify='right',
+               bpad=2 * mm,
+               font=("Helvetica", 11),
                fontcolour=colors.black,
-               rightpadding=5.5 * mm, lining=N + S + E)
-    tab.modify(2, 2, text=str(c_g_s_t), justify='right', bpad=2 * mm, font=("Helvetica", 11),
+               rightpadding=5.5 * mm,
+               lining=N + S + E)
+    tab.modify(2,
+               2,
+               text=str(c_g_s_t),
+               justify='right',
+               bpad=2 * mm,
+               font=("Helvetica", 11),
                fontcolour=colors.black,
-               rightpadding=5.5 * mm, lining=N + S + E)
-    tab.modify(3, 2, text=str(sub_total), justify='right', bpad=2 * mm, font=("Helvetica", 11),
+               rightpadding=5.5 * mm,
+               lining=N + S + E)
+    tab.modify(3,
+               2,
+               text=str(sub_total),
+               justify='right',
+               bpad=2 * mm,
+               font=("Helvetica", 11),
                fontcolour=colors.black,
-               rightpadding=5.5 * mm, lining=N + S + E)
-    tab.modify(4, 2, text=str(discount), justify='right', bpad=2 * mm, font=("Helvetica", 11),
+               rightpadding=5.5 * mm,
+               lining=N + S + E)
+    tab.modify(4,
+               2,
+               text=str(discount),
+               justify='right',
+               bpad=2 * mm,
+               font=("Helvetica", 11),
                fontcolour=colors.black,
-               rightpadding=5.5 * mm, lining=N + S + E)
+               rightpadding=5.5 * mm,
+               lining=N + S + E)
     tab.Draw()
     c.setFont("Helvetica", 11)
     draw_string(bottom_detail, c, L_margin, y2 + h2 + 0.40909 * inch, 15)
@@ -233,10 +360,13 @@ def pdf_document(delegate, pic_add, inv_no, company_name, date, company_add,
     w2, h2 = tab2_ori[0][1]
     c.setFont('Times-Bold', 19)
     c.setFillColor(HexColor('#9558fb'))
-    ju = c.stringWidth("GrandTotal  - " + currency + " " + str(grand_total), 'Times-Bold', 19)
-    c.rect((x2 + w2 - 15) - ju - 15, y2 + 0.9 * inch, ju + 30, 0.4 * inch, 1, 1)
+    ju = c.stringWidth("GrandTotal  - " + currency + " " + str(grand_total),
+                       'Times-Bold', 19)
+    c.rect((x2 + w2 - 15) - ju - 15, y2 + 0.9 * inch, ju + 30, 0.4 * inch, 1,
+           1)
     c.setFillColor(colors.white)
-    c.drawRightString(x2 + w2 - 15, y2 + 1.2 * inch, "GrandTotal  - " + currency + "  " + str(grand_total))
+    c.drawRightString(x2 + w2 - 15, y2 + 1.2 * inch,
+                      "GrandTotal  - " + currency + "  " + str(grand_total))
     c.setFillColor(colors.black)
     c.setFont("Helvetica", 11)
     if len(item) >= 10:
