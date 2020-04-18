@@ -6,8 +6,8 @@ from tkinter.messagebox import showinfo
 from tkinter.filedialog import askopenfilename
 from tkinter.filedialog import asksaveasfilename
 
-
 # http://tkinter.unpythonic.net/wiki/VerticalScrolledFrame
+
 
 class VerticalScrolledFrame(Frame):
     """A pure Tkinter scrollable frame that actually works!
@@ -16,14 +16,15 @@ class VerticalScrolledFrame(Frame):
     * This frame only allows vertical scrolling
 
     """
-
     def __init__(self, parent, *args, **kw):
         Frame.__init__(self, parent, *args, **kw)
 
         # create a canvas object and a vertical scrollbar for scrolling it
         vscrollbar = Scrollbar(self, orient=VERTICAL)
         vscrollbar.pack(fill=Y, side=RIGHT, expand=FALSE)
-        canvas = Canvas(self, bd=0, highlightthickness=0,
+        canvas = Canvas(self,
+                        bd=0,
+                        highlightthickness=0,
                         yscrollcommand=vscrollbar.set)
         canvas.pack(side=LEFT, fill=BOTH, expand=TRUE)
         vscrollbar.config(command=canvas.yview)
@@ -34,8 +35,7 @@ class VerticalScrolledFrame(Frame):
 
         # create a frame inside the canvas which will be scrolled with it
         self.interior = interior = Frame(canvas)
-        interior_id = canvas.create_window(0, 0, window=interior,
-                                           anchor=NW)
+        interior_id = canvas.create_window(0, 0, window=interior, anchor=NW)
 
         # track changes to the canvas and frame width and sync them,
         # also updating the scrollbar
@@ -60,11 +60,15 @@ class VerticalScrolledFrame(Frame):
 def Invoke(master):
     try:
         fname = askopenfilename(parent=master.root,
-                                filetypes=(('jepg File', "*.jpg"), ("PNG Image File", "*.png"), ("Bitmap Image File")))
+                                filetypes=(('jepg File', "*.jpg"),
+                                           ("PNG Image File",
+                                            "*.png"), ("Bitmap Image File")))
     except:
         showinfo("File Error", "Choose Again", parent=master.root)
     if len(fname) == 0:
-        showinfo("File Error", "You Must Choose a Logo For Your Invoice", parent=master.root)
+        showinfo("File Error",
+                 "You Must Choose a Logo For Your Invoice",
+                 parent=master.root)
         return None
     original = Image.open(str(fname))
     size1 = (250, 43)
@@ -102,117 +106,264 @@ class SampleApp:
 
         # comany name
 
-        Label(app1, text='Invoice Information',
-              foreground="#3496ff", font=('Berlin Sans FB Demi', 20)).grid(row=0, column=0,
-                                                                           columnspan=3,
-                                                                           sticky=E + N + W + S,
-                                                                           padx=10, pady=10)
+        Label(app1,
+              text='Invoice Information',
+              foreground="#3496ff",
+              font=('Berlin Sans FB Demi', 20)).grid(row=0,
+                                                     column=0,
+                                                     columnspan=3,
+                                                     sticky=E + N + W + S,
+                                                     padx=10,
+                                                     pady=10)
 
-        Label(app1, text='Company name').grid(row=1, column=0, sticky=E + N, padx=10, pady=10)
+        Label(app1, text='Company name').grid(row=1,
+                                              column=0,
+                                              sticky=E + N,
+                                              padx=10,
+                                              pady=10)
 
         self.company_name = Entry(app1, width=20)
-        self.company_name.grid(row=1, column=1, columnspan=2, sticky=N + E + W + S, padx=10, pady=10)
+        self.company_name.grid(row=1,
+                               column=1,
+                               columnspan=2,
+                               sticky=N + E + W + S,
+                               padx=10,
+                               pady=10)
 
         # Company Address
-        Label(app1, text='Company Address').grid(row=2, column=0, sticky=E + N, padx=10, pady=10)
+        Label(app1, text='Company Address').grid(row=2,
+                                                 column=0,
+                                                 sticky=E + N,
+                                                 padx=10,
+                                                 pady=10)
 
         self.company_address = Text(app1, width=10, height=7, wrap=WORD)
-        self.company_address.grid(row=2, column=1, columnspan=2, sticky=N + E + W + S, padx=10, pady=10)
-        self.company_address.configure(highlightthickness=1, highlightbackground="Grey", relief=FLAT)
+        self.company_address.grid(row=2,
+                                  column=1,
+                                  columnspan=2,
+                                  sticky=N + E + W + S,
+                                  padx=10,
+                                  pady=10)
+        self.company_address.configure(highlightthickness=1,
+                                       highlightbackground="Grey",
+                                       relief=FLAT)
         # Company Phone
 
-        Label(app1, text='Phone').grid(row=3, column=0, sticky=E + N, padx=10, pady=10)
+        Label(app1, text='Phone').grid(row=3,
+                                       column=0,
+                                       sticky=E + N,
+                                       padx=10,
+                                       pady=10)
 
         self.company_phone = Entry(app1)
-        self.company_phone.grid(row=3, column=1, columnspan=2, sticky=N + E + W + S, padx=10, pady=10)
+        self.company_phone.grid(row=3,
+                                column=1,
+                                columnspan=2,
+                                sticky=N + E + W + S,
+                                padx=10,
+                                pady=10)
 
         # Company Email
 
-        Label(app1, text='Email').grid(row=4, column=0, sticky=E + N, padx=10, pady=10)
+        Label(app1, text='Email').grid(row=4,
+                                       column=0,
+                                       sticky=E + N,
+                                       padx=10,
+                                       pady=10)
 
         self.company_email = Entry(app1)
-        self.company_email.grid(row=4, column=1, columnspan=2, sticky=N + E + W + S, padx=10, pady=10)
+        self.company_email.grid(row=4,
+                                column=1,
+                                columnspan=2,
+                                sticky=N + E + W + S,
+                                padx=10,
+                                pady=10)
 
         # Company Website
 
-        Label(app1, text='Website  ').grid(row=5, column=0, sticky=E + N, padx=10, pady=10)
+        Label(app1, text='Website  ').grid(row=5,
+                                           column=0,
+                                           sticky=E + N,
+                                           padx=10,
+                                           pady=10)
 
         self.company_website = Entry(app1)
-        self.company_website.grid(row=5, column=1, columnspan=2, sticky=N + W + S + E, padx=10, pady=10)
+        self.company_website.grid(row=5,
+                                  column=1,
+                                  columnspan=2,
+                                  sticky=N + W + S + E,
+                                  padx=10,
+                                  pady=10)
 
         # Aditional Detail on top
 
-        Label(app1, text='Aditional Detail on Top').grid(row=6, column=0, sticky=E + N, padx=10, pady=10)
+        Label(app1, text='Aditional Detail on Top').grid(row=6,
+                                                         column=0,
+                                                         sticky=E + N,
+                                                         padx=10,
+                                                         pady=10)
 
         self.detail_top = Text(app1, width=7, height=7, wrap=WORD)
-        self.detail_top.grid(row=6, column=1, columnspan=2, sticky=N + E + W + S, padx=5, pady=5)
-        self.detail_top.configure(highlightthickness=1, highlightbackground="Grey", relief=FLAT)
+        self.detail_top.grid(row=6,
+                             column=1,
+                             columnspan=2,
+                             sticky=N + E + W + S,
+                             padx=5,
+                             pady=5)
+        self.detail_top.configure(highlightthickness=1,
+                                  highlightbackground="Grey",
+                                  relief=FLAT)
 
         # Currency
-        Label(app1, text='Currency').grid(row=7, column=0, sticky=E + N, padx=10, pady=10)
+        Label(app1, text='Currency').grid(row=7,
+                                          column=0,
+                                          sticky=E + N,
+                                          padx=10,
+                                          pady=10)
 
         self.currency = Entry(app1)
-        self.currency.grid(row=7, column=1, sticky=N + E + W + S, padx=10, pady=10)
+        self.currency.grid(row=7,
+                           column=1,
+                           sticky=N + E + W + S,
+                           padx=10,
+                           pady=10)
 
         # Invoice Number
 
-        Label(app1, text='Invoice Starting Number').grid(row=8, column=0, sticky=E + N, padx=10, pady=10)
+        Label(app1, text='Invoice Starting Number').grid(row=8,
+                                                         column=0,
+                                                         sticky=E + N,
+                                                         padx=10,
+                                                         pady=10)
 
         self.invoice_num_s = Entry(app1)
-        self.invoice_num_s.grid(row=8, column=1, sticky=N + E + W + S, padx=10, pady=10)
+        self.invoice_num_s.grid(row=8,
+                                column=1,
+                                sticky=N + E + W + S,
+                                padx=10,
+                                pady=10)
 
-        Label(app1, text='SGST Percentage').grid(row=9, column=0, sticky=E + N, padx=10, pady=10)
+        Label(app1, text='SGST Percentage').grid(row=9,
+                                                 column=0,
+                                                 sticky=E + N,
+                                                 padx=10,
+                                                 pady=10)
 
         # GST
         self.sgst_inp = Entry(app1)
-        self.sgst_inp.grid(row=9, column=1, sticky=N + E + W + S, padx=10, pady=10)
+        self.sgst_inp.grid(row=9,
+                           column=1,
+                           sticky=N + E + W + S,
+                           padx=10,
+                           pady=10)
 
-        Label(app1, text='CGST Percentage').grid(row=10, column=0, sticky=E + N, padx=10, pady=10)
+        Label(app1, text='CGST Percentage').grid(row=10,
+                                                 column=0,
+                                                 sticky=E + N,
+                                                 padx=10,
+                                                 pady=10)
 
         self.cgst_inp = Entry(app1)
-        self.cgst_inp.grid(row=10, column=1, sticky=N + E + W + S, padx=10, pady=10)
+        self.cgst_inp.grid(row=10,
+                           column=1,
+                           sticky=N + E + W + S,
+                           padx=10,
+                           pady=10)
 
         # Extra Info on Bottom
 
-        Label(app1, text='   Additional Detail on Bottom  ').grid(row=11, column=0, sticky=E + N, padx=10, pady=10)
+        Label(app1, text='   Additional Detail on Bottom  ').grid(row=11,
+                                                                  column=0,
+                                                                  sticky=E + N,
+                                                                  padx=10,
+                                                                  pady=10)
 
         self.ei_buttom = Text(app1, width=7, height=7, wrap=WORD)
-        self.ei_buttom.grid(row=11, column=1, columnspan=2, sticky=N + E + W + S, padx=10, pady=10)
-        self.ei_buttom.configure(highlightthickness=1, highlightbackground="Grey", relief=FLAT)
+        self.ei_buttom.grid(row=11,
+                            column=1,
+                            columnspan=2,
+                            sticky=N + E + W + S,
+                            padx=10,
+                            pady=10)
+        self.ei_buttom.configure(highlightthickness=1,
+                                 highlightbackground="Grey",
+                                 relief=FLAT)
 
         # picture Address
-        Label(app1, text='Logo').grid(row=12, column=0, sticky=E + N, padx=10, pady=10)
+        Label(app1, text='Logo').grid(row=12,
+                                      column=0,
+                                      sticky=E + N,
+                                      padx=10,
+                                      pady=10)
 
-        self.b1 = Button(app1, text='Choose File', command=lambda: Invoke(self))
+        self.b1 = Button(app1,
+                         text='Choose File',
+                         command=lambda: Invoke(self))
         self.b1.grid(row=12, column=1, sticky=N + S + E + W, padx=10, pady=10)
 
         self.pics = Label(app1)
-        self.pics.grid(row=13, column=1, columnspan=2, rowspan=10, sticky=NE, padx=10, pady=10)
+        self.pics.grid(row=13,
+                       column=1,
+                       columnspan=2,
+                       rowspan=10,
+                       sticky=NE,
+                       padx=10,
+                       pady=10)
 
-        self.s1ico = Image.open("../data/floppy_disk_blue.png").resize((25, 25), Image.ANTIALIAS)
-        self.s1ico = ImageTk.PhotoImage(image=self.s1ico)
+        # openapi key
+        Label(app1, text="Cheie OPENAPI").grid(row=14,
+                                               column=0,
+                                               sticky=E + N,
+                                               padx=10,
+                                               pady=10)
+        self.open_api_key = Text(app1, width=30, height=10, wrap=WORD)
 
-        self.save = Button(app1, text="save",command=lambda: self.De_Save(), width=30, image=self.s1ico,compound=LEFT)
-        self.save.grid(row=24, column=1, sticky=N + E + W + S, padx=10, pady=10)
+        self.open_api_key.grid(row=14,
+                               column=1,
+                               columnspan=2,
+                               sticky=N + E + W + S,
+                               padx=10,
+                               pady=10)
+        #        self.s1ico = Image.open("../data/floppy_disk_blue.png").resize(
+        #           (25, 25), Image.ANTIALIAS)
+        #        self.s1ico = ImageTk.PhotoImage(image=self.s1ico)
+
+        self.save = Button(
+            app1,
+            text="save",
+            command=lambda: self.De_Save(),
+            width=30,
+            #                          image=self.s1ico,
+            compound=LEFT)
+        self.save.grid(row=24,
+                       column=1,
+                       sticky=N + E + W + S,
+                       padx=10,
+                       pady=10)
 
     def De_Save(self):
-        detail = {'comp_name': Filter(self.company_name.get()),
-                  'comp_add': Filter(str(self.company_address.get(0.0, END))),
-                  'comp_phn': Filter(self.company_phone.get()),
-                  'comp_email': Filter(str(self.company_email.get())),
-                  'comp_site': Filter(str(self.company_website.get())),
-                  'detail_top': Filter(str(self.detail_top.get(0.0, END))),
-                  'curry': Filter(str(self.currency.get())),
-                  'extra': Filter(str(self.ei_buttom.get(0.0, END))),
-                  'sgst': Filter(self.sgst_inp.get()),
-                  'cgst': Filter(self.cgst_inp.get()),
-                  'pic_add': "logo.png"}
+        detail = {
+            'comp_name': Filter(self.company_name.get()),
+            'comp_add': Filter(str(self.company_address.get(0.0, END))),
+            'comp_phn': Filter(self.company_phone.get()),
+            'comp_email': Filter(str(self.company_email.get())),
+            'comp_site': Filter(str(self.company_website.get())),
+            'detail_top': Filter(str(self.detail_top.get(0.0, END))),
+            'curry': Filter(str(self.currency.get())),
+            'extra': Filter(str(self.ei_buttom.get(0.0, END))),
+            'sgst': Filter(self.sgst_inp.get()),
+            'cgst': Filter(self.cgst_inp.get()),
+            'pic_add': "logo.png",
+            'openapi_key': Filter(self.open_api_key.get(0.0, END))
+        }
         if Filter(str(self.invoice_num_s.get()).split()) == "":
             detail['inv_start'] = "0"
         else:
             detail['inv_start'] = Filter(str(self.invoice_num_s.get()))
         self.db.sqldb.save_company_details(detail)
-        return showinfo("Info", "Company Detail Saved Successfully",parent=self.root)
+        return showinfo("Info",
+                        "Company Detail Saved Successfully",
+                        parent=self.root)
 
     @property
     def load__de(self):
@@ -275,6 +426,11 @@ class SampleApp:
             extra = detail['extra']
         except:
             extra = ""
+        try:
+            open_api = detail['openapi_key']
+        except:
+            open_api = ""
+        self.open_api_key.insert(0, open_api)
         self.ei_buttom.insert(0.0, extra)
         # Invoice start
         self.invoice_num_s.delete(0, END)
@@ -288,7 +444,7 @@ class SampleApp:
         # Pic
         try:
             original = Image.open("logo.png")
-        except(IOError):
+        except (IOError):
             original = Image.new("RGB", (250, 43), "white")
         size1 = (250, 43)
         resize2 = original.resize(size1, Image.ANTIALIAS)

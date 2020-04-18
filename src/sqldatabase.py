@@ -500,18 +500,19 @@ class MyDatabase(object):
         qry = """UPDATE details SET company_name = '%s',company_address='%s',
               company_phone='%s',company_email='%s',company_website='%s',company_header='%s',
               company_footer='%s',currency='%s',pic_address='%s',invoice_start_no=%d,sgst_rate=%d,
-              cgst_rate=%d;""" % (details['comp_name'],
-                                  details['comp_add'],
-                                  details['comp_phn'],
-                                  details['comp_email'],
-                                  details['comp_site'],
-                                  details['detail_top'],
-                                  details['extra'],
-                                  details['curry'],
-                                  details['pic_add'],
-                                  int(details['inv_start']),
-                                  int(details['sgst']),
-                                  int(details['cgst']))
+              cgst_rate=%d, openapi_key='%s';""" % (details['comp_name'],
+                                                    details['comp_add'],
+                                                    details['comp_phn'],
+                                                    details['comp_email'],
+                                                    details['comp_site'],
+                                                    details['detail_top'],
+                                                    details['extra'],
+                                                    details['curry'],
+                                                    details['pic_add'],
+                                                    int(details['inv_start']),
+                                                    int(details['sgst']),
+                                                    int(details['cgst']),
+                                                    details['openapi_key'])
         cursor = self.connection.cursor()
         cursor.execute(qry)
         self.connection.commit()
@@ -522,7 +523,7 @@ class MyDatabase(object):
         row = self.cursor.execute("SELECT * FROM details").fetchone()
         details = {'comp_name': row[0], 'comp_add': row[2], 'comp_phn': row[3], 'comp_email': row[1],
                    'comp_site': row[4], 'detail_top': row[5], 'extra': row[6], 'curry': row[7], 'pic_add': row[8],
-                   'inv_start': row[9], 'sgst': row[10], 'cgst': row[11]}
+                   'inv_start': row[9], 'sgst': row[10], 'cgst': row[11], 'openapi_key': row[12]}
         return details
 
     def get_supplier_id(self, search):

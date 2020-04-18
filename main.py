@@ -115,7 +115,7 @@ note.rowconfigure(0, weight=1)
 note.columnconfigure(0, weight=1)
 
 btnnote = Notebook(root, style="r.TFrame")
-btnnote.grid(row=3, column=0, columnspan=4, sticky=N + S + E + W)
+btnnote.grid(row=3, column=0, columnspan=8, sticky=N + S + E + W)
 btnnote.columnconfigure(0, weight=1)
 btnnote.rowconfigure(0, weight=1)
 saveico = os.path.normpath('data/floppy_disk_blue.png')
@@ -126,7 +126,7 @@ Button(btnnote,
        command=lambda: DB.save(),
        compound=TOP,
        image=saveico,
-       width=1).grid(row=0, column=0, sticky=N + S + W + E)
+       width=15).grid(row=0, column=0, sticky=N + S + W + E)
 NEW_ICO = os.path.normpath('data/new_file.png')
 npico = PIL.Image.open(NEW_ICO).resize((32, 32), PIL.Image.ANTIALIAS)
 npico = PIL.ImageTk.PhotoImage(image=npico)
@@ -135,7 +135,7 @@ productbtn = Button(btnnote,
                     command=lambda: a_d_d__product(modify=False),
                     image=npico,
                     compound=TOP,
-                    width=1).grid(row=0, column=1, sticky=N + S + W + E)
+                    width=15).grid(row=0, column=1, sticky=N + S + W + E)
 NEW_USER_GROUP = os.path.normpath('data/user_group_new.png')
 ncico = PIL.Image.open(NEW_USER_GROUP).resize((32, 32), PIL.Image.ANTIALIAS)
 ncico = PIL.ImageTk.PhotoImage(image=ncico)
@@ -144,7 +144,7 @@ customerbtn = Button(btnnote,
                      command=lambda: a_d_d__customer(modify=False),
                      image=ncico,
                      compound=TOP,
-                     width=1).grid(row=0, column=2, sticky=N + S + W + E)
+                     width=15).grid(row=0, column=2, sticky=N + S + W + E)
 SETTINGS_ICO = os.path.normpath('data/settings_ico2.png')
 setting_ico = PIL.Image.open(SETTINGS_ICO).resize((32, 32),
                                                   PIL.Image.ANTIALIAS)
@@ -154,7 +154,7 @@ Button(btnnote,
        command=lambda: cdmp_del(),
        image=setting_ico,
        compound=TOP,
-       width=1).grid(row=0, column=3, sticky=N + S + W + E)
+       width=18).grid(row=0, column=3, sticky=N + S + W + E)
 
 app = Frame(note)
 app.grid(row=0, column=0, sticky=N + S + E + W)
@@ -333,7 +333,7 @@ Button(Cartindeldbnfram,
 # side
 
 dframe = Frame(app)
-dframe.grid(row=2, column=0, sticky=N + S + E + W)
+dframe.grid(row=2, column=0, rowspan=8, sticky=N + S + E + W)
 dframe.columnconfigure(0, weight=1)
 dframe.rowconfigure(0, weight=1)
 
@@ -1394,9 +1394,6 @@ def add2_inventory():
         supplier_id = DB.get_supplier(supplier)
         um = get_um_for_product(pid)
 
-        # tup.insert(9, um)
-        # tup.append(9)
-        # tup[9] = um
         try:
             pur_id = DB.addpurchase(pid, costid, date, qty, lot, for_factura,
                                     supplier_id)
@@ -1405,7 +1402,8 @@ def add2_inventory():
         except ValueError:
             ans = messagebox.askokcancel(
                 "Achizitie existenta",
-                "Achizitia pe acest produs in acest lot exista deja\nDoresti sa maresti cantitatea ?"
+                "Achizitia pe acest produs in acest lot exista deja\n"\
+                "Doresti sa maresti cantitatea ?"
             )
             if ans:
                 pur_i_d = DB.sqldb.getpurchaseID(costid, date, qty)
@@ -1414,7 +1412,6 @@ def add2_inventory():
 
                 DB.sqldb.edit_purchase(pur_i_d, 2, qty)
     mlb21.delete(0, END)
-    # make nir
     return messagebox.showinfo("Info", "Toate produsele au fost achizitionate")
 
 
@@ -1650,6 +1647,7 @@ def special__c_search(event):
     l = DB.sqldb.execute(
         """SELECT customer_address,phone_no FROM customers JOIN contacts USING (customer_id)
                  WHERE customer_name =  "%s" """ % st).fetchone()
+    print(l)
     add_inner = l[0]
     phn = l[1]
     customer_address.delete(0.0, END)
@@ -2406,7 +2404,13 @@ def cdmp_del():
 
 
 def add_supplier(id=False, modify=False):
-    """ method that is called upon button call """
+    """
+    method that is called upon button call
+    @param id: the supplier id for modify
+    @param modify: boolean flag
+    @return autorefresh the MultiListbox object holding
+    the suppliers
+    """
     tup = []
     if not modify:
         title = "Furnizor nou"
@@ -2428,15 +2432,23 @@ def add_supplier(id=False, modify=False):
     root13.grid()
     root13.rowconfigure(0, weight=1)
     root13.columnconfigure(0, weight=1)
-    ns = NewSupplier(root13, modify, tup, DB, id)
-    ns.grid(row=0, column=0, sticky=N + W + S + E)
-    ns.rowconfigure(0, weight=1)
-    ns.columnconfigure(0, weight=1)
+    n_s = NewSupplier(root13, modify, tup, DB, id)
+    n_s.grid(row=0, column=0, sticky=N + W + S + E)
+    n_s.rowconfigure(0, weight=1)
+    n_s.columnconfigure(0, weight=1)
     root13.wait_window()
     return b_supplier_search(refresh=True)
 
 
 def remove_supplier(mlb51):
+    """
+    remove supplier
+
+    @param mlb51: The MultiListbox object
+    """
+    piid = mlbga.true_parent(mlb51.Select_iid)
+    index = mlb51.index(piid)
+
     pass
 
 
