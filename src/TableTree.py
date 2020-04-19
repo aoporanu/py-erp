@@ -1,5 +1,5 @@
 import tkinter as tk
-from tkinter import N, S, E, W, FLAT, VERTICAL, X, Y, END, HORIZONTAL, BOTTOM, RIGHT, FALSE
+from tkinter import N, S, E, W, FLAT, VERTICAL, X, Y, END, HORIZONTAL, BOTTOM, RIGHT, FALSE, TRUE
 from tkinter.ttk import *
 
 
@@ -33,18 +33,20 @@ class MultiListbox(Frame):
         frame.grid(row=0, column=1, sticky=N + S + E + W)
         bn = Label(frame, width=1, relief=FLAT)
         bn.pack(fill=X)
-        xsb = Scrollbar(frame, orient=HORIZONTAL, command=self.tree.xview)
+        xsb = Scrollbar(self, orient=HORIZONTAL, command=self.tree.xview)
         sb = Scrollbar(frame, orient=VERTICAL, command=self.tree.yview)
-        xsb.pack(side=BOTTOM, expand=FALSE, fill=X)
-        sb.pack(side=RIGHT, expand=FALSE, fill=Y)
+        sb.pack(side="right", expand=FALSE, fill=Y)
         self.tree.configure(yscrollcommand=sb.set)
         self.tree.configure(xscrollcommand=xsb.set)
         self.first_column("No", width=60)
         self.tree.bind('<1>', self.row_select)
         self.V = tk.StringVar()
         lbl = Label(self, relief=FLAT, textvariable=self.V, anchor=E, font=("Ebrima", 8))
-        lbl.grid(row=1, column=0, columnspan=2, sticky=N + E + S + W, pady=0, padx=15)
+        xsb.grid(row=3, column=0, columnspan=2, sticky=N+E+S+W)
+        lbl.grid(row=4, column=0, columnspan=2, sticky=N + E + S + W, pady=0, padx=15)
         self.V.set("Number of Entries - %d" % (len(self.lists)))
+#        xsb.grid(row=5, column=5, sticky=N+E+S+W, pady=0, padx=15)
+#        sb.grid(row=7, column=5, sticky=N+S+E+W)
 
     def row_select(self, event):
         inter = self.tree.identify_row(event.y)
