@@ -8,5 +8,5 @@ setup(
     license='',
     author='adyopo',
     author_email='',
-    description='', install_requires=['reportlab', 'PIL', 'Cython']
+    description='', install_requires=['reportlab', 'PIL', 'Cython', 'fpdf']
 )

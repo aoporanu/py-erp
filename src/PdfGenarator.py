@@ -3,7 +3,7 @@ import os
 from PIL import Image
 from reportlab.lib import colors
 from reportlab.lib.colors import HexColor
-from reportlab.lib.pagesizes import A4, landscape
+from reportlab.lib.pagesizes import A4
 from reportlab.lib.units import inch, mm
 from reportlab.lib.utils import ImageReader
 from reportlab.pdfgen import canvas

@@ -35,6 +35,15 @@ def new_database_create(conn):
                  for_invoice TEXT NOT NULL,
                  purchase_date TEXT NOT NULL DEFAULT CURRENT_DATE); """)
 
+    conn.execute("""create table if not exists purchased_products(
+                id integer primary key autoincrement not null,
+                cost_id text not null references costs(cost_id),
+                purchase_id text not null references purchase(purchase_id),
+                product_id text not null references products(product_id),
+                qty int not null default 1,
+                lot text,
+                purchase_date text not null default current_date);""")
+
     conn.execute("""CREATE TABLE IF NOT EXISTS suppliers(
     id TEXT UNIQUE PRIMARY KEY NOT NULL,
     name TEXT NOT NULL,
@@ -270,6 +279,14 @@ class MyDatabase(object):
         if iid is None:
             return iid
         return iid[0]
+
+    def get_purchased_product_id(self, costid, date, qty):
+        row = self.cursor.execute("""select id from purchased_products where cost_id="%s" and qty = %.2f and 
+        purchase_date = "%s" """ % (costid, qty, date))
+        id = row.fetchone()
+        if id is None:
+            return id
+        return id[0]
 
     def add_new_purchase(self, pid, costid, date, qty, lot, pentru_factura, supplier):
         s = costid + date + str(qty) + hex(int(t.time() * 10000))
@@ -566,3 +583,21 @@ class MyDatabase(object):
         """
         row = self.cursor.execute("""select * from suppliers where id = "%s" """ % supplier).fetchone()
         return row
+
+    def add_products_to_purchase(self, pur_id, costid, date, qty, lot, pid):
+        """
+
+        @param pur_id:
+        @param costid:
+        @param date:
+        @param qty:
+        @param lot:
+        @param pid:
+        @return:
+        """
+        self.cursor.execute(
+            """ INSERT INTO purchased_products(purchase_id,cost_id,QTY,purchase_date,lot,product_id) VALUES ("%s",
+            "%s",%.2f,
+            "%s","%s","%s")""" % (
+                pur_id, costid, qty, date, lot, pid))
+        return pur_id

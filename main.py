@@ -1,20 +1,25 @@
 import subprocess
 import sys
 import os
-import tkinter as tk
-import tkinter.font as tkFont
-from pathlib import Path
+try:
+    import Tkinter as tk
+except:
+    import tkinter as tk
+try:
+    from tkinter.font import Font
+except:
+    import tkinter.font as tkFont
 
 from tkinter.filedialog import askopenfilename, N, S, E, W, HORIZONTAL, asksaveasfilename
 from tkinter.ttk import Style, Label, Frame, Combobox, Notebook, LabelFrame, Separator, Button, Entry, Spinbox, Labelframe
 from tkinter import DoubleVar, TOP, RIGHT, FLAT, LEFT, NORMAL, messagebox
+import time as t
 
 import PIL.Image
 import PIL.ImageTk
 from reportlab import xrange
 
 # DONE supplier multilistbox
-# TODO one purchase id has many products
 
 from src.Cython.proWrd1 import Filter
 
@@ -342,8 +347,8 @@ dframe.rowconfigure(0, weight=2)
 Lf03 = LabelFrame(dframe, text="Optiuni incasare", labelanchor=N)
 Lf03.grid(row=0, column=1, sticky=N + E + S + W)
 
-Fon = tkFont.Font(family='Times', size=17)
-Fon1 = tkFont.Font(family='Times', size=14)
+Fon = Font(family='Times', size=17)
+Fon1 = Font(family='Times', size=14)
 
 # AMOUNT
 
@@ -973,8 +978,8 @@ def import_export():
              sticky=N + E + W + S,
              padx=10,
              pady=10)
-    Fon3 = tkFont.Font(family='Times', size=24)
-    Fon4 = tkFont.Font(family='Times', size=16)
+    Fon3 = Font(family='Times', size=24)
+    Fon4 = Font(family='Times', size=16)
     #    ir3 = C51.create_text(205, 280, text="Total Solution To Inventory \n                         Management", font=Fon4)
     #    ir = C51.create_text(150, 50, text="     Inventory   Manager", font=Fon3)
     #    ir1 = C51.create_text(220, 90, text="         Powered by", font=Fon4)
@@ -1347,15 +1352,8 @@ def add2_purchase_table():
     category_combo.delete(0, END)
     description_text.delete(0.0, END)
     lot_text.delete(0, END)
-    # We shouldn't delete the pentru factura and supplier_combo text
-    # because we're adding products from an invoice, and one invoice
-    # has one supplier and one invoice number
-    # pentru_factura.delete(0, END)
-    # instead
     pentru_factura.configure(state="readonly")
-    # supplier_combo_search.delete(0, END)
     supplier_combo_search.configure(state="DISABLED")
-    # btn64.configure(state="DISABLED")
     return 1
 
 
@@ -1379,9 +1377,26 @@ def add2_inventory():
     tup_not_for = []
     if not mlb21.tree.get_children():
         return messagebox.showinfo("Eroare", "Lista de achizitii este goala")
+    item = mlb21.tree.get_children()[-1]
+    tup = mlb21.tree.item(item)
+    print(tup)
+    pid = DB.sqldb.get_product_id(tup['values'][0])
+    date = tup['values'][5]
+    qty = round(float(tup['values'][4]))
+    cost = round(float(tup['values'][2]), 2)
+    price = round(float(tup['values'][3]), 2)
+    costid = DB.sqldb.get_cost_id(pid, cost, price)
+    s = costid + date + str(qty) + hex(int(t.time() * 10000))
+    pur_id = "PUR" + str(hash(s))
+    supplier = tup['values'][8]
+    for_factura = tup['values'][7]
+    supplier_id = DB.get_supplier(supplier)
+    DB.sqldb.execute("""insert into purchase(purchase_id,purchase_date,supplier_id,for_invoice, cost_id) values("%s", 
+    "%s", 
+    "%s", "%s", "%s")""" % (
+        pur_id, date, supplier_id[0], for_factura, costid))
     for item in mlb21.tree.get_children():
         tup = mlb21.tree.item(item)
-        # print(tup)
         name = tup['values'][0]
         cost = round(float(tup['values'][2]), 2)
         price = round(float(tup['values'][3]), 2)
@@ -1396,14 +1411,14 @@ def add2_inventory():
         um = get_um_for_product(pid)
 
         try:
-            pur_id = DB.add_purchase(pid, costid, date, qty, lot, for_factura,
-                                     supplier_id[0])
+            # pur_id = DB.add_purchase(pid, costid, date, qty, lot, for_factura,
+            #                          supplier_id[0])
+            DB.add_products_to_purchase(pur_id, costid, date, qty, lot, pid)
             tup_not_for.append(tup["values"])
-            nir_document(tup_not_for, pur_id, supplier_id)
         except ValueError:
             ans = messagebox.askokcancel(
                 "Achizitie existenta",
-                "Achizitia pe acest produs in acest lot exista deja\n"\
+                "Achizitia pe acest produs in acest lot exista deja\n"
                 "Doresti sa maresti cantitatea ?"
             )
             if ans:
@@ -1412,6 +1427,7 @@ def add2_inventory():
                                          "\"" + pur_i_d + "\"")
 
                 DB.sqldb.edit_purchase(pur_i_d, 2, qty)
+    nir_document(tup_not_for, pur_id, supplier_id)
     mlb21.delete(0, END)
     return messagebox.showinfo("Info", "Toate produsele au fost achizitionate")
 
@@ -1846,7 +1862,7 @@ def export(objentry1):
 
 
 def brow__file(obj):
-    """Should alawys use entry widget as obj"""
+    """Should always use entry widget as obj"""
     from tkinter.filedialog import askopenfilename
     try:
         fname = askopenfilename(filetypes=(('Csv File', "*.csv"), ('All File',
@@ -2058,8 +2074,6 @@ def generate__invoice(product__list_forpdf, custup, invoicetup, detail):
                  discount=Discount_var.get(),
                  sub_total=subtol_var.get())
     fileline = "Factura-" + invoi_num + ".pdf"
-    p = Path('Invoices')
-    p.mkdir(exist_ok=True)
 
     try:
         if sys.platform is "win32":

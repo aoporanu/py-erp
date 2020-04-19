@@ -400,7 +400,7 @@ class InventoryDataBase(object):
         @param phone:
         @return:
         """
-        if phone == True:
+        if phone:
             ctmid = self.sqldb.get_customer_id(ctmid)
         return self.sqldb.delete_customer(ctmid)
 
@@ -417,10 +417,10 @@ class InventoryDataBase(object):
         no = round(float(no), 1)
         return self.sqldb.add_new_invoice(ctmid, no, date, paid)
 
-    def edit_invoice(self, invid, ctmid, no, date):
+    def edit_invoice(self, inv_id, ctmid, no, date):
         """
 
-        @param invid:
+        @param inv_id:
         @param ctmid:
         @param no:
         @param date:
@@ -428,23 +428,23 @@ class InventoryDataBase(object):
         """
         no = int(no)
         date = " ".join(date.split())
-        self.sqldb.edit_invoice(invid, 1, ctmid)
-        self.sqldb.edit_invoice(invid, 2, no)
-        self.sqldb.edit_invoice(invid, 4, date)
+        self.sqldb.edit_invoice(inv_id, 1, ctmid)
+        self.sqldb.edit_invoice(inv_id, 2, no)
+        self.sqldb.edit_invoice(inv_id, 4, date)
         return True
 
-    def delete_invoice(self, invid):
+    def delete_invoice(self, inv_id):
         """
 
-        @param invid:
+        @param inv_id:
         @return:
         """
-        return self.sqldb.delete_invoice(invid)
+        return self.sqldb.delete_invoice(inv_id)
 
-    def add_purchase(self, PID, costid, date, qty, lot, pentru_factura, supplier):
+    def add_purchase(self, pid, costid, date, qty, lot, pentru_factura, supplier):
         """
 
-        @param PID:
+        @param pid:
         @param costid:
         @param date:
         @param qty:
@@ -453,7 +453,7 @@ class InventoryDataBase(object):
         @param supplier:
         @return:
         """
-        return self.sqldb.add_new_purchase(PID, costid, date, qty, lot, pentru_factura, supplier)
+        return self.sqldb.add_new_purchase(pid, costid, date, qty, lot, pentru_factura, supplier)
 
     def edit_purchase(self, purid, costid, qty, date):
         """
@@ -626,5 +626,23 @@ class InventoryDataBase(object):
         return row
 
     def get_supplier(self, supplier):
+        """
+
+        @param supplier:
+        @return:
+        """
         row = self.sqldb.execute(""" select * from suppliers where name = "%s" """ % supplier).fetchone()
         return row
+
+    def add_products_to_purchase(self, pur_id, costid, date, qty, lot, pid):
+        """
+
+        @param pur_id:
+        @param costid:
+        @param date:
+        @param qty:
+        @param lot:
+        @param pid:
+        @return:
+        """
+        return self.sqldb.add_products_to_purchase(pur_id, costid, date, qty, lot, pid)
