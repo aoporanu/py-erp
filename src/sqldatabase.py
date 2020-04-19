@@ -123,6 +123,7 @@ class MyDatabase(object):
 
     def get_cell(self, table_name, row_name, column_name, rowid):
         print([table_name, row_name, column_name, rowid])
+        sqldb.enable_callback_tracebacks(True)
         row = self.cursor.execute(
             """SELECT %s FROM %s WHERE %s = "%s" """ % (column_name, table_name, row_name, rowid)).fetchone()
         if row is None:
@@ -143,14 +144,15 @@ class MyDatabase(object):
         row = l.fetchone()
         return row
 
-    def addcategory(self, category):
+    def add_category(self, category):
         catid = "CAT" + str(hash(category + hex(int(t.time() * 10000))))
         self.cursor.execute(
             """INSERT INTO category (category_id,category_name) VALUES ("%s","%s") """ % (catid, category))
         return catid
 
-    def editcategory(self, catid, newname):
-        self.cursor.execute("""UPDATE category SET category_name = "%s" WHERE category_id = "%s" """ % (newname, catid))
+    def edit_category(self, catid, new_name):
+        self.cursor.execute(
+            """UPDATE category SET category_name = "%s" WHERE category_id = "%s" """ % (new_name, catid))
         return True
 
     def getcategory_id(self, category):
@@ -167,7 +169,7 @@ class MyDatabase(object):
             return umid
         return umid[0]
 
-    def deletecategory(self, catid):
+    def delete_category(self, catid):
         row = self.cursor.execute("""SELECT product_id FROM products WHERE category_id = "%s" """ % catid)
         i = row.fetchone()
         if i is None:
@@ -175,66 +177,68 @@ class MyDatabase(object):
             return True
         return False
 
-    def getproductID(self, name):
+    def get_product_id(self, name):
         row = self.cursor.execute("""SELECT product_id FROM products WHERE product_name = "%s" """ % name)
         pid = row.fetchone()
-        if pid is None: return pid
+        if pid is None:
+            return pid
         return pid[0]
 
-    def addproduct(self, name, description, category, um):
-        proid = "PDT" + str(hash(name + hex(int(t.time() * 10000))))
+    def add_product(self, name, description, category, um):
+        prod_id = "PDT" + str(hash(name + hex(int(t.time() * 10000))))
         catid = self.getcategory_id(category)
         umid = self.get_um_id(um)
         if catid is None:
-            catid = self.addcategory(category)
+            catid = self.add_category(category)
         if umid is None:
             umid = self.add_um(um)
-        if self.getproductID(name) is not None:
+        if self.get_product_id(name) is not None:
             raise Exception("Product already listed")
         self.cursor.execute(
             """INSERT INTO products (product_id,product_name,product_description,category_id, um_id) VALUES ("%s",
             "%s","%s",
             "%s", "%s")""" % (
-                proid, name, description, catid, umid))
-        return proid
+                prod_id, name, description, catid, umid))
+        return prod_id
 
-    def editproduct(self, PID, attribute, value):
+    def edit_product(self, pid, attribute, value):
         """attribute -> name or 1 , description or 2, category_id or 3 """
         dic = {1: "product_name", 2: "product_description", 3: "category_id"}
         if type(attribute) == int:
             attribute = dic[attribute]
-        row = self.cursor.execute("""SELECT %s FROM products WHERE product_id = "%s" """ % (attribute, PID))
+        row = self.cursor.execute("""SELECT %s FROM products WHERE product_id = "%s" """ % (attribute, pid))
         row = row.fetchone()
         if row[0] == value:
             return False
-        self.cursor.execute("""UPDATE products SET %s = "%s" WHERE product_id = "%s" """ % (attribute, value, PID))
+        self.cursor.execute("""UPDATE products SET %s = "%s" WHERE product_id = "%s" """ % (attribute, value, pid))
         return True
 
-    def deleteproduct(self, PID):
-        row = self.cursor.execute("""SELECT cost_id FROM costs WHERE product_id = "%s" """ % PID)
+    def delete_product(self, pid):
+        row = self.cursor.execute("""SELECT cost_id FROM costs WHERE product_id = "%s" """ % pid)
         i = row.fetchone()
         if i is None:
-            self.cursor.execute("""DELETE FROM products WHERE product_id = "%s" """ % PID)
+            self.cursor.execute("""DELETE FROM products WHERE product_id = "%s" """ % pid)
             return True
         return False
 
-    def getcostID(self, PID, cost, price):
+    def get_cost_id(self, pid, cost, price):
         row = self.cursor.execute(
-            """SELECT cost_id FROM costs WHERE product_id = "%s" AND cost = %f AND price = %f """ % (PID, cost, price))
+            """SELECT cost_id FROM costs WHERE product_id = "%s" AND cost = %f AND price = %f """ % (pid, cost, price))
         iid = row.fetchone()
-        if iid is None: return iid
+        if iid is None:
+            return iid
         return iid[0]
 
-    def addnewcost(self, PID, cost, price):
-        s = PID + str(cost) + str(price) + hex(int(t.time() * 10000))
+    def add_new_cost(self, pid, cost, price):
+        s = pid + str(cost) + str(price) + hex(int(t.time() * 10000))
         costid = "CST" + str(hash(s))
-        if self.getcostID(PID, cost, price) is not None:
+        if self.get_cost_id(pid, cost, price) is not None:
             raise Exception("""cost already listed""")
         self.cursor.execute("""INSERT INTO costs (cost_id,product_id,cost,price) VALUES ("%s","%s",%.2f,%.2f)""" % (
-            costid, PID, cost, price))
+            costid, pid, cost, price))
         return costid
 
-    def editcost(self, costid, attribute, value):
+    def edit_cost(self, costid, attribute, value):
         """attribute -> product_id or 1 , cost or 2 , price or 3 """
         dic = {1: "product_id", 2: "cost", 3: "price"}
         if type(attribute) == int:
@@ -248,7 +252,7 @@ class MyDatabase(object):
         self.cursor.execute("""UPDATE costs SET %s = %s WHERE cost_id = "%s" """ % (attribute, str(value), costid))
         return True
 
-    def deletecost(self, costid):
+    def delete_cost(self, costid):
         row = self.cursor.execute("""SELECT purchase_id FROM purchase WHERE cost_id = "%s" """ % costid)
         i = row.fetchone()
         row = self.cursor.execute("""SELECT selling_id FROM sells WHERE cost_id = "%s" """ % costid)
@@ -258,7 +262,7 @@ class MyDatabase(object):
             return True
         return False
 
-    def get_purchase_ID(self, costid, date, qty):
+    def get_purchase_id(self, costid, date, qty):
         row = self.cursor.execute(
             """SELECT purchase_id FROM purchase WHERE cost_id = "%s" AND QTY = %.2f AND purchase_date = "%s" """ % (
                 costid, qty, date))
@@ -267,38 +271,38 @@ class MyDatabase(object):
             return iid
         return iid[0]
 
-    def add_new_purchase(self, PID, costid, date, qty, lot, pentru_factura, supplier):
+    def add_new_purchase(self, pid, costid, date, qty, lot, pentru_factura, supplier):
         s = costid + date + str(qty) + hex(int(t.time() * 10000))
-        purid = "PUR" + str(hash(s))
-        if self.get_purchase_ID(costid, date, qty) is not None:
+        pur_id = "PUR" + str(hash(s))
+        if self.get_purchase_id(costid, date, qty) is not None:
             raise ValueError("purchase already listed")
         self.cursor.execute(
             """ INSERT INTO purchase (purchase_id,cost_id,QTY,purchase_date,lot,for_invoice,supplier_id, 
             product_id) VALUES ("%s",
             "%s",%.2f,
             "%s","%s","%s","%s","%s")""" % (
-                purid, costid, qty, date, lot, pentru_factura, supplier, PID))
-        return purid
+                pur_id, costid, qty, date, lot, pentru_factura, supplier, pid))
+        return pur_id
 
-    def edit_purchase(self, purid, attribute, value):
+    def edit_purchase(self, pur_id, attribute, value):
         """""""""attribute -> cost_id or 1 , QTY or 2 , purchase_date or 3 """""""""
         dic = {1: """cost_id""", 2: """QTY""", 3: """purchase_date"""}
         if type(attribute) == int:
             attribute = dic[attribute]
-        row = self.cursor.execute("""SELECT %s FROM purchase WHERE purchase_id = "%s" """ % (attribute, purid))
+        row = self.cursor.execute("""SELECT %s FROM purchase WHERE purchase_id = "%s" """ % (attribute, pur_id))
         row = row.fetchone()
         if row[0] == value:
             return False
         if attribute == """cost_id""" or attribute == """purchase_date""":
             value = """\"""" + str(value) + """\""""
         self.cursor.execute(
-            """UPDATE purchase SET %s = %s WHERE purchase_id = "%s" """ % (attribute, str(value), purid))
+            """UPDATE purchase SET %s = %s WHERE purchase_id = "%s" """ % (attribute, str(value), pur_id))
         return True
 
-    def delete_purchase(self, purid):
-        return self.cursor.execute(""" DELETE FROM purchase WHERE purchase_id = "%s" """ % purid)
+    def delete_purchase(self, pur_id):
+        return self.cursor.execute(""" DELETE FROM purchase WHERE purchase_id = "%s" """ % pur_id)
 
-    def get_phone_ID(self, phone):
+    def get_phone_id(self, phone):
         row = self.cursor.execute("""SELECT phone_id FROM contacts WHERE phone_no = "%s" """ % phone)
         iid = row.fetchone()
         if iid is None:
@@ -306,10 +310,10 @@ class MyDatabase(object):
         return iid[0]
 
     def add_phone(self, phone, ctmid):
-        print(hex(int(t.time()) * 10000))
-        print(hash(str(phone) + ctmid + str(hex(int(t.time() * 10000)))))
+        # print(hex(int(t.time()) * 10000))
+        # print(hash(str(phone) + ctmid + str(hex(int(t.time() * 10000)))))
         phnid = """PHN""" + str(hash(str(phone) + ctmid + hex(int(t.time() * 10000))))
-        if self.get_phone_ID(phone) is not None:
+        if self.get_phone_id(phone) is not None:
             raise Exception("""Phone Number already listed""")
         self.cursor.execute(
             """INSERT INTO contacts (phone_id,phone_no,customer_id) VALUES ("%s","%s","%s")""" % (phnid, phone, ctmid))
@@ -328,16 +332,15 @@ class MyDatabase(object):
         return True
 
     def delete_phone(self, phnid):
-        ctmid = self.getcustomer_id_frm_phn_id(phnid)
+        ctmid = self.get_customer_id_frm_phn_id(phnid)
         row = self.cursor.execute("""SELECT phone_id FROM contacts WHERE customer_id = "%s" """ % ctmid)
         i = map(lambda x: x[0], row.fetchall())
-        print(i)
         if len(i) > 1:
             self.cursor.execute("""DELETE FROM contacts WHERE phone_id = "%s" """ % phnid)
             return True
         return False
 
-    def get_customer_ID(self, phone):
+    def get_customer_id(self, phone):
         row = self.cursor.execute("""SELECT customer_id FROM contacts WHERE phone_no = "%s" """ % phone)
         iid = row.fetchone()
         if iid is None:
@@ -375,7 +378,7 @@ class MyDatabase(object):
             return True
         return False
 
-    def get_invoice_ID(self, no):
+    def get_invoice_id(self, no):
         no = int(no)
         row = self.cursor.execute("""SELECT invoice_id FROM invoices WHERE invoice_no = %d """ % no)
         iid = row.fetchone()
@@ -384,73 +387,73 @@ class MyDatabase(object):
         return iid[0]
 
     def add_new_invoice(self, ctmid, no, date, paid):
-        invid = """INV""" + str(hash(ctmid + date + str(paid) + str(no) + hex(int(t.time() * 10000))))
-        if self.get_invoice_ID(no) is not None:
+        inv_id = """INV""" + str(hash(ctmid + date + str(paid) + str(no) + hex(int(t.time() * 10000))))
+        if self.get_invoice_id(no) is not None:
             raise Exception("""invoice already listed""")
         self.cursor.execute(
             """INSERT INTO invoices (invoice_id,customer_id,invoice_no,paid,invoice_date) VALUES ("%s","%s",%d,%.2f,
             "%s")""" % (
-                invid, ctmid, no, paid, date))
-        return invid
+                inv_id, ctmid, no, paid, date))
+        return inv_id
 
-    def edit_invoice(self, invid, attribute, value):
+    def edit_invoice(self, inv_id, attribute, value):
         """""""""attribute -> customer_id or 1 ,invoice_no or 2, paid or 3,invoice_date or 4  """""""""
         dic = {1: """customer_id""", 2: "invoice_no", 3: """paid""", 4: """invoice_date"""}
         if type(attribute) == int:
             attribute = dic[attribute]
-        row = self.cursor.execute("""SELECT %s FROM invoices WHERE invoice_id = "%s" """ % (attribute, invid))
+        row = self.cursor.execute("""SELECT %s FROM invoices WHERE invoice_id = "%s" """ % (attribute, inv_id))
         row = row.fetchone()
         if row[0] == value:
             return False
         if attribute == """customer_id""" or attribute == """invoice_date""":
             value = "\"" + str(value) + "\""
-        self.cursor.execute("""UPDATE invoices SET %s = %s WHERE invoice_id = "%s" """ % (attribute, value, invid))
+        self.cursor.execute("""UPDATE invoices SET %s = %s WHERE invoice_id = "%s" """ % (attribute, value, inv_id))
         return True
 
-    def delete_invoice(self, invid):
-        row = self.cursor.execute("""SELECT selling_id FROM sells WHERE invoice_id = "%s" """ % invid)
+    def delete_invoice(self, inv_id):
+        row = self.cursor.execute("""SELECT selling_id FROM sells WHERE invoice_id = "%s" """ % inv_id)
         i = row.fetchone()
         if i is None:
-            self.cursor.execute("""DELETE FROM invoices WHERE invoice_id = "%s" """ % invid)
+            self.cursor.execute("""DELETE FROM invoices WHERE invoice_id = "%s" """ % inv_id)
             return True
         return False
 
-    def get_sell_ID(self, invid, costid):
+    def get_sell_id(self, inv_id, costid):
         row = self.cursor.execute("""SELECT selling_id FROM sells WHERE
-                    invoice_id = "%s" AND cost_id = "%s" """ % (invid, costid))
+                    invoice_id = "%s" AND cost_id = "%s" """ % (inv_id, costid))
         iid = row.fetchone()
         if iid is None:
             return iid
         return iid[0]
 
-    def add_new_sell(self, invid, sold, qty, costid):
-        selid = """SEL""" + str(hash(invid + str(sold) + str(qty) + costid + hex(int(t.time() * 10000))))
-        if self.get_sell_ID(invid, costid) is not None:
+    def add_new_sell(self, inv_id, sold, qty, costid):
+        sell_id = """SEL""" + str(hash(inv_id + str(sold) + str(qty) + costid + hex(int(t.time() * 10000))))
+        if self.get_sell_id(inv_id, costid) is not None:
             raise ValueError("""sell already listed""")
         self.cursor.execute(
             """INSERT INTO sells (selling_id,invoice_id,sold_price,QTY,cost_id) VALUES ("%s","%s",%.2f,%.2f,"%s")""" % (
-                selid, invid, sold, qty, costid))
-        return selid
+                sell_id, inv_id, sold, qty, costid))
+        return sell_id
 
-    def edit_sells(self, selid, attribute, value):
+    def edit_sells(self, sell_id, attribute, value):
         """""""""attribute -> invoice_id or 1 , sold_price or 2,QTY or 3 ,cost_id or 4 """""""""
         dic = {1: """invoice_id""", 2: """sold_price""", 3: """QTY""", 4: """cost_id"""}
         if type(attribute) == int:
             attribute = dic[attribute]
-        row = self.cursor.execute("""SELECT %s FROM sells WHERE selling_id = "%s" """ % (attribute, selid))
+        row = self.cursor.execute("""SELECT %s FROM sells WHERE selling_id = "%s" """ % (attribute, sell_id))
         row = row.fetchone()
         if row[0] == value:
             return False
         if attribute == "cost_id" or attribute == "invoice_id":
             value = "\"" + str(value) + "\""
-        self.cursor.execute("""UPDATE sells SET %s = %s WHERE selling_id = "%s" """ % (attribute, value, selid))
+        self.cursor.execute("""UPDATE sells SET %s = %s WHERE selling_id = "%s" """ % (attribute, value, sell_id))
         return True
 
-    def delete_sells(self, selid):
-        return self.cursor.execute(""" DELETE FROM sells WHERE selling_id = "%s" """ % selid)
+    def delete_sells(self, sell_id):
+        return self.cursor.execute(""" DELETE FROM sells WHERE selling_id = "%s" """ % sell_id)
 
-    def get_quantity(self, PID):
-        row = self.cursor.execute("""SELECT cost_id FROM costs WHERE product_id = "%s" """ % PID)
+    def get_quantity(self, pid):
+        row = self.cursor.execute("""SELECT cost_id FROM costs WHERE product_id = "%s" """ % pid)
         l = row.fetchall()
         qty = 0.0
         for i in l:
@@ -475,7 +478,7 @@ class MyDatabase(object):
         um = list(self.cursor.execute(""" select name from units_of_measure where id = "%s" """ % um_id))
         return um
 
-    def resetdatabase(self):
+    def reset_database(self):
         self.cursor.execute(""" BEGIN ;
                             DROP TABLE category;
                             DROP TABLE products;
@@ -489,7 +492,7 @@ class MyDatabase(object):
         new_database_create(self.connection)
         return True
 
-    def getcustomer_id_frm_phn_id(self, phnid):
+    def get_customer_id_frm_phn_id(self, phnid):
         row = self.cursor.execute("""SELECT customer_id FROM contacts WHERE phone_id = "%s" """ % phnid)
         iid = row.fetchone()
         if iid is None:
@@ -556,7 +559,6 @@ class MyDatabase(object):
         return False
 
     def get_supplier(self, supplier):
-        print(supplier)
         """
 
         @param supplier:

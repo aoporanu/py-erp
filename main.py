@@ -334,7 +334,7 @@ Button(Cartindeldbnfram,
 # side
 
 dframe = Frame(app)
-dframe.grid(row=2, column=0, rowspan=8, sticky=N + S + E + W)
+dframe.grid(row=2, column=0, rowspan=9, sticky=N + S + E + W)
 dframe.columnconfigure(0, weight=1)
 dframe.rowconfigure(0, weight=2)
 
@@ -635,7 +635,7 @@ def purchase_product_frame():
         app6, (('Nume produs', 35), ("UM", 10), ("Pret achizitie", 25),
                ("Pret comercializare", 25), ("Cantitate", 15), ("Data", 35),
                ("LOT", 25), ("Pentru factura", 35), ('Furnizor', 20)))
-    mlb21.grid(row=3, column=0, columnspan=1, sticky=N + S + E + W)
+    mlb21.grid(row=3, column=0, columnspan=1, rowspan=3, sticky=N + S + E + W)
     NEXT_ICO = os.path.normpath('data/next.png')
     tmp3 = PIL.Image.open(NEXT_ICO).resize((70, 70), PIL.Image.ANTIALIAS)
     tmp3 = PIL.ImageTk.PhotoImage(image=tmp3)
@@ -662,7 +662,7 @@ def inventory_product_list():
     app2.columnconfigure(0, weight=1)
     app2.columnconfigure(1, weight=7)
     app2.rowconfigure(2, weight=1)
-    note.add(app2, text='    Inventar')
+    note.add(app2, text='    Inventar    ')
     Label(app2,
           text='Produse inventar',
           foreground="#3496ff",
@@ -816,7 +816,7 @@ def customer_database_list():
     app3.columnconfigure(0, weight=1)
     app3.columnconfigure(1, weight=5)
     app3.rowconfigure(2, weight=1)
-    note.add(app3, text="    Clienti")
+    note.add(app3, text="    Clienti    ")
     Label(app3,
           text='Lista clienti',
           foreground="#3496ff",
@@ -1325,7 +1325,7 @@ def add2_purchase_table():
             message=
             'Cantitatea, pretul de achizitie sau cel de vanzare trebuie sa fie formate numerice',
             parent=root)
-    pid = DB.sqldb.getproductID(name)
+    pid = DB.sqldb.get_product_id(name)
     if pid is None:
         aut = messagebox.askokcancel(
             "Autentificare",
@@ -1333,10 +1333,10 @@ def add2_purchase_table():
             parent=root)
         if not aut:
             return 0
-        pid = DB.addproduct(name, cat, des)
-    costid = DB.sqldb.getcostID(pid, cost, price)
+        pid = DB.add_product(name, cat, des)
+    costid = DB.sqldb.get_cost_id(pid, cost, price)
     if costid is None:
-        DB.addcost(name, cost, price)
+        DB.add_cost(name, cost, price)
     um = get_um_for_product(pid)[1]
     lopp = [name, um, cost, price, qty, date, lot, for_invoice, supplier]
     mlb21.insert(END, lopp)
@@ -1387,8 +1387,8 @@ def add2_inventory():
         price = round(float(tup['values'][3]), 2)
         qty = round(float(tup['values'][4]))
         date = tup['values'][5]
-        pid = DB.sqldb.getproductID(name)
-        costid = DB.sqldb.getcostID(pid, cost, price)
+        pid = DB.sqldb.get_product_id(name)
+        costid = DB.sqldb.get_cost_id(pid, cost, price)
         lot = tup['values'][6]
         for_factura = tup['values'][7]
         supplier = tup['values'][8]
@@ -1396,10 +1396,10 @@ def add2_inventory():
         um = get_um_for_product(pid)
 
         try:
-            pur_id = DB.addpurchase(pid, costid, date, qty, lot, for_factura,
-                                    supplier_id)
+            pur_id = DB.add_purchase(pid, costid, date, qty, lot, for_factura,
+                                     supplier_id[0])
             tup_not_for.append(tup["values"])
-            nir_document(tup_not_for, pur_id, supplier)
+            nir_document(tup_not_for, pur_id, supplier_id)
         except ValueError:
             ans = messagebox.askokcancel(
                 "Achizitie existenta",
@@ -1407,7 +1407,7 @@ def add2_inventory():
                 "Doresti sa maresti cantitatea ?"
             )
             if ans:
-                pur_i_d = DB.sqldb.getpurchaseID(costid, date, qty)
+                pur_i_d = DB.sqldb.get_purchase_id(costid, date, qty)
                 qty += DB.sqldb.get_cell("purchase", "purchase_id", "QTY",
                                          "\"" + pur_i_d + "\"")
 
@@ -1433,7 +1433,7 @@ def reset_coform():
 
     @return:
     """
-    DB.sqldb.resetdatabase()
+    DB.sqldb.reset_database()
     return None
 
 
@@ -1452,7 +1452,7 @@ def remove__product(obj):
         'Avertisment',
         "Esti sigur ca vrei sa stergi produsul " + tup[1] + " ?")
     if ans:
-        ie = DB.deleteproduct(tup[0])
+        ie = DB.delete_product(tup[0])
         if ie:
             messagebox.showinfo('Info', tup[1] + ' Sters cu succes')
         else:
@@ -1476,7 +1476,7 @@ def remove__customer(obj):
     ans = messagebox.askokcancel(
         'WARNING', "Do You Really Want To delete " + tup[1] + " ?")
     if ans:
-        ie = DB.deletecustomer(tup[0])
+        ie = DB.delete_customer(tup[0])
         if ie:
             messagebox.showinfo('Info', tup[1] + 'Has Been Deleted')
         else:
@@ -1503,7 +1503,7 @@ def b_product__search(refresh=False):
         BP_log1[0] = fst
     else:
         fst = BP_log1[0]
-    fst_l = set(DB.searchproduct(fst))
+    fst_l = set(DB.search_product(fst))
     return print__p_table(fst_l)
 
 
@@ -1553,7 +1553,7 @@ def b_customer__search(refresh=False):
         BC_log1[0] = fst
     else:
         fst = BC_log1[0]
-    fst_l = set(DB.searchcustomer(fst))
+    fst_l = set(DB.search_customer(fst))
     return print__c_table(fst_l)
 
 
@@ -1671,7 +1671,7 @@ def product_name_search_func(string):
     @param string:
     @return:
     """
-    return DB.searchproduct(string.title())
+    return DB.search_product(string.title())
 
 
 def customer_name_search(string):
@@ -1680,7 +1680,7 @@ def customer_name_search(string):
     @param string:
     @return string
     """
-    return DB.searchcustomer(string.title())
+    return DB.search_customer(string.title())
 
 
 def supplier_name_search(string):
@@ -1706,7 +1706,7 @@ def invoice_no_search(string):
     @param string:
     @return string
     """
-    return DB.searchinvoice(string.title())
+    return DB.search_invoice(string.title())
 
 
 def category_name_search(string):
@@ -1714,7 +1714,7 @@ def category_name_search(string):
     @param string:
     @return string
     """
-    return DB.searchcategory(string.title())
+    return DB.search_category(string.title())
 
 
 def product_name__search():
@@ -2008,7 +2008,7 @@ def process_cart(invid):
         ]
         lik.append(listsw)
         sold_price = product_price2 - discount_per_product
-        DB.addsells(costid, sold_price, invid, product_qty)
+        DB.add_sells(costid, sold_price, invid, product_qty)
         i += 1
     mlb.delete(0, END)
     return lik
@@ -2085,7 +2085,7 @@ def transfer():
     detail = DB.sqldb.get_company_details
     if Invoi_num is None:
         return 1
-    alooas = DB.sqldb.get_invoice_ID(Invoi_num)
+    alooas = DB.sqldb.get_invoice_id(Invoi_num)
     if alooas is not None:
         return messagebox.showinfo(
             "Eroare",
@@ -2112,7 +2112,7 @@ def transfer():
     discount = str(Discount_var.get())
     amount = str(Amt_var.get())
     Grand_total = str(Gtol_var.get())
-    invid = DB.addinvoice(ctmid, Invoi_num, Grand_total, invoice__date2)
+    invid = DB.add_invoice(ctmid, Invoi_num, Grand_total, invoice__date2)
     Product_List_forpdf = process_cart(invid)
     invoicetup = (invoice__date2, Invoi_num, Grand_total, amount, discount)
     generate__invoice(Product_List_forpdf, custup, invoicetup, detail)
@@ -2262,11 +2262,11 @@ def add_2_cart():
             "Eroare Intrare",
             "Cantitatea prodului trebuie sa fie o valoare numerica")
         return 1
-    PID = DB.sqldb.getproductID(product)
+    PID = DB.sqldb.get_product_id(product)
     if PID is None:
         return messagebox.showinfo("Eroare Intrare",
                                    "ID-ul produsului nu exista")
-    costid = DB.getanycostid(PID, p_price)
+    costid = DB.get_any_cost_id(PID, p_price)
     if costid is None:
         return messagebox.showinfo("Eroare", "Produsul nu este in inventar")
     boo = False
@@ -2308,9 +2308,9 @@ def pre_inv():
                             message='Acesta nu este un numar valid de telefon',
                             parent=root)
         return None
-    ctmid = DB.sqldb.get_customer_ID(phone)
+    ctmid = DB.sqldb.get_customer_id(phone)
     if ctmid is None:
-        ctmid = DB.addcustomer(name, address, phone, "")
+        ctmid = DB.add_customer(name, address, phone, "")
     else:
         dbcmname = DB.sqldb.get_cell("customers", "customer_id",
                                      "customer_name", ctmid)
@@ -2447,7 +2447,7 @@ def remove_supplier(mlb51):
 
     @param mlb51: The MultiListbox object
     """
-    piid = mlbga.true_parent(mlb51.Select_iid)
+    piid = mlb51.true_parent(mlb51.Select_iid)
     index = mlb51.index(piid)
 
     pass
@@ -2460,6 +2460,7 @@ b_customer__search(refresh=True)
 b_supplier_search(refresh=True)
 make_sure_path_exist("invoice")
 make_sure_path_exist("data")
+make_sure_path_exist("niruri")
 root.protocol(name="WM_DELETE_WINDOW", func=call_save)
 
 root.mainloop()

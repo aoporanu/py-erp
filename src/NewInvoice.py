@@ -95,7 +95,7 @@ class ADDInvoice():
 
         def productsearch():
             inp = Filter(entry7.get())
-            l = self.db.searchproduct(inp.title())
+            l = self.db.search_product(inp.title())
             entry7["value"] = l
             return 1
 
@@ -103,7 +103,7 @@ class ADDInvoice():
             name = Filter(entry7.get()).title()
             amount = Filter(entry4.get())
             qty = Filter(entry8.get())
-            PID = self.db.sqldb.getproductID(name)
+            PID = self.db.sqldb.get_product_id(name)
             if PID == None:
                 return showinfo("Error",
                                 "No Product Name %s is in Product List" %
@@ -121,7 +121,7 @@ class ADDInvoice():
                 return showinfo("Error",
                                 "No Purchse has been made on %s " % (name),
                                 parent=self.app)
-            costid = self.db.getanycostid(PID, price)
+            costid = self.db.get_any_cost_id(PID, price)
             boo = False
             for i in xrange(lb.size()):
                 r = lb.get(i)
@@ -375,7 +375,7 @@ class ADDInvoice():
         if edit == True:
             invid = tup[0]
         else:
-            invid = self.db.sqldb.get_invoice_ID(inv_no)
+            invid = self.db.sqldb.get_invoice_id(inv_no)
         if invid != None and edit == False:
             return showinfo('Input Error',
                             'Invoice Number Already Exists',
@@ -400,7 +400,7 @@ class ADDInvoice():
             return showinfo('Input Error',
                             'Amount, Paid and Discount Have To Be numbers',
                             parent=self.t)
-        ctmid = self.db.sqldb.get_customer_ID(Cphn)
+        ctmid = self.db.sqldb.get_customer_id(Cphn)
         if ctmid == None:
             ans = askokcancel(
                 "New Customer",
@@ -408,7 +408,7 @@ class ADDInvoice():
                 parent=self.t)
             if ans == False:
                 return 0
-            ctmid = self.db.addcustomer(Cname, Cadd, Cphn, "")
+            ctmid = self.db.add_customer(Cname, Cadd, Cphn, "")
         else:
             dbcmname = self.db.sqldb.get_cell("customers", "customer_id",
                                               "customer_name", ctmid)
@@ -417,10 +417,10 @@ class ADDInvoice():
                          'Phone Number Already Registered in Another Name',
                          parent=self.t)
         if edit == True:
-            self.db.editinvoice_withpaid(invid, ctmid, paid, inv_no, inv_date)
+            self.db.edit_invoice_with_paid(invid, ctmid, paid, inv_no, inv_date)
         else:
-            invid = self.db.addinvoice(ctmid, inv_no, paid, inv_date)
-        selids = self.db.getallsellID(invid)
+            invid = self.db.add_invoice(ctmid, inv_no, paid, inv_date)
+        selids = self.db.get_all_sell_id(invid)
         for i in selids:
             self.db.delete_sells(i)
         tnoofproduct = 0
@@ -433,9 +433,9 @@ class ADDInvoice():
             product_price = float(tup[2])
             product_qty = float(tup[1])
             costid = tup[3]
-            selID = self.db.sqldb.get_sell_ID(invid, costid)
+            selID = self.db.sqldb.get_sell_id(invid, costid)
             sold_price = product_price - discountperproduct
-            self.db.addsells(costid, sold_price, invid, product_qty)
+            self.db.add_sells(costid, sold_price, invid, product_qty)
         self.lb.delete(0, END)
         self.app.destroy()
         return self.Refresh()

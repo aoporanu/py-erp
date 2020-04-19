@@ -61,11 +61,11 @@ class ImportCsv(object):
             except(KeyError):
                 description = ""
 
-            PID = self.db.sqldb.getproductID(name)
+            PID = self.db.sqldb.get_product_id(name)
             if PID != None:
-                self.db.editproduct(PID, name, category, description)
+                self.db.edit_product(PID, name, category, description)
             else:
-                self.db.addproduct(name, category, description)
+                self.db.add_product(name, category, description)
         self.returns = True
         return 0
 
@@ -169,12 +169,12 @@ class ImportCsv(object):
             except KeyError:
                 email = ""
             if len(phone) == 10:
-                phnid = self.db.sqldb.get_phone_ID(phone)
+                phnid = self.db.sqldb.get_phone_id(phone)
                 print(phnid, phone, name, address, email), len(phone)
                 if phnid != None:
                     self.db.edit_customer(phnid, phone, name, address, email)
                 else:
-                    self.db.addcustomer(name, address, phone, email)
+                    self.db.add_customer(name, address, phone, email)
         self.returns = True
         return 1
 

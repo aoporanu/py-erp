@@ -1,3 +1,5 @@
+import os
+
 from PIL import Image
 from reportlab.lib import colors
 from reportlab.lib.colors import HexColor
@@ -9,20 +11,25 @@ from reportlab.pdfgen import canvas
 from src.Table import Table, N, S, E, W
 from src.pcclass import InventoryDataBase
 from fpdf import FPDF, HTMLMixin
-import tkinter as tk
+
 
 db = InventoryDataBase()
 
 L_margin = 0.5 * inch
 data = ['No', 'Product', 'Qty', 'Unit Price', 'Amount']
-data_for_nir = ['No', 'Product', 'Qty', 'Unit Price', 'Amount', '', '', '', '']
 extra = [["", "", "", "", ""]]
-extra_for_nir = [["", "", "", "", "", "", "", "", ""]]
 
 
 class MyFPDF(FPDF, HTMLMixin):
     """ cannot parse table unless I override the FPDF and HTMLMixin classes """
-    pass
+
+    def footer(self):
+        self.set_y(-10)
+        self.set_font('Arial', 'I', 8)
+
+        # Add a page number
+        page = 'Pagina: ' + str(self.page_no()) + '/{nb}'
+        self.cell(0, 10, page, 0, 0, 'C')
 
 
 def calculate_y(y, lines, offset):
@@ -34,73 +41,86 @@ def calculate_y(y, lines, offset):
 
 def draw_string(string, canvas_instance, x, y, lead):
     """ draws string on canvas """
-    textobject = canvas_instance.beginText()
-    textobject.setTextOrigin(x, y)
-    textobject.setLeading(lead)
+    text_object = canvas_instance.beginText()
+    text_object.setTextOrigin(x, y)
+    text_object.setLeading(lead)
     for i in string.split('\n'):
         if len(i) > 90:
             i = i.split(" ")
             s = len(i) / 4
             wrd = ""
-            for w in range(3 * s):
+            for w in range(int(3 * s)):
                 wrd = wrd + i[w] + " "
-            textobject.textLine(wrd)
+            text_object.textLine(wrd)
             wrd = ""
-            for w in range(3 * s, len(i)):
+            for w in range(int(3 * s), len(i)):
                 wrd = wrd + i[w] + " "
-            textobject.textLine(wrd)
+            text_object.textLine(wrd)
         else:
-            textobject.textLine(i)
-    return canvas_instance.drawText(textobject)
+            text_object.textLine(i)
+    return canvas_instance.drawText(text_object)
 
 
 def nir_document(tup_not_for, pur_id, supplier):
     """ called when new products are purchased """
     pdf = MyFPDF('L')
-    pdf.set_font('Helvetica', '', 8)
+    pdf_w_ = pdf.w / 2
+    pdf.set_font_size(6)
+    pdf.set_font('helvetica', '', 6)
     pdf.add_page('L')
     details = db.sqldb.get_company_details
-
-    html = """
-    <table border="0" width="100%">
-        <tr>
-            <td width="50%">""" + details[
-        'comp_name'] + """</td><td width="50%">""" + str(supplier) + """</td>
-        </tr>
-    </table>
-    <table border="0" align="center" width="100%">
-<thead><tr>
-<th width="3%">#</th>
-<th width="40%">Denumire</th>
-<th width="6%">Cantitate</th>
-<th width="2%">UM</th>
-<th width="5%">Pret pe UM</th>
-<th width="6%">Total fara TVA</th>
-<th width="6%">Pret cu TVA</th></tr></thead>
-<tbody>
-"""
+    row_height = pdf.font_size + 1
+    nir_header(details, pdf, pdf_w_, row_height, supplier)
+    pdf.ln(row_height * 6)
+    build_nir_header(pdf, row_height)
+    pdf.ln(row_height)
     for i in range(len(tup_not_for)):
-        total_w_vat = (float(tup_not_for[i][2]) *
-                       (float(details['cgst']) / 100))
-        total_w_vat = str(total_w_vat)
-        total_wo_vat = (float(tup_not_for[i][2]) * float(tup_not_for[i][4]))
-        html = html + """<tr style="border: 1px dotted black"><td width="3%">""" + str(i) + """</td><td
-        width="40%">""" + tup_not_for[i][0] + """</td><td width="6%">""" + tup_not_for[i][4] + """</td><td width="2%">""" + tup_not_for[
-                   i][1] + """</td><td width="5%">""" + tup_not_for[i][2] + """</td><td width="6%">""" + \
-               str(total_wo_vat) + """</td><td width="6%">""" + total_w_vat + """</td></tr> """
-    html = html + """</tbody></table>"""
-    pdf.write_html(html)
-    pdf.output('NIR-' + pur_id + '.pdf', 'F')
-    # [
-    # name,
-    # um,
-    # cost,
-    # price,
-    # qty,
-    # date,
-    # lot,
-    # for_invoice,
-    # supplier
+        build_nir_content_rows(details, i, pdf, row_height, tup_not_for)
+        pdf.ln(row_height)
+    pdf.output('niruri/NIR-' + pur_id +
+               '.pdf', 'F')
+
+
+def nir_header(details, pdf, pdf_w_, row_height, supplier):
+    pdf.cell(pdf_w_, row_height, details['comp_name'], border=0, ln=0, align='left')
+    pdf.cell(pdf_w_, row_height, supplier[1], border=0, ln=0, align='R')
+    pdf.ln(row_height)
+    pdf.cell(pdf_w_, row_height, details['comp_add'], border=0, ln=0, align='left')
+    pdf.cell(pdf_w_, row_height, supplier[2], border=0, ln=0, align='R')
+    pdf.ln(row_height)
+    pdf.cell(pdf_w_, row_height, details['comp_phn'], border=0, ln=0, align='left')
+    pdf.cell(pdf_w_, row_height, supplier[3], border=0, ln=0, align='R')
+
+
+def build_nir_header(pdf, row_height):
+    pdf.cell(10, row_height, '#', border=1)
+    pdf.cell(25, row_height, 'Denumire', border=1, ln=0, align='C')
+    pdf.cell(15, row_height, 'Cantitate', border=1, ln=0, align='C')
+    pdf.cell(7, row_height, 'UM', border=1, ln=0, align='C')
+    pdf.cell(15, row_height, 'Pret pe UM', border=1, ln=0, align='C')
+    pdf.cell(10, row_height, 'Cota TVA', border=1, ln=0, align="C")
+    pdf.cell(15, row_height, 'TVA Per UM', border=1, ln=0, align='C')
+    pdf.cell(15, row_height, 'Pret cu TVA', border=1, ln=0, align='C')
+    pdf.cell(17, row_height, 'Subtotal cu TVA', border=1, ln=0, align='C')
+
+
+def build_nir_content_rows(details, i, pdf, row_height, tup_not_for):
+    total_w_vat = round((float(tup_not_for[i][2]) *
+                         (float(details['cgst']) / 100)), 2)
+    total_w_vat = str(total_w_vat)
+    fara_tva = float(tup_not_for[i][4]) * float(tup_not_for[i][2])
+    # total_wo_vat prints only the vat for one UM
+    total_wo_vat = (float(tup_not_for[i][2]) * float(tup_not_for[i][4]))
+    with_vat = round(float(total_w_vat) * float(total_wo_vat), 2)
+    pdf.cell(10, row_height, str(i), border=1)
+    pdf.cell(25, row_height, tup_not_for[i][0], border=1)
+    pdf.cell(15, row_height, tup_not_for[i][4], border=1)
+    pdf.cell(7, row_height, tup_not_for[i][1], border=1)
+    pdf.cell(15, row_height, tup_not_for[i][2], border=1)
+    pdf.cell(10, row_height, str(details['cgst']), border=1)
+    pdf.cell(15, row_height, str(total_w_vat), border=1)
+    pdf.cell(15, row_height, str(with_vat), border=1)
+    pdf.cell(17, row_height, str(fara_tva), border=1)
 
 
 def pdf_document(delegate, pic_add, inv_no, company_name, date, company_add,
@@ -115,7 +135,7 @@ def pdf_document(delegate, pic_add, inv_no, company_name, date, company_add,
     except IOError:
         pil = Image.new('RGB', (250, 43))
     p = ImageReader(pil)
-    c = canvas.Canvas("Invoice   " + inv_no + ".pdf", pagesize=A4, bottomup=0)
+    c = canvas.Canvas("invoice" + os.sep + "Invoice_" + inv_no + ".pdf", pagesize=A4, bottomup=0)
     c.setViewerPreference("FitWindow", "true")
     c.setFont("Times-Bold", 24)
     c.drawImage(p, 2.5 * inch, 0.5 * inch)

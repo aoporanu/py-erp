@@ -41,7 +41,7 @@ class Category:
         tup = self.mlb1.get(index)
         s = askokcancel('Confirm', 'Are You Sure You Want To delete %s ?' % tup[0], parent=self.master)
         if s:
-            self.db.deletecategory(tup[0])
+            self.db.delete_category(tup[0])
         return self.refresh(), showinfo('Successful', 'Successfully Deleted', parent=self.master)
 
     def insert(self):
@@ -94,9 +94,9 @@ class Category:
         if len(cname.split()) == 0:
             return showinfo('Type Error', 'Category Name Must Be Specified', parent=self.t)
         if edit:
-            self.db.editcategoryname(tup[0], cname)
+            self.db.edit_category_name(tup[0], cname)
         else:
-            self.db.addcategory(cname)
+            self.db.add_category(cname)
         self.t.destroy()
         self.refresh()
         return showinfo('Successful', 'Changes Saved', parent=self.master)

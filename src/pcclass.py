@@ -21,7 +21,7 @@ class InventoryDataBase(object):
         """
         self.sqldb = sqldb.MyDatabase()
 
-    def getcustomernames(self):
+    def get_customer_names(self):
         """
 
         @return:
@@ -68,13 +68,13 @@ class InventoryDataBase(object):
         l.sort()
         return l
 
-    customerlist = property(getcustomernames)
-    productlist = property(getproductnames)
+    customer_list = property(get_customer_names)
+    product_list = property(getproductnames)
     categorylist = property(getcategorynames)
-    invoicelist = property(getinvoiceno)
+    invoice_list = property(getinvoiceno)
     get_supplier_names = property(get_supplier_names)
 
-    def searchcustomer(self, likename):
+    def search_customer(self, likename):
         """
 
         @param likename:
@@ -93,7 +93,7 @@ class InventoryDataBase(object):
                                  OR phone_no LIKE "%%%s%%" """ % tup)
         return row
 
-    def searchproduct(self, likename):
+    def search_product(self, likename):
         """
 
         @param likename:
@@ -117,7 +117,7 @@ class InventoryDataBase(object):
                            like_name)
         return row
 
-    def searchcategory(self, likename):
+    def search_category(self, likename):
         """
 
         @param likename:
@@ -131,7 +131,7 @@ class InventoryDataBase(object):
                                  category_name LIKE "%%%s%%" """ % tup)
         return row
 
-    def searchinvoice(self, likename):
+    def search_invoice(self, likename):
         """
 
         @param likename:
@@ -180,7 +180,7 @@ class InventoryDataBase(object):
         """
         return self.sqldb.close()
 
-    def addproduct_and_cost(self, name, category, description, cost, price, lot):
+    def add_product_and_cost(self, name, category, description, cost, price, lot):
         """
 
         @param name:
@@ -196,11 +196,11 @@ class InventoryDataBase(object):
         cost = round(float(cost), 2)
         price = round(float(price), 2)
         lot = lot.title()
-        PID = self.sqldb.addproduct(name, description, category, lot)
-        costid = self.sqldb.addnewcost(PID, cost, price)
+        PID = self.sqldb.add_product(name, description, category, lot)
+        costid = self.sqldb.add_new_cost(PID, cost, price)
         return costid
 
-    def addproduct(self, name, category, description, um):
+    def add_product(self, name, category, description, um):
         """
 
         @param name:
@@ -212,9 +212,9 @@ class InventoryDataBase(object):
         name = name.title()
         category = category.title()
         um = um.title()
-        return self.sqldb.addproduct(name, description, category, um)
+        return self.sqldb.add_product(name, description, category, um)
 
-    def editproduct(self, PID, name, category, description, um):
+    def edit_product(self, PID, name, category, description, um):
         """
 
         @param PID:
@@ -230,26 +230,26 @@ class InventoryDataBase(object):
         catid = self.sqldb.getcategory_id(category)
         umid = self.sqldb.get_um_id(um)
         if catid is None:
-            catid = self.addcategory(category)
+            catid = self.add_category(category)
         if umid is None:
             umid = self.add_um(um)
-        self.sqldb.editproduct(PID, 1, name)
-        self.sqldb.editproduct(PID, 2, description)
-        self.sqldb.editproduct(PID, 3, catid)
-        self.sqldb.editproduct(PID, 4, umid)
+        self.sqldb.edit_product(PID, 1, name)
+        self.sqldb.edit_product(PID, 2, description)
+        self.sqldb.edit_product(PID, 3, catid)
+        self.sqldb.edit_product(PID, 4, umid)
         return True
 
-    def deleteproduct(self, PID):
+    def delete_product(self, PID):
         """
 
         @param PID:
         @return:
         """
         if PID != None:
-            return self.sqldb.deleteproduct(PID)
+            return self.sqldb.delete_product(PID)
         return False
 
-    def addcost(self, name, cost, price):
+    def add_cost(self, name, cost, price):
         """
 
         @param name:
@@ -260,10 +260,10 @@ class InventoryDataBase(object):
         name = name.title()
         cost = round(float(cost), 2)
         price = round(float(price), 2)
-        PID = self.sqldb.getproductID(name)
-        return self.sqldb.addnewcost(PID, cost, price)
+        PID = self.sqldb.get_product_id(name)
+        return self.sqldb.add_new_cost(PID, cost, price)
 
-    def editcosts(self, costid, PID, cost, price):
+    def edit_costs(self, costid, PID, cost, price):
         """
 
         @param costid:
@@ -274,19 +274,19 @@ class InventoryDataBase(object):
         """
         cost = round(float(cost), 2)
         price = round(float(price), 2)
-        self.sqldb.editcost(costid, 1, PID)
-        self.sqldb.editcost(costid, 2, cost)
-        self.sqldb.editcost(costid, 3, price)
+        self.sqldb.edit_cost(costid, 1, PID)
+        self.sqldb.edit_cost(costid, 2, cost)
+        self.sqldb.edit_cost(costid, 3, price)
         return True
 
-    def addcategory(self, newcategory):
+    def add_category(self, newcategory):
         """
 
         @param newcategory:
         @return:
         """
         newcategory = newcategory.title()
-        return self.sqldb.addcategory(newcategory)
+        return self.sqldb.add_category(newcategory)
 
     def add_um(self, um):
         """
@@ -297,7 +297,7 @@ class InventoryDataBase(object):
         newum = um.title()
         return self.sqldb.add_um(newum)
 
-    def editcategoryname(self, previousname, newcategory):
+    def edit_category_name(self, previousname, newcategory):
         """
 
         @param previousname:
@@ -306,16 +306,16 @@ class InventoryDataBase(object):
         """
         newcategory = newcategory.title()
         catid = self.sqldb.getcategory_id(previousname)
-        return self.sqldb.editcategory(catid, newcategory)
+        return self.sqldb.edit_category(catid, newcategory)
 
-    def deletecategory(self, category):
+    def delete_category(self, category):
         """
 
         @param category:
         @return:
         """
         catid = self.sqldb.getcategory_id(category)
-        return self.sqldb.deletecategory(catid)
+        return self.sqldb.delete_category(catid)
 
     def delete_um(self, um):
         """
@@ -326,7 +326,7 @@ class InventoryDataBase(object):
         umid = self.sqldb.get_um_id(um)
         return self.sqldb.delete_um(umid)
 
-    def addphone(self, phone, ctmid):
+    def add_phone(self, phone, ctmid):
         """
 
         @param phone:
@@ -337,7 +337,7 @@ class InventoryDataBase(object):
         #     raise Exception("Phone Number Not Valid")
         return self.sqldb.add_phone(phone, ctmid)
 
-    def editphone(self, phnid, phone, ctmid):
+    def edit_phone(self, phnid, phone, ctmid):
         """
 
         @param phnid:
@@ -345,14 +345,14 @@ class InventoryDataBase(object):
         @param ctmid:
         @return:
         """
-        ph = self.sqldb.get_phone_ID(phone)
+        ph = self.sqldb.get_phone_id(phone)
         if ph != None:
             raise Exception("Phone Number Already Listed")
         self.sqldb.edit_phone(phnid, 1, phone)
         self.sqldb.edit_phone(phnid, 2, ctmid)
         return None
 
-    def deletephone(self, phnid):
+    def delete_phone(self, phnid):
         """
 
         @param phnid:
@@ -360,7 +360,7 @@ class InventoryDataBase(object):
         """
         return self.sqldb.delete_phone(phnid)
 
-    def addcustomer(self, name, address, email, ro, cui, cnp):
+    def add_customer(self, name, address, email, ro, cui, cnp):
         """
 
         @param name:
@@ -374,7 +374,7 @@ class InventoryDataBase(object):
         name = name.title()
         return self.sqldb.add_new_customer(name, address, email, ro, cui, cnp)
 
-    def editcustomer(self, ctmid, newname, address, email, ro):
+    def edit_customer(self, ctmid, newname, address, email, ro):
         """
 
         @param ctmid:
@@ -393,7 +393,7 @@ class InventoryDataBase(object):
         self.sqldb.edit_customer(ctmid, 4, ro)
         return True
 
-    def deletecustomer(self, ctmid, phone=False):
+    def delete_customer(self, ctmid, phone=False):
         """
 
         @param ctmid:
@@ -401,10 +401,10 @@ class InventoryDataBase(object):
         @return:
         """
         if phone == True:
-            ctmid = self.sqldb.get_customer_ID(ctmid)
+            ctmid = self.sqldb.get_customer_id(ctmid)
         return self.sqldb.delete_customer(ctmid)
 
-    def addinvoice(self, ctmid, no, paid, date):
+    def add_invoice(self, ctmid, no, paid, date):
         """
 
         @param ctmid:
@@ -417,7 +417,7 @@ class InventoryDataBase(object):
         no = round(float(no), 1)
         return self.sqldb.add_new_invoice(ctmid, no, date, paid)
 
-    def editinvoice(self, invid, ctmid, no, date):
+    def edit_invoice(self, invid, ctmid, no, date):
         """
 
         @param invid:
@@ -433,7 +433,7 @@ class InventoryDataBase(object):
         self.sqldb.edit_invoice(invid, 4, date)
         return True
 
-    def deleteinvoice(self, invid):
+    def delete_invoice(self, invid):
         """
 
         @param invid:
@@ -441,7 +441,7 @@ class InventoryDataBase(object):
         """
         return self.sqldb.delete_invoice(invid)
 
-    def addpurchase(self, PID, costid, date, qty, lot, pentru_factura, supplier):
+    def add_purchase(self, PID, costid, date, qty, lot, pentru_factura, supplier):
         """
 
         @param PID:
@@ -455,7 +455,7 @@ class InventoryDataBase(object):
         """
         return self.sqldb.add_new_purchase(PID, costid, date, qty, lot, pentru_factura, supplier)
 
-    def editpurchase(self, purid, costid, qty, date):
+    def edit_purchase(self, purid, costid, qty, date):
         """
 
         @param purid:
@@ -471,7 +471,7 @@ class InventoryDataBase(object):
         self.sqldb.edit_purchase(purid, 3, date)
         return True
 
-    def deletepurchase(self, purid):
+    def delete_purchase(self, purid):
         """
 
         @param purid:
@@ -479,7 +479,7 @@ class InventoryDataBase(object):
         """
         return self.sqldb.delete_purchase(purid)
 
-    def addsells(self, costid, sold, invid, qty):
+    def add_sells(self, costid, sold, invid, qty):
         """
 
         @param costid:
@@ -492,7 +492,7 @@ class InventoryDataBase(object):
         qty = round(float(qty), 1)
         return self.sqldb.add_new_sell(invid, sold, qty, costid)
 
-    def editsells(self, selid, sold, qty, costid):
+    def edit_sells(self, selid, sold, qty, costid):
         """
 
         @param selid:
@@ -508,7 +508,7 @@ class InventoryDataBase(object):
         self.sqldb.edit_sells(selid, 4, costid)
         return True
 
-    def deletesells(self, selid):
+    def delete_sells(self, selid):
         """
 
         @param selid:
@@ -516,7 +516,7 @@ class InventoryDataBase(object):
         """
         return self.sqldb.delete_sells(selid)
 
-    def getallsellID(self, invid):
+    def get_all_sell_id(self, invid):
         """
 
         @param invid:
@@ -526,7 +526,7 @@ class InventoryDataBase(object):
                                     """ % invid)
         return row
 
-    def getanycostid(self, PID, price):
+    def get_any_cost_id(self, PID, price):
         """
 
         @param PID:
@@ -546,7 +546,7 @@ class InventoryDataBase(object):
                 return i
         return None
 
-    def editinvoice_withpaid(self, invid, ctmid, paid, no, date):
+    def edit_invoice_with_paid(self, invid, ctmid, paid, no, date):
         """
 
         @param invid:
@@ -565,7 +565,7 @@ class InventoryDataBase(object):
         self.sqldb.edit_invoice(invid, 4, date)
         return True
 
-    def getphoneS(self, ctmid):
+    def get_phones(self, ctmid):
         """
 
         @param ctmid:
@@ -626,7 +626,5 @@ class InventoryDataBase(object):
         return row
 
     def get_supplier(self, supplier):
-        row = self.execute(""" select id from suppliers where name = "%s" """ % supplier)
+        row = self.sqldb.execute(""" select * from suppliers where name = "%s" """ % supplier).fetchone()
         return row
-
-

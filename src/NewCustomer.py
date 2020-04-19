@@ -152,7 +152,7 @@ class NewCustomer(Frame):
             return showinfo(title="ERROR",
                             message='Invoice Number must be numbers',
                             parent=self.master)
-        ctmid = self.db.sqldb.get_customer_ID(phn)
+        ctmid = self.db.sqldb.get_customer_id(phn)
         if ctmid is None:
             return showinfo(title="ERROR",
                             message='Customer Not Found',
@@ -354,7 +354,7 @@ class NewCustomer(Frame):
             Label(self.t, text="Phone ID : ",
                   background='white').grid(row=0, column=0, padx=5, pady=5)
             Label(self.t,
-                  text=self.db.sqldb.get_phone_ID(tup[0]),
+                  text=self.db.sqldb.get_phone_id(tup[0]),
                   background='white').grid(row=0, column=1, padx=5, pady=5)
             self.e.delete(0, END)
             self.e.insert(0, tup[0])
@@ -363,18 +363,18 @@ class NewCustomer(Frame):
 
     def save_phone(self, edit: object, tup: object) -> object:
         phone = Filter(self.e.get())
-        if self.db.sqldb.get_phone_ID(phone) is not None:
+        if self.db.sqldb.get_phone_id(phone) is not None:
             return showinfo('Error',
                             'Phone Number Is Already Added.',
                             parent=self.t)
-        # phnid = self.db.sqldb.get_phone_ID(phone)
+        # phnid = self.db.sqldb.get_phone_id(phone)
         # ctmid = self.ctmid
         # if phnid is not None and edit == False:
         #     return showinfo('Type Error', 'Phone Number Is Already Listed', parent=self.t)
         # if not phone.isdigit():
         #     return showinfo('Type Error', 'Not a Valid Phone Number', parent=self.t)
         # if edit:
-        #     pphn = self.db.sqldb.get_phone_ID(tup[0])
+        #     pphn = self.db.sqldb.get_phone_id(tup[0])
         #     if pphn is not None:
         #         self.db.edit_phone(pphn, phone, ctmid)
         #     else:
@@ -406,7 +406,7 @@ class NewCustomer(Frame):
         piid = self.mlb2221.true_parent(self.mlb2221.Select_iid)
         index = self.mlb2221.index(piid)
         tup = self.mlb2221.get(index)
-        phnid = self.db.sqldb.get_phone_ID(tup[0])
+        phnid = self.db.sqldb.get_phone_id(tup[0])
         if phnid is None:
             self.mlb2221.delete(index)
             return None
@@ -593,7 +593,7 @@ class NewCustomer(Frame):
                             parent=self.master)
         ctmid = None
         if not modify:
-            ctmid = self.db.addcustomer(name, add, email, ro, cui, cnp)
+            ctmid = self.db.add_customer(name, add, email, ro, cui, cnp)
         else:
             ctmid = self.tup[0]
             ask = askokcancel(
@@ -607,7 +607,7 @@ class NewCustomer(Frame):
         if ctmid is not None:
             for i in self.mlb2221.tree.get_children():
                 tup = self.mlb2221.tree.item(i)
-                phnid = self.db.sqldb.get_phone_ID(tup['values'][0])
+                phnid = self.db.sqldb.get_phone_id(tup['values'][0])
                 if phnid is None:
                     self.db.sqldb.add_phone(tup['values'][0], ctmid)
         self.master.destroy()

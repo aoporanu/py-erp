@@ -15,6 +15,7 @@
       <w>docx</w>
       <w>ebrima</w>
       <w>editbtnfram</w>
+      <w>editcategory</w>
       <w>factura</w>
       <w>fpdf</w>
       <w>genico</w>
@@ -23,6 +24,7 @@
       <w>masura</w>
       <w>niid</w>
       <w>notepage</w>
+      <w>openapi</w>
       <w>pentru</w>
       <w>phnid</w>
       <w>piid</w>
@@ -30,6 +32,7 @@
       <w>rootd</w>
       <w>sapp</w>
       <w>sgst</w>
+      <w>sqldb</w>
       <w>subtol</w>
       <w>titlel</w>
       <w>treeview</w>

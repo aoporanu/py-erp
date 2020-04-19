@@ -65,8 +65,8 @@ def Invoke(master):
     try:
         file_name = askopenfilename(parent=master.root,
                                     filetypes=(('Fisier jpeg', "*.jpg"),
-                                           ("Fisier PNG",
-                                            "*.png"), ("Fisier bitmap", "*.bmp")))
+                                               ("Fisier PNG",
+                                                "*.png"), ("Fisier bitmap", "*.bmp")))
     except:
         showinfo("Eroare fisier", "Alege altceva", parent=master.root)
     if len(file_name) == 0:
@@ -376,66 +376,66 @@ class SampleApp:
         """
         try:
             detail = self.db.sqldb.get_company_details
-        except:
+        except ValueError:
             self.do_save()
             # Company name
         self.company_name.delete(0, END)
         try:
             comp_name = detail['comp_name']
-        except:
+        except ValueError:
             comp_name = ""
         self.company_name.insert(0, comp_name)
         # Company Address
         self.company_address.delete(0.0, END)
         try:
             comp_add = detail['comp_add']
-        except:
+        except ValueError:
             comp_add = ""
         self.company_address.insert(0.0, comp_add)
         # Company Phone
         self.company_phone.delete(0, END)
         try:
             comp_phn = detail['comp_phn']
-        except:
+        except ValueError:
             comp_phn = ""
         self.company_phone.insert(0, comp_phn)
         # Company Email
         self.company_email.delete(0, END)
         try:
             comp_email = detail['comp_email']
-        except:
+        except ValueError:
             comp_email = ""
         self.company_email.insert(0, comp_email)
         # Company Website
         self.company_website.delete(0, END)
         try:
             comp_site = detail['comp_site']
-        except:
+        except ValueError:
             comp_site = ""
         self.company_website.insert(0, comp_site)
         # Company top Detail
         self.detail_top.delete(0.0, END)
         try:
             detail_top1 = detail['detail_top']
-        except:
+        except ValueError:
             detail_top1 = ""
         self.detail_top.insert(0.0, detail_top1)
         # Currency
         self.currency.delete(0, END)
         try:
             curry = detail['curry']
-        except:
+        except ValueError:
             curry = ""
         self.currency.insert(0, curry)
         # Extra Info
         self.ei_buttom.delete(0.0, END)
         try:
             extra = detail['extra']
-        except:
+        except ValueError:
             extra = ""
         try:
             open_api = detail['openapi_key']
-        except:
+        except ValueError:
             open_api = ""
         self.open_api_key.insert(0.0, str(open_api))
         self.ei_buttom.insert(0.0, extra)
@@ -451,7 +451,7 @@ class SampleApp:
         # Pic
         try:
             original = Image.open("logo.png")
-        except (IOError):
+        except IOError:
             original = Image.new("RGB", (250, 43), "white")
         size1 = (250, 43)
         resize2 = original.resize(size1, Image.ANTIALIAS)

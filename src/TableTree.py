@@ -22,7 +22,7 @@ class MultiListbox(Frame):
             self.tree = Treeview(self, column=self.b, selectmode='browse', style="new.Treeview")
         else:
             self.tree = Treeview(self, column=self.b, selectmode='browse', style="new.Treeview", height=height)
-        self.tree.grid(row=0, column=0, sticky=N + S + E + W)
+        self.tree.grid(row=0, column=0, rowspan=5, sticky=N + S + E + W)
         self.lists = []
         self.parent_elements = []
         tree = self.tree
@@ -30,7 +30,7 @@ class MultiListbox(Frame):
             tree.column(l, width=w * 5)
             tree.heading(l, text=l)
         frame = Frame(self)
-        frame.grid(row=0, column=1, sticky=N + S + E + W)
+        frame.grid(row=0, column=1, rowspan=6, sticky=N + S + E + W)
         # print(frame.winfo_height())
         bn = Label(frame, width=1, relief=FLAT)
         bn.pack(fill=X)

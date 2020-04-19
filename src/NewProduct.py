@@ -263,7 +263,7 @@ class NewProduct(Frame):
             return showinfo(title="Error",
                             message='Product Category Must Be Specified',
                             parent=self.master)
-        vre = self.db.sqldb.getproductID(name)
+        vre = self.db.sqldb.get_product_id(name)
         if not modify:
             if vre is not None:
                 return showinfo(
@@ -271,7 +271,7 @@ class NewProduct(Frame):
                     message=
                     'Product Name is Already Listed Change Name To save As Copy',
                     parent=self.master)
-            PID = self.db.addproduct(name, category, description, um)
+            PID = self.db.add_product(name, category, description, um)
         elif modify:
             PID = tup[0]
             previousname = tup[1]
@@ -290,7 +290,7 @@ class NewProduct(Frame):
                     parent=self.master)
                 if not s:
                     return False
-            self.db.editproduct(PID, name, category, description, um)
+            self.db.edit_product(PID, name, category, description, um)
         self.master.destroy()
         return showinfo("ADDED", 'Saved Successfully')
 
@@ -328,13 +328,13 @@ class NewProduct(Frame):
             return showinfo(title="ERROR",
                             message='costs and price must be numbers',
                             parent=self.master)
-        costid = self.db.sqldb.getcostID(PID, newcost, newprice)
+        costid = self.db.sqldb.get_cost_id(PID, newcost, newprice)
         if costid is not None:
             return showinfo("Message",
                             "Cost and Price Already Listed",
                             parent=self.master)
         if not edit:
-            self.db.sqldb.addnewcost(PID, newcost, newprice)
+            self.db.sqldb.add_new_cost(PID, newcost, newprice)
         else:
             i = self.mlb11.Select_index
             if i is None:
@@ -343,7 +343,7 @@ class NewProduct(Frame):
                                 parent=self.master)
             r = self.mlb11.get(i)
             pcostid = r[0]
-            self.db.editcosts(pcostid, PID, newcost, newprice)
+            self.db.edit_costs(pcostid, PID, newcost, newprice)
         self.add2mlb15()
         self.ncost.delete(0, END)
         self.nprice.delete(0, END)
@@ -548,9 +548,9 @@ class NewProduct(Frame):
             return showinfo(title="ERROR",
                             message='costs and price must be numbers',
                             parent=self.master)
-        costid = self.db.sqldb.getcostID(PID, cost, price)
+        costid = self.db.sqldb.get_cost_id(PID, cost, price)
         if costid == None:
-            costid = self.db.sqldb.addnewcost(PID, cost, price)
+            costid = self.db.sqldb.add_new_cost(PID, cost, price)
         self.db.edit_purchase(self.purid, costid, qty, date)
         self.purgui.destroy()
         self.Add2Mlb21()
@@ -779,10 +779,10 @@ class NewProduct(Frame):
                 message=
                 'Costs,Price,Selling,Price,Invoice No And Qty must be numbers',
                 parent=self.master)
-        costid = self.db.sqldb.getcostID(PID, cost, price)
+        costid = self.db.sqldb.get_cost_id(PID, cost, price)
         if costid == None:
-            costid = self.db.sqldb.addnewcost(PID, cost, price)
-        invid = self.db.sqldb.get_invoice_ID(invno)
+            costid = self.db.sqldb.add_new_cost(PID, cost, price)
+        invid = self.db.sqldb.get_invoice_id(invno)
         if invid == None:
             return showinfo(title="ERROR",
                             message='Invoice In That Number Dsn\'t Exsist',

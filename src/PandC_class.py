@@ -46,8 +46,8 @@ class InventoryDataBase(object):
                 PID = self.addproduct(name, category, description)
                 costid = self.addcost(name, cost, price)
             except:
-                PID = self.sqldb.getproductID(name)
-                costid = self.sqldb.getcostID(PID, cost, price)
+                PID = self.sqldb.get_product_id(name)
+                costid = self.sqldb.get_cost_id(PID, cost, price)
             slog = f["dic"][i]['slog']
             plog = f["dic"][i]['plog']
             for i in plog.keys():
@@ -70,7 +70,7 @@ class InventoryDataBase(object):
             try:
                 ctmid = self.addcustomer(name, address, phone, email)
             except:
-                ctmid = self.sqldb.get_customer_ID(phone)
+                ctmid = self.sqldb.get_customer_id(phone)
             invoice = InvoiceSplit(invoice)
             for h in invoice:
                 paid = f["invn"][str(h)]["Paid"]
@@ -78,9 +78,9 @@ class InventoryDataBase(object):
                 try:
                     invid = self.addinvoice(ctmid, h, paid, date)
                 except:
-                    invid = self.sqldb.get_invoice_ID(h)
+                    invid = self.sqldb.get_invoice_id(h)
                 for pro in f["invn"][str(h)]["Products"]:
-                    PID = self.sqldb.getproductID(pro)
+                    PID = self.sqldb.get_product_id(pro)
                     if pro == 'Philips - Induction':
                         pro = 'Philips Induction'
                     if pro == 'Godrej - 190 Litre Mo':
@@ -93,7 +93,7 @@ class InventoryDataBase(object):
                         if date == f["dic"][pro]["slog"][key]["Date"]:
                             sold = f["dic"][pro]["slog"][key]["Sold Price"]
                             qty = f["dic"][pro]["slog"][key]["Quantity"]
-                    costid = self.sqldb.getcostID(PID, cost, price)
+                    costid = self.sqldb.get_cost_id(PID, cost, price)
                     print(costid, PID, cost, price)
                     try:
                         self.addsells(costid, sold, invid, qty)
