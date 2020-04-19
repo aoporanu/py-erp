@@ -41,12 +41,10 @@ class MultiListbox(Frame):
         self.first_column("No", width=60)
         self.tree.bind('<1>', self.row_select)
         self.V = tk.StringVar()
-        lbl = Label(self, relief=FLAT, textvariable=self.V, anchor=E, font=("Ebrima", 8))
+        lbl = Label(self, relief=FLAT, textvariable=self.V, anchor=E, font=("Ebrima", 8), foreground="#fefefe")
         xsb.grid(row=3, column=0, columnspan=2, sticky=N+E+S+W)
         lbl.grid(row=4, column=0, columnspan=2, sticky=N + E + S + W, pady=0, padx=15)
         self.V.set("Number of Entries - %d" % (len(self.lists)))
-#        xsb.grid(row=5, column=5, sticky=N+E+S+W, pady=0, padx=15)
-#        sb.grid(row=7, column=5, sticky=N+S+E+W)
 
     def row_select(self, event):
         inter = self.tree.identify_row(event.y)
