@@ -1,10 +1,13 @@
+import os
 from tkinter import *  # from x import * is bad practice
-from tkinter.ttk import *
-from PIL import ImageTk, Image
-from src.Cython.proWrd1 import Filter
-from tkinter.messagebox import showinfo
 from tkinter.filedialog import askopenfilename
-from tkinter.filedialog import asksaveasfilename
+from tkinter.messagebox import showinfo
+from tkinter.ttk import *
+
+from PIL import ImageTk, Image
+
+from src.Cython.proWrd1 import Filter
+
 
 # http://tkinter.unpythonic.net/wiki/VerticalScrolledFrame
 
@@ -16,6 +19,7 @@ class VerticalScrolledFrame(Frame):
     * This frame only allows vertical scrolling
 
     """
+
     def __init__(self, parent, *args, **kw):
         Frame.__init__(self, parent, *args, **kw)
 
@@ -59,18 +63,18 @@ class VerticalScrolledFrame(Frame):
 
 def Invoke(master):
     try:
-        fname = askopenfilename(parent=master.root,
-                                filetypes=(('jepg File', "*.jpg"),
-                                           ("PNG Image File",
-                                            "*.png"), ("Bitmap Image File")))
+        file_name = askopenfilename(parent=master.root,
+                                    filetypes=(('Fisier jpeg', "*.jpg"),
+                                           ("Fisier PNG",
+                                            "*.png"), ("Fisier bitmap", "*.bmp")))
     except:
-        showinfo("File Error", "Choose Again", parent=master.root)
-    if len(fname) == 0:
-        showinfo("File Error",
-                 "You Must Choose a Logo For Your Invoice",
+        showinfo("Eroare fisier", "Alege altceva", parent=master.root)
+    if len(file_name) == 0:
+        showinfo("Eroare fisier",
+                 "Trebuie un logo pentru facturi",
                  parent=master.root)
         return None
-    original = Image.open(str(fname))
+    original = Image.open(str(file_name))
     size1 = (250, 43)
     size2 = (703, 122)
     resize1 = original.resize(size1, Image.ANTIALIAS)
@@ -324,16 +328,16 @@ class SampleApp:
                                sticky=N + E + W + S,
                                padx=10,
                                pady=10)
-        #        self.s1ico = Image.open("../data/floppy_disk_blue.png").resize(
-        #           (25, 25), Image.ANTIALIAS)
-        #        self.s1ico = ImageTk.PhotoImage(image=self.s1ico)
-
+        SAVE_ICO = os.path.normpath(os.getcwd() + os.sep + 'data/floppy_disk_blue.png')
+        self.s1ico = Image.open(SAVE_ICO).resize(
+            (25, 25), Image.ANTIALIAS)
+        self.s1ico = ImageTk.PhotoImage(image=self.s1ico)
         self.save = Button(
             app1,
             text="save",
-            command=lambda: self.De_Save(),
+            command=lambda: self.do_save(),
             width=30,
-            #                          image=self.s1ico,
+            image=self.s1ico,
             compound=LEFT)
         self.save.grid(row=24,
                        column=1,
@@ -341,7 +345,7 @@ class SampleApp:
                        padx=10,
                        pady=10)
 
-    def De_Save(self):
+    def do_save(self):
         detail = {
             'comp_name': Filter(self.company_name.get()),
             'comp_add': Filter(str(self.company_address.get(0.0, END))),
@@ -365,12 +369,15 @@ class SampleApp:
                         "Company Detail Saved Successfully",
                         parent=self.root)
 
-    @property
     def load__de(self):
+        """
+
+        @return:
+        """
         try:
             detail = self.db.sqldb.get_company_details
         except:
-            self.De_Save()
+            self.do_save()
             # Company name
         self.company_name.delete(0, END)
         try:
@@ -430,7 +437,7 @@ class SampleApp:
             open_api = detail['openapi_key']
         except:
             open_api = ""
-        self.open_api_key.insert(0, open_api)
+        self.open_api_key.insert(0.0, str(open_api))
         self.ei_buttom.insert(0.0, extra)
         # Invoice start
         self.invoice_num_s.delete(0, END)

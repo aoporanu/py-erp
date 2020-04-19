@@ -117,7 +117,8 @@ note.columnconfigure(0, weight=1)
 btnnote = Notebook(root, style="r.TFrame")
 btnnote.grid(row=3, column=0, columnspan=8, sticky=N + S + E + W)
 btnnote.columnconfigure(0, weight=1)
-btnnote.rowconfigure(0, weight=1)
+# btnnote.rowconfigure(0, weight=1)
+# print(btnnote.winfo_height())q
 saveico = os.path.normpath('data/floppy_disk_blue.png')
 saveico = PIL.Image.open(saveico).resize((32, 32), PIL.Image.ANTIALIAS)
 saveico = PIL.ImageTk.PhotoImage(image=saveico)
@@ -335,7 +336,7 @@ Button(Cartindeldbnfram,
 dframe = Frame(app)
 dframe.grid(row=2, column=0, rowspan=8, sticky=N + S + E + W)
 dframe.columnconfigure(0, weight=1)
-dframe.rowconfigure(0, weight=1)
+dframe.rowconfigure(0, weight=2)
 
 # Amount
 Lf03 = LabelFrame(dframe, text="Optiuni incasare", labelanchor=N)
@@ -1184,7 +1185,7 @@ def b_supplier_search(refresh=False):
 
 
 def ckeys():
-    print(DB.categorylist)
+    # print(DB.categorylist)
     category_combo['values'] = DB.categorylist
     return None
 
@@ -1380,7 +1381,7 @@ def add2_inventory():
         return messagebox.showinfo("Eroare", "Lista de achizitii este goala")
     for item in mlb21.tree.get_children():
         tup = mlb21.tree.item(item)
-        print(tup)
+        # print(tup)
         name = tup['values'][0]
         cost = round(float(tup['values'][2]), 2)
         price = round(float(tup['values'][3]), 2)
@@ -1647,7 +1648,7 @@ def special__c_search(event):
     l = DB.sqldb.execute(
         """SELECT customer_address,phone_no FROM customers JOIN contacts USING (customer_id)
                  WHERE customer_name =  "%s" """ % st).fetchone()
-    print(l)
+    # print(l)
     add_inner = l[0]
     phn = l[1]
     customer_address.delete(0.0, END)

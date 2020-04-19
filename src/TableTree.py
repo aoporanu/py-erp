@@ -31,6 +31,7 @@ class MultiListbox(Frame):
             tree.heading(l, text=l)
         frame = Frame(self)
         frame.grid(row=0, column=1, sticky=N + S + E + W)
+        # print(frame.winfo_height())
         bn = Label(frame, width=1, relief=FLAT)
         bn.pack(fill=X)
         xsb = Scrollbar(self, orient=HORIZONTAL, command=self.tree.xview)

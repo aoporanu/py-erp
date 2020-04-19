@@ -46,7 +46,7 @@ class InventoryDataBase(object):
         """
         l = self.execute("SELECT category_name FROM category")
         a = sorted(l)
-        print(a)
+        # print(a)
         return a
 
     def get_supplier_names(self):
@@ -56,7 +56,7 @@ class InventoryDataBase(object):
         """
         l = self.execute("SELECT name FROM suppliers")
         a = sorted(l)
-        print(a)
+        # print(a)
         return a
 
     def getinvoiceno(self):
