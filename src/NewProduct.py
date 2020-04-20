@@ -1,5 +1,5 @@
 from tkinter import *
-from tkinter.messagebox import askokcancel
+from tkinter.messagebox import askokcancel, showerror
 from tkinter.messagebox import showinfo
 from tkinter.ttk import *
 
@@ -19,6 +19,33 @@ class NewProduct(Frame):
         # print(tup)
         Frame.__init__(self, master)
         super().__init__(master, **kw)
+
+        self.f = Frame(self, style='me.TFrame')
+        self.f.grid(row=0, column=0, sticky=sty)
+        self.f.rowconfigure(1, weight=3)
+        self.f.columnconfigure(0, weight=1)
+        note = Notebook(self.f)
+        note.grid(row=1, column=0, sticky=sty)
+        note.rowconfigure(0, weight=1)
+        note.columnconfigure(0, weight=1)
+        self.costs_app = Frame(note)
+        self.purchase_app = Frame(note)
+        self.purchase_lf = Frame(self.purchase_app)
+        self.btn_delete_costs = Button(self.costs_app,
+                                       text="delete costs",
+                                       command=lambda: self.delete_cost())
+        self.mlb_costs = MultiListbox(self.costs_app, (("Cost ID", 25), ("Cost Price", 30),
+                                                       ("Selling Price", 30), ("Qty", 15)))
+        self.sales_lf = LabelFrame(self.costs_app, text="ADD New Costs", labelanchor=N + W)
+        self.costhead = self.sales_lf
+        self.ncost = Entry(self.sales_lf)
+        self.btn14 = Button(self.sales_lf,
+                            text="Edit Cost",
+                            command=lambda: self.addcost(True))
+        self.nprice = Entry(self.sales_lf)
+        self.btn13 = Button(self.sales_lf,
+                            text="Add Cost",
+                            command=lambda: self.addcost())
         self.id = id
         self.db = db
         self.tup = tup
@@ -26,10 +53,7 @@ class NewProduct(Frame):
         bg = 'White'
         fg = "#3496ff"
         self.master = master
-        self.f = Frame(self, style='me.TFrame')
-        self.f.grid(row=0, column=0, sticky=sty)
-        self.f.rowconfigure(1, weight=3)
-        self.f.columnconfigure(0, weight=1)
+
         if modify:
             value = id
         else:
@@ -39,15 +63,32 @@ class NewProduct(Frame):
                           font=('Berlin Sans FB Demi', 40),
                           foreground=fg)
         self.name.grid(row=0, column=0, sticky=sty)
-        note = Notebook(self.f)
-        note.grid(row=1, column=0, sticky=sty)
-        note.rowconfigure(0, weight=1)
-        note.columnconfigure(0, weight=1)
-        self.notepage1(note, modify, tup, id)
+
+        self.notepage_detail(note, modify, tup, id)
+        self.variants_app = Frame(note)
+        self.variation_lf = LabelFrame(self.variants_app, text="Adaugare variante", labelanchor=N + W)
+        self.entry_new_variant_modifier = Entry(self.variation_lf, width=15)
+        self.entry_new_variant_value = Entry(self.variation_lf, width=15)
+        self.label_new_variant_value = Label(self.variation_lf, text="Valoare varianta")
+        self.label_new_variant_name = Label(self.variation_lf, text="Nume varianta")
+        self.entry_new_variant_name = Entry(self.variation_lf, width=35)
+        self.label_new_variant_price_modifier = Label(self.variation_lf, text="Modificator pret")
+        self.btn_variants_delete = Button(self.variants_app,
+                                          text="stergere varianta",
+                                          command=lambda: self.delete_variant())
+        self.btn_variants_add = Button(self.variation_lf,
+                                       text="adauga variatiune",
+                                       command=lambda: self.add_variant())
+        self.btn_variants_edit = Button(self.variation_lf,
+                                        text="editare varianta",
+                                        command=lambda: self.add_variant(True))
+        self.mlb_variants = MultiListbox(self.variants_app, (('ID Produs', 20), ('Nume varianta', 10), ('Valoare', 20),
+                                                             ('Modificator pret', 10)))
         if modify:
-            self.notepage15(note)
-            self.notepage2(note)
-            self.notepage3(note)
+            self.notepage_costs(note)
+            self.notepage_purchase(note)
+            self.notepage_sales(note)
+            self.notepage_variants(note)
 
     def update_name(self, event):
         name = Filter(self.entry5.get()).title()
@@ -62,7 +103,7 @@ class NewProduct(Frame):
         percent = (100 * profit) / float(cost)
         return round(percent, 2)
 
-    def notepage1(self, note, modify, tup, id):
+    def notepage_detail(self, note, modify, tup, id):
         app = Frame(note)
         app.grid(row=0, column=0)
         self.f.rowconfigure(0, weight=1)
@@ -299,8 +340,8 @@ class NewProduct(Frame):
         return showinfo("ADDED", 'Saved Successfully')
 
     def add2mlb15(self):
-        self.mlb11.delete(0, END)
-        ins = self.mlb11.insert
+        self.mlb_costs.delete(0, END)
+        ins = self.mlb_costs.insert
         if self.modify:
             row = self.db.sqldb.execute(
                 """ SELECT cost_id,cost,price FROM costs
@@ -320,7 +361,7 @@ class NewProduct(Frame):
 
     def addcost(self, edit=False):
         try:
-            PID = self.tup[0]
+            PID = self.tup['values'][0]
         except IndexError:
             return showinfo(title="ERROR",
                             message='Product Not Yet Saved',
@@ -340,12 +381,12 @@ class NewProduct(Frame):
         if not edit:
             self.db.sqldb.add_new_cost(PID, newcost, newprice)
         else:
-            i = self.mlb11.Select_index
+            i = self.mlb_costs.Select_index
             if i is None:
                 return showinfo("Message",
                                 "Select a Cost Or Price To Edit",
                                 parent=self.master)
-            r = self.mlb11.get(i)
+            r = self.mlb_costs.get(i)
             pcostid = r[0]
             self.db.edit_costs(pcostid, PID, newcost, newprice)
         self.add2mlb15()
@@ -353,7 +394,7 @@ class NewProduct(Frame):
         self.nprice.delete(0, END)
 
     def delete_cost(self):
-        PID = self.tup[0]
+        PID = self.tup['values'][0]
         costid = self.pcostid
         if costid is None:
             return showinfo("Message",
@@ -368,27 +409,26 @@ class NewProduct(Frame):
             return showinfo(
                 "Message",
                 "Cannot delete %s It Is Associated With Purchase And Sells" %
-                (costid),
+                costid,
                 parent=self.master)
 
     def setcostid(self, event):
-        i = self.mlb11.Select_index
-        r = self.mlb11.get(i)
+        i = self.mlb_costs.Select_index
+        r = self.mlb_costs.get(i)
         pcostid = r[0]
         self.costhead['text'] = pcostid
         self.pcostid = pcostid
 
-    def notepage15(self, note):
+    def notepage_costs(self, note):
         self.pcostid = None
-        app15 = Frame(note)
-        app15.grid(row=0, column=0)
+        self.costs_app.grid(row=0, column=0)
         for i in range(3):
-            app15.rowconfigure(i, weight=1)
+            self.costs_app.rowconfigure(i, weight=1)
         for i in range(3):
-            app15.columnconfigure(i, weight=1)
-        app15.rowconfigure(0, weight=1)
-        note.add(app15, text=' Costs ')
-        Label(app15,
+            self.costs_app.columnconfigure(i, weight=1)
+        self.costs_app.rowconfigure(0, weight=1)
+        note.add(self.costs_app, text=' Costs ')
+        Label(self.costs_app,
               text="Product Costs",
               foreground="#3496ff",
               font=('Berlin Sans FB Demi', 25)).grid(row=0,
@@ -396,44 +436,39 @@ class NewProduct(Frame):
                                                      columnspan=1,
                                                      sticky=sty,
                                                      pady=9)
-        self.btn12 = Button(app15,
-                            text="delete costs",
-                            command=lambda: self.delete_cost())
-        self.btn12.grid(row=0, column=2, sticky=sty, pady=20, padx=10)
-        self.mlb11 = MultiListbox(app15, (("Cost ID", 25), ("Cost Price", 30),
-                                          ("Selling Price", 30), ("Qty", 15)))
-        self.mlb11.grid(row=1, column=0, columnspan=3, sticky=sty)
-        self.mlb11.tree.bind('<Double-Button-1>', self.setcostid)
-        lf = LabelFrame(app15, text="ADD New Costs", labelanchor=N + W)
-        lf.grid(row=2, column=0, sticky=sty, pady=5, padx=5)
-        self.costhead = lf
+        self.btn_delete_costs.grid(row=0, column=2, sticky=sty, pady=20, padx=10)
+        self.mlb_costs.grid(row=1, column=0, columnspan=3, sticky=sty)
+        self.mlb_costs.tree.bind('<Double-Button-1>', self.setcostid)
+        self.sales_lf.grid(row=2, column=0, sticky=sty, pady=5, padx=5)
         for i in range(3):
-            lf.rowconfigure(i, weight=1)
+            self.sales_lf.rowconfigure(i, weight=1)
         for i in range(2):
-            lf.columnconfigure(i, weight=1)
-        Label(lf, text="New Cost").grid(row=0,
-                                        column=0,
-                                        sticky=sty,
-                                        pady=5,
-                                        padx=5)
-        self.ncost = Entry(lf)
+            self.sales_lf.columnconfigure(i, weight=1)
+        Label(self.sales_lf, text="New Cost").grid(row=0,
+                                                   column=0,
+                                                   sticky=sty,
+                                                   pady=5,
+                                                   padx=5)
         self.ncost.grid(row=0, column=1, sticky=sty, pady=5, padx=5)
-        Label(lf, text="New Price").grid(row=1,
-                                         column=0,
-                                         sticky=sty,
-                                         pady=5,
-                                         padx=5)
-        self.nprice = Entry(lf)
+        Label(self.sales_lf, text="New Price").grid(row=1,
+                                                    column=0,
+                                                    sticky=sty,
+                                                    pady=5,
+                                                    padx=5)
         self.nprice.grid(row=1, column=1, sticky=sty, pady=5, padx=5)
-        self.btn13 = Button(lf,
-                            text="Add Cost",
-                            command=lambda: self.addcost())
         self.btn13.grid(row=2, column=1, sticky=sty, pady=5, padx=5)
-        self.btn14 = Button(lf,
-                            text="Edit Cost",
-                            command=lambda: self.addcost(True))
         self.btn14.grid(row=2, column=0, sticky=sty, pady=5, padx=5)
         self.add2mlb15()
+
+    def mlb_variants_load(self):
+        self.mlb_variants.delete(0, END)
+        ins = self.mlb_variants.insert
+        row = self.db.sqldb.execute(""" select * from product_variants join variants_options using(variant_id) where 
+        product_id = "%s" """ % self.tup['values'][0]).fetchall()
+        for i in row:
+            i = list(i)
+            to_insert = [self.tup['values'][0], i[1], i[5], i[7]]
+            ins(END, to_insert)
 
     def Add2Mlb21(self):
         self.mlb21.delete(0, END)
@@ -447,8 +482,9 @@ class NewProduct(Frame):
             pp.product_id, pur.purchase_date
             from purchased_products pp 
             left join costs as c on c.cost_id = pp.cost_id 
-            left join purchase as pur on pur.purchase_id  = pp.purchase_id where pp.product_id ="%s" """ % self.tup['values'][0]).fetchall()
-            print(row)
+            left join purchase as pur on pur.purchase_id  = pp.purchase_id where pp.product_id ="%s" """ %
+                                        self.tup['values'][0]).fetchall()
+            # print(row)
             for i in row:
                 i = list(i)
                 purid = i[0]
@@ -474,7 +510,7 @@ class NewProduct(Frame):
         r = self.mlb21.tree.item(i)['values']
         self.purid = r[0]
         root13 = Toplevel()
-        root13.title("Purchase Edit")
+        root13.title("Modificare achiztie")
         root13.grid()
         for i in range(5):
             root13.rowconfigure(i, weight=1)
@@ -485,7 +521,7 @@ class NewProduct(Frame):
         color = 'gray98'
         root13['background'] = color
         Label(lf,
-              text="Purchase ID : %s" % (self.purid),
+              text="ID Achizitie : %s" % self.purid,
               foreground="#3496ff",
               font=('Berlin Sans FB Demi', 18)).grid(row=0,
                                                      column=0,
@@ -499,12 +535,12 @@ class NewProduct(Frame):
             JOIN costs USING (cost_id)
              WHERE purchase_id = "%s"
             """ % self.purid).fetchone()
-        Label(lf, text="Purchase Date").grid(row=1,
+        Label(lf, text="Data Achizitie").grid(row=1,
                                              column=0,
                                              sticky=sty,
                                              pady=8,
                                              padx=2)
-        Label(lf, text="Quantity").grid(row=2,
+        Label(lf, text="Cantitate").grid(row=2,
                                         column=0,
                                         sticky=sty,
                                         pady=8,
@@ -514,7 +550,7 @@ class NewProduct(Frame):
                                     sticky=sty,
                                     pady=8,
                                     padx=7)
-        Label(lf, text="Price").grid(row=4,
+        Label(lf, text="Pret").grid(row=4,
                                      column=0,
                                      sticky=sty,
                                      pady=8,
@@ -584,17 +620,16 @@ class NewProduct(Frame):
                             parent=self.master), self.Add2Mlb21()
         return False
 
-    def notepage2(self, note):
+    def notepage_purchase(self, note):
         self.purid = None
-        app1 = Frame(note)
-        app1.grid(row=0, column=0)
+        self.purchase_app.grid(row=0, column=0)
         for i in range(3):
-            app1.rowconfigure(i, weight=1)
+            self.purchase_app.rowconfigure(i, weight=1)
         for i in range(3):
-            app1.columnconfigure(i, weight=1)
-        app1.rowconfigure(0, weight=1)
-        note.add(app1, text=' Purchase ')
-        Label(app1,
+            self.purchase_app.columnconfigure(i, weight=1)
+        self.purchase_app.rowconfigure(0, weight=1)
+        note.add(self.purchase_app, text=' Purchase ')
+        Label(self.purchase_app,
               text="Purchase Records",
               foreground="#3496ff",
               font=('Berlin Sans FB Demi', 25)).grid(row=0,
@@ -602,42 +637,41 @@ class NewProduct(Frame):
                                                      columnspan=1,
                                                      sticky=sty,
                                                      pady=9)
-        self.btn21 = Button(app1,
+        self.btn21 = Button(self.purchase_app,
                             text="Edit Purchase Records",
                             command=lambda: self.purchaseedit(None))
         self.btn21.grid(row=0, column=1, sticky=sty, pady=20)
-        self.btn22 = Button(app1,
+        self.btn22 = Button(self.purchase_app,
                             text="delete Purchase Records",
                             command=lambda: self.deletepurchase())
         self.btn22.grid(row=0, column=2, sticky=sty, pady=20, padx=10)
-        self.mlb21 = MultiListbox(app1,
+        self.mlb21 = MultiListbox(self.purchase_app,
                                   (("Purchase ID", 25), ("Purchase Date", 35),
                                    ("Cost Price", 25), ("Selling Price", 25),
                                    ("Qty", 10), ("Expected profit", 25)))
         self.mlb21.grid(row=1, column=0, columnspan=3, sticky=sty)
         self.mlb21.tree.bind('<Double-Button-1>', self.purchaseedit)
-        lf = Frame(app1)
-        lf.grid(row=2, column=0, sticky=sty)
-        Label(lf, text="Total Profit Estimated  - ").grid(row=1,
-                                                          column=0,
-                                                          sticky=sty,
-                                                          pady=8,
-                                                          padx=7)
-        Label(lf, text="Total Capital Invested  - ").grid(row=0,
-                                                          column=0,
-                                                          sticky=sty,
-                                                          pady=8,
-                                                          padx=7)
-        Label(lf, text="Total Item Brought  - ").grid(row=2,
-                                                      column=0,
-                                                      sticky=sty,
-                                                      pady=8,
-                                                      padx=7)
-        self.ib = Label(lf, text="0")
+        self.purchase_lf.grid(row=2, column=0, sticky=sty)
+        Label(self.purchase_lf, text="Total Profit Estimated  - ").grid(row=1,
+                                                                        column=0,
+                                                                        sticky=sty,
+                                                                        pady=8,
+                                                                        padx=7)
+        Label(self.purchase_lf, text="Total Capital Invested  - ").grid(row=0,
+                                                                        column=0,
+                                                                        sticky=sty,
+                                                                        pady=8,
+                                                                        padx=7)
+        Label(self.purchase_lf, text="Total Item Brought  - ").grid(row=2,
+                                                                    column=0,
+                                                                    sticky=sty,
+                                                                    pady=8,
+                                                                    padx=7)
+        self.ib = Label(self.purchase_lf, text="0")
         self.ib.grid(row=2, column=1, sticky=sty, padx=2)
-        self.ci = Label(lf, text="0")
+        self.ci = Label(self.purchase_lf, text="0")
         self.ci.grid(row=0, column=1, sticky=sty, padx=2)
-        self.te = Label(lf, text="0")
+        self.te = Label(self.purchase_lf, text="0")
         self.te.grid(row=1, column=1, sticky=sty, padx=2)
         self.Add2Mlb21()
 
@@ -677,7 +711,7 @@ class NewProduct(Frame):
         r = self.mlb22.tree.item(i)
         self.selid = r['values'][0]
         root13 = Toplevel()
-        root13.title("Sales Edit")
+        root13.title("Modificare vanzari")
         root13.grid()
         for i in range(8):
             root13.rowconfigure(i, weight=1)
@@ -703,7 +737,7 @@ class NewProduct(Frame):
                                             JOIN costs USING (cost_id) JOIN products USING (product_id) WHERE
                                             selling_id = "%s" """ %
             self.selid).fetchone()
-        print(r)
+        # print(r)
         Label(lf, text="Selling Date", width=15).grid(row=1,
                                                       column=0,
                                                       sticky=sty,
@@ -823,16 +857,45 @@ class NewProduct(Frame):
                             parent=self.master), self.Add2Mlb22()
         return False
 
-    def notepage3(self, note):
+    def notepage_variants(self, note):
+        self.variants_app.grid(row=0, column=0)
+        for i in range(3):
+            self.variants_app.rowconfigure(i, weight=1)
+        for i in range(3):
+            self.variants_app.columnconfigure(i, weight=1)
+        note.add(self.variants_app, text=' Variatiuni ')
+        Label(self.variants_app,
+              text='Variatiuni ale Produsului',
+              foreground="#3496ff",
+              font=('Berlin Sans FB Demi', 25)).grid(row=0,
+                                                     column=0,
+                                                     columnspan=1,
+                                                     sticky=sty,
+                                                     pady=9
+                                                     )
+        self.btn_variants_delete.grid(row=0, column=2, sticky=sty, pady=20, padx=10)
+        self.mlb_variants.grid(row=1, column=0, columnspan=3, sticky=sty)
+        self.variation_lf.grid(row=2, column=0, columnspan=3, sticky=sty)
+        self.label_new_variant_name.grid(row=1, column=0, columnspan=1, sticky=sty, pady=6)
+        self.label_new_variant_value.grid(row=2, column=0, columnspan=1, sticky=sty, pady=6)
+        self.label_new_variant_price_modifier.grid(row=3, column=0, columnspan=1, sticky=sty, pady=6)
+        self.entry_new_variant_name.grid(row=1, column=1, columnspan=1, sticky=sty, pady=6)
+        self.entry_new_variant_value.grid(row=2, column=1, columnspan=1, sticky=sty, pady=6)
+        self.entry_new_variant_modifier.grid(row=3, column=1, columnspan=1, sticky=sty, pady=6)
+        self.btn_variants_add.grid(row=4, column=0, columnspan=1, sticky=sty)
+        self.btn_variants_edit.grid(row=4, column=1, columnspan=1, sticky=sty)
+        self.mlb_variants_load()
+
+    def notepage_sales(self, note):
         app2 = Frame(note)
         app2.grid(row=0, column=0)
         for i in range(3):
             app2.rowconfigure(i, weight=1)
         for i in range(3):
             app2.columnconfigure(i, weight=1)
-        note.add(app2, text=' Sales ')
+        note.add(app2, text=' Vanzari ')
         Label(app2,
-              text="Sales Records",
+              text="Inregistrari vanzari",
               foreground="#3496ff",
               font=('Berlin Sans FB Demi', 25)).grid(row=0,
                                                      column=0,
@@ -844,7 +907,7 @@ class NewProduct(Frame):
                             command=lambda: self.sells_edit(None))
         self.btn31.grid(row=0, column=1, sticky=sty, pady=20)
         self.btn32 = Button(app2,
-                            text="delete Selling Records",
+                            text="Sterge vanzarea",
                             command=lambda: self.deletesells())
         self.btn32.grid(row=0, column=2, sticky=sty, pady=20, padx=10)
 
@@ -856,7 +919,7 @@ class NewProduct(Frame):
         self.mlb22.tree.bind('<Double-Button-1>', self.sells_edit)
         lf = Frame(app2)
         lf.grid(row=2, column=0, sticky=sty)
-        Label(lf, text="Total Gain From Product  - ").grid(row=0,
+        Label(lf, text="Incasari totale pe produs  - ").grid(row=0,
                                                            column=0,
                                                            sticky=sty,
                                                            pady=8,
@@ -870,7 +933,7 @@ class NewProduct(Frame):
                                                 padx=7)
         self.pg = Label(lf, text="0")
         self.pg.grid(row=1, column=1, sticky=sty, padx=2)
-        Label(lf, text="Total Item Sold  - ").grid(row=2,
+        Label(lf, text="Total vanzare pe SKU  - ").grid(row=2,
                                                    column=0,
                                                    sticky=sty,
                                                    pady=8,
@@ -878,6 +941,30 @@ class NewProduct(Frame):
         self.tis = Label(lf, text="0")
         self.tis.grid(row=2, column=1, sticky=sty, padx=2)
         self.Add2Mlb22()
+
+    def delete_variant(self):
+        pass
+
+    def add_variant(self, modify=False):
+        variant_name = self.entry_new_variant_name.get()
+        variant_value = self.entry_new_variant_value.get()
+        variant_modifier = self.entry_new_variant_modifier.get()
+        current_index = self.mlb_variants.Select_index
+        r = self.mlb_variants.get(current_index)
+        PID = self.tup['values'][0]
+        if modify:
+            if current_index is None:
+                return showinfo("Message",
+                                "Select a Cost Or Price To Edit",
+                                parent=self.master)
+            self.db.sqldb.edit_variant(PID, variant_name, variant_value, variant_modifier)
+        else:
+            try:
+                self.db.sqldb.add_variant(PID, variant_name, variant_value, variant_modifier)
+                showinfo('Succes', 'Variatia produsului a fost adaugata', parent=self.master)
+                self.mlb_variants_load()
+            except Exception as e:
+                return showerror('Error', e, parent=self.master)
 
 
 class ProductVariant():

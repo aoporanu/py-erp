@@ -21,6 +21,12 @@ class InventoryDataBase(object):
         """
         self.sqldb = sqldb.MyDatabase()
 
+    def add_variant(self, PID, variant_name, variant_value, variant_modifier):
+        return self.sqldb.add_variant(PID, variant_name, variant_value, variant_modifier)
+
+    def edit_variant(self, PID, variant_name, variant_value, variant_modifier):
+        return self.sqldb.edit_variant(PID, variant_name, variant_value, variant_modifier)
+
     def get_customer_names(self):
         """
 

@@ -63,6 +63,7 @@ def new_database_create(conn):
                 option_id TEXT UNIQUE PRIMARY KEY NOT NULL,
                 value TEXT NOT NULL,
                 variant_id text note null references product_variants(variant_id),
+                modifier TEXT default '0',
                 created_on text not null default current_date);""")
 
     conn.execute("""CREATE TABLE IF NOT EXISTS customers(
@@ -612,3 +613,66 @@ class MyDatabase(object):
             "%s","%s","%s")""" % (
                 pur_id, costid, qty, date, lot, pid))
         return pur_id
+
+    def add_variant(self, PID, variant_name, variant_value, variant_modifier):
+        """
+
+        @param PID:
+        @param variant_name:
+        @param variant_value:
+        @param variant_modifier:
+        """
+        variant_id = self.get_variant_id_for_product(PID, variant_name)
+        if variant_id is None:
+            variant_id = "VAR-" + str(hash(variant_name + hex(int(t.time() * 10000))))
+            self.cursor.execute(""" insert into product_variants(variant_id, name, product_id) values("%s", "%s", "%s")
+        """ % (variant_id, variant_name, PID))
+        if self.get_variant_for_product(PID, variant_name, variant_value, variant_modifier) is not None:
+            raise Exception("Produsul are deja varianta " + variant_name + " cu valoarea " + variant_value + " pentru produsul ales")
+        option_id = "VAR_OPT-" + str(hash(variant_name + variant_value + hex(int(t.time() * 10000))))
+        self.cursor.execute(""" insert into variants_options(option_id, value, variant_id, modifier) values("%s", "%s", 
+        "%s", "%s")""" % (option_id, variant_value, variant_id, variant_modifier))
+
+        return [variant_id, option_id]
+
+    def get_option_for_variant(self, variant_id, variant_value):
+        row = self.cursor.execute("""SELECT option_id FROM variants_options WHERE variant_id = "%s" and value="%s" """
+                                  % (variant_id, variant_value))
+        pid = row.fetchone()
+        if pid is None:
+            return pid
+        return pid[0]
+
+    def get_variant_name_for_product(self, PID, variant_name):
+        row = self.cursor.execute(""" select variant_id from product_variants where product_id="%s" and 
+        name="%s" """ % (PID, variant_name))
+        pid = row.fetchone()
+        if pid is None:
+            return pid
+        return pid[0]
+
+    def get_variant_for_product(self, pid, variant_name, variant_value, variant_modifier):
+        row = self.cursor.execute(""" select * from product_variants join variants_options using(variant_id) where 
+        product_id="%s" and name="%s" and value="%s" and modifier = "%s" """ %(pid, variant_name,
+                                                                                       variant_value, variant_modifier))
+        pid = row.fetchone()
+        if pid is None:
+            return pid
+        return pid[0]
+
+    def get_variant_id_for_product(self, PID, variant_name):
+        row = self.cursor.execute(""" select variant_id from product_variants where product_id="%s" and name="%s" """
+                                  %(PID, variant_name))
+        pid = row.fetchone()
+        if pid is None:
+            return pid
+        return pid[0]
+
+    def edit_variant(self, PID, variant_name, variant_value, variant_modifier):
+        variant_id = self.get_variant_id_for_product(PID, variant_name)
+        self.cursor.execute(""" update product_variants set variant_name="%s" where variant_id="%s" """ % variant_name)
+        option_id = self.cursor.execute(""" select option_id from variants_options where variant_id="%s" """
+                                        % variant_id).fetchone()
+        self.cursor.execute(""" update variants_options set value="%s", modifier="%s" where variant_id="%s" and 
+        option_id="%s" """
+                            %(variant_value, variant_modifier, variant_id, option_id))
