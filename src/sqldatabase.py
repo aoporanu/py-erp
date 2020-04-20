@@ -40,18 +40,30 @@ def new_database_create(conn):
                 cost_id text not null references costs(cost_id),
                 purchase_id text not null references purchase(purchase_id),
                 product_id text not null references products(product_id),
-                qty int not null default 1,
+                qty_purchased int not null default 1,
                 lot text,
-                purchase_date text not null default current_date);""")
+                purchased_date text not null default current_date);""")
 
     conn.execute("""CREATE TABLE IF NOT EXISTS suppliers(
-    id TEXT UNIQUE PRIMARY KEY NOT NULL,
-    name TEXT NOT NULL,
-    address TEXT NOT NULL,
-    phone TEXT NOT NULL,
-    cui TEXT NOT NULL,
-    ro TEXT NOT NULL,
-    created_on TEXT NOT NULL DEFAULT CURRENT_DATE); """)
+                id TEXT UNIQUE PRIMARY KEY NOT NULL,
+                name TEXT NOT NULL,
+                address TEXT NOT NULL,
+                phone TEXT NOT NULL,
+                cui TEXT NOT NULL,
+                ro TEXT NOT NULL,
+                created_on TEXT NOT NULL DEFAULT CURRENT_DATE); """)
+
+    conn.execute("""create table if not exists product_variants(
+                variant_id text unique primary key not null,
+                name text not null,
+                product_id text not null references products(product_id),
+                created_on text not null default current_date);""")
+
+    conn.execute("""create table if not exists variants_options(
+                option_id TEXT UNIQUE PRIMARY KEY NOT NULL,
+                value TEXT NOT NULL,
+                variant_id text note null references product_variants(variant_id),
+                created_on text not null default current_date);""")
 
     conn.execute("""CREATE TABLE IF NOT EXISTS customers(
                  customer_id TEXT UNIQUE PRIMARY KEY NOT NULL,
@@ -80,21 +92,19 @@ def new_database_create(conn):
                  sold_price FLOAT NOT NULL ,
                  QTY INT NOT NULL ,
                  cost_id TEXT NOT NULL REFERENCES costs(cost_id)); """)
-    conn.execute("""
-    CREATE TABLE IF NOT EXISTS 
-    details( company_name TEXT,
-             company_email TEXT,
-             company_address TEXT,
-             company_phone TEXT,
-             company_website TEXT,
-             company_header TEXT,
-             company_footer TEXT,
-             currency TEXT,
-             pic_address TEXT,
-             invoice_start_no INT,
-             sgst_rate INT,
-             cgst_rate INT)
-    """)
+
+    conn.execute("""CREATE TABLE IF NOT EXISTS details( company_name TEXT,
+                 company_email TEXT,
+                 company_address TEXT,
+                 company_phone TEXT,
+                 company_website TEXT,
+                 company_header TEXT,
+                 company_footer TEXT,
+                 currency TEXT,
+                 pic_address TEXT,
+                 invoice_start_no INT,
+                 sgst_rate INT,
+                 cgst_rate INT);""")
     conn.execute("""
                 create table if not exists delegates(
                 id TEXT UNIQUE PRIMARY KEY NOT NULL,
@@ -239,7 +249,7 @@ class MyDatabase(object):
         return iid[0]
 
     def add_new_cost(self, pid, cost, price):
-        s = pid + str(cost) + str(price) + hex(int(t.time() * 10000))
+        s = str(pid) + str(cost) + str(price) + hex(int(t.time() * 10000))
         costid = "CST" + str(hash(s))
         if self.get_cost_id(pid, cost, price) is not None:
             raise Exception("""cost already listed""")
@@ -596,7 +606,8 @@ class MyDatabase(object):
         @return:
         """
         self.cursor.execute(
-            """ INSERT INTO purchased_products(purchase_id,cost_id,QTY,purchase_date,lot,product_id) VALUES ("%s",
+            """ INSERT INTO purchased_products(purchase_id,cost_id,purchased_qty,purchased_date,lot,product_id) VALUES (
+            "%s",
             "%s",%.2f,
             "%s","%s","%s")""" % (
                 pur_id, costid, qty, date, lot, pid))

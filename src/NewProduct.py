@@ -1,22 +1,24 @@
 from tkinter import *
+from tkinter.messagebox import askokcancel
+from tkinter.messagebox import showinfo
 from tkinter.ttk import *
 
-from src.Cython.proWrd1 import Filter
-from tkinter.messagebox import showinfo
-from tkinter.messagebox import askokcancel, askyesno
-from src.TableTree import MultiListbox
 from src.Cython.buttoncalender import CalendarButton
+from src.Cython.proWrd1 import Filter
+from src.TableTree import MultiListbox
 
 sty = N + W + S + E
 
 
-def selectfirst(item):
+def select_first(item):
     return item[0]
 
 
 class NewProduct(Frame):
-    def __init__(self, master, tup, modify, db, id):
+    def __init__(self, master, tup, modify, db, id, **kw):
+        # print(tup)
         Frame.__init__(self, master)
+        super().__init__(master, **kw)
         self.id = id
         self.db = db
         self.tup = tup
@@ -165,11 +167,11 @@ class NewProduct(Frame):
         copy.grid(row=7, column=2, sticky=sty, padx=10, pady=10)
         keys = self.db.sqldb.execute(
             "SELECT category_name FROM category").fetchall()
-        keys_um = self.db.sqldb.execute(
+        _keys_um = self.db.sqldb.execute(
             "select name from units_of_measure").fetchall()
-        keys_um = sorted(map(selectfirst, keys))
+        keys_um = sorted(map(select_first, _keys_um))
         keys_um.sort()
-        keys = sorted(map(selectfirst, keys))
+        keys = sorted(map(select_first, keys))
         keys.sort()
         self.entry['value'] = keys
         self.entry7["value"] = keys_um
@@ -181,14 +183,16 @@ class NewProduct(Frame):
             d = self.db.sqldb.execute(
                 """ SELECT product_name,category_name,product_description FROM
             products
-                        JOIN category USING (category_id) join units_of_measure on products.um_id=units_of_measure.id
-                        WHERE product_id = "%s" """ % (id)).fetchone()
+                        JOIN category USING (category_id) join units_of_measure on products.um_id=units_of_measure.id 
+                        join costs using(product_id)
+                        WHERE product_id = "%s" """ % tup['values'][0]).fetchone()
+            # print(d)
             name = d[0]
             category = d[1]
             Des = d[2]
-            no = tup[0]
-            qty = self.db.sqldb.get_quantity(tup[0])
-            um = self.db.sqldb.get_um(tup[0])
+            no = tup['values'][0]
+            qty = self.db.sqldb.get_quantity(no)
+            um = self.db.sqldb.get_um(no)
             self.entry5.delete(0, END)
             self.entry5.insert(0, name)
             self.entry.delete(0, END)
@@ -301,7 +305,7 @@ class NewProduct(Frame):
             row = self.db.sqldb.execute(
                 """ SELECT cost_id,cost,price FROM costs
                                           JOIN products USING (product_id)  WHERE product_id = "%s"  """
-                % (self.tup[0])).fetchall()
+                % (self.tup['values'][0])).fetchall()
             for i in row:
                 i = list(i)
                 price = i[2]
@@ -383,7 +387,7 @@ class NewProduct(Frame):
         for i in range(3):
             app15.columnconfigure(i, weight=1)
         app15.rowconfigure(0, weight=1)
-        Purchase.add(app15, text=' Costs ')
+        note.add(app15, text=' Costs ')
         Label(app15,
               text="Product Costs",
               foreground="#3496ff",
@@ -438,32 +442,36 @@ class NewProduct(Frame):
         brou = 0
         ins = self.mlb21.insert
         if self.modify:
-            row = self.db.sqldb.execute(
-                """SELECT purchase_id,purchase_date,cost,price,QTY FROM purchase JOIN costs
-            USING (cost_id) JOIN products USING (product_id)  WHERE product_id = "%s"  """
-                % (self.tup[0])).fetchall()
+            row = self.db.sqldb.execute("""select 
+            pur.purchase_id, pur.for_invoice, pur.supplier_id, pp.purchased_qty, c.cost, c.price, 
+            pp.product_id, pur.purchase_date
+            from purchased_products pp 
+            left join costs as c on c.cost_id = pp.cost_id 
+            left join purchase as pur on pur.purchase_id  = pp.purchase_id where pp.product_id ="%s" """ % self.tup['values'][0]).fetchall()
+            print(row)
             for i in row:
                 i = list(i)
                 purid = i[0]
-                price = i[3]
-                cost = i[2]
-                date = i[1]
-                qty = i[4]
+                price = i[5]
+                cost = i[4]
+                date = i[7]
+                qty = i[3]
                 profit = round(price - cost, 2)
                 estmpro += (profit * qty)
                 cap += cost * qty
                 brou += qty
                 i.append(profit)
-                ins(END, i)
+                app = [purid, date, cost, price, qty, cap]
+                ins(END, app)
         self.te.configure(text=str(estmpro))
         self.ci.configure(text=str(cap))
         self.ib.configure(text=str(brou))
 
     def purchaseedit(self, event):
-        i = self.mlb21.Select_index
-        if i == None:
+        i = self.mlb21.tree.focus()
+        if i is None:
             return showinfo("Message", "No Item Selected", parent=self.master)
-        r = self.mlb21.get(i)
+        r = self.mlb21.tree.item(i)['values']
         self.purid = r[0]
         root13 = Toplevel()
         root13.title("Purchase Edit")
@@ -485,10 +493,12 @@ class NewProduct(Frame):
                                                      sticky=sty,
                                                      pady=8,
                                                      padx=7)
-
         r = self.db.sqldb.execute(
-            """ SELECT purchase_date,QTY,cost,price FROM purchase JOIN costs USING (cost_id) WHERE purchase_id = "%s"
-            """ % (self.purid)).fetchone()
+            """ SELECT purchase_date, purchased_qty, cost, price FROM purchase
+             join purchased_products using(purchase_id)
+            JOIN costs USING (cost_id)
+             WHERE purchase_id = "%s"
+            """ % self.purid).fetchone()
         Label(lf, text="Purchase Date").grid(row=1,
                                              column=0,
                                              sticky=sty,
@@ -537,7 +547,7 @@ class NewProduct(Frame):
         return 1
 
     def purchasesave(self):
-        PID = self.tup[0]
+        PID = self.tup['values'][0]
         try:
             cost = float(Filter(self.purcost.get()))
             price = float(Filter(self.purprice.get()))
@@ -549,7 +559,7 @@ class NewProduct(Frame):
                             message='costs and price must be numbers',
                             parent=self.master)
         costid = self.db.sqldb.get_cost_id(PID, cost, price)
-        if costid == None:
+        if costid is None:
             costid = self.db.sqldb.add_new_cost(PID, cost, price)
         self.db.edit_purchase(self.purid, costid, qty, date)
         self.purgui.destroy()
@@ -583,7 +593,7 @@ class NewProduct(Frame):
         for i in range(3):
             app1.columnconfigure(i, weight=1)
         app1.rowconfigure(0, weight=1)
-        Purchase.add(app1, text=' Purchase ')
+        note.add(app1, text=' Purchase ')
         Label(app1,
               text="Purchase Records",
               foreground="#3496ff",
@@ -643,7 +653,7 @@ class NewProduct(Frame):
             sells JOIN invoices USING (invoice_id) )
                                             JOIN costs USING (cost_id) JOIN products USING (product_id) WHERE
                                             product_id = "%s" """ %
-                (self.tup[0])).fetchall()
+                (self.tup['values'][0])).fetchall()
             for i in row:
                 i = list(i)
                 date = i[1]
@@ -656,16 +666,16 @@ class NewProduct(Frame):
                 tis += qty
                 i.append(profit)
                 ins(END, i)
-        self.gp.configure(text=str(gp))
-        self.pg.configure(text=str(pg))
+        self.gp.configure(text=str(round(gp, 2)))
+        self.pg.configure(text=str(round(pg, 2)))
         self.tis.configure(text=str(tis))
 
-    def sellsedit(self, event):
-        i = self.mlb22.Select_index
-        if i == None:
+    def sells_edit(self, event):
+        i = self.mlb22.tree.focus()
+        if i is None:
             return showinfo("Message", "No Item Selected", parent=self.master)
-        r = self.mlb22.get(i)
-        self.selid = r[0]
+        r = self.mlb22.tree.item(i)
+        self.selid = r['values'][0]
         root13 = Toplevel()
         root13.title("Sales Edit")
         root13.grid()
@@ -692,7 +702,8 @@ class NewProduct(Frame):
         sells JOIN invoices USING (invoice_id) )
                                             JOIN costs USING (cost_id) JOIN products USING (product_id) WHERE
                                             selling_id = "%s" """ %
-            (self.selid)).fetchone()
+            self.selid).fetchone()
+        print(r)
         Label(lf, text="Selling Date", width=15).grid(row=1,
                                                       column=0,
                                                       sticky=sty,
@@ -726,19 +737,19 @@ class NewProduct(Frame):
         self.seldate = CalendarButton(lf)
         self.seldate.grid(row=1, column=1, sticky=sty, pady=8, padx=7)
         try:
-            self.seldate.insert(r[0])
+            self.seldate.insert(r['values'][0])
         except:
             self.seldate.insert(self.seldate.getTimeStamp())
         self.selinvno = Entry(lf, width=40)
         self.selinvno.grid(row=2, column=1, sticky=sty, pady=8, padx=7)
         self.selinvno.delete(0, END)
-        self.selinvno.insert(0, r[1])
+        self.selinvno.insert(0, int(r[1]))
         self.selinvno['state'] = "readonly"
 
         self.selqty = Entry(lf)
         self.selqty.grid(row=3, column=1, sticky=sty, pady=8, padx=7)
         self.selqty.delete(0, END)
-        self.selqty.insert(0, r[2])
+        self.selqty.insert(0, int(r[2]))
 
         self.selcost = Entry(lf)
         self.selcost.grid(row=4, column=1, sticky=sty, pady=8, padx=7)
@@ -756,16 +767,17 @@ class NewProduct(Frame):
         self.selsold.insert(0, r[5])
 
         Button(lf, text="save",
-               command=lambda: self.salesave()).grid(row=7,
-                                                     column=1,
-                                                     sticky=sty,
-                                                     pady=8,
-                                                     padx=7)
+               command=lambda: self.sale_save()).grid(row=7,
+                                                      column=1,
+                                                      sticky=sty,
+                                                      pady=8,
+                                                      padx=7)
         root13.wait_window()
         return 1
 
-    def salesave(self):
-        PID = self.tup[0]
+    def sale_save(self):
+        print(self.tup)
+        PID = self.tup['values'][0]
         try:
             cost = float(Filter(self.selcost.get()))
             price = float(Filter(self.selprice.get()))
@@ -780,14 +792,14 @@ class NewProduct(Frame):
                 'Costs,Price,Selling,Price,Invoice No And Qty must be numbers',
                 parent=self.master)
         costid = self.db.sqldb.get_cost_id(PID, cost, price)
-        if costid == None:
+        if costid is None:
             costid = self.db.sqldb.add_new_cost(PID, cost, price)
         invid = self.db.sqldb.get_invoice_id(invno)
-        if invid == None:
+        if invid is None:
             return showinfo(title="ERROR",
                             message='Invoice In That Number Dsn\'t Exsist',
                             parent=self.master)
-        print(self.selid, sold, qty, costid)
+        # print(self.selid, sold, qty, costid)
         self.db.edit_sells(self.selid, sold, qty, costid)
         self.salegui.destroy()
         self.Add2Mlb22()
@@ -797,14 +809,14 @@ class NewProduct(Frame):
 
     def deletesells(self):
         i = self.mlb22.Select_index
-        if i == None:
+        if i is None:
             return showinfo("Message", "No Item Selected", parent=self.master)
         r = self.mlb22.get(i)
         self.selid = r[0]
         ans = askokcancel("Message",
                           "Sure You Want To delete %s ?" % (self.selid),
                           parent=self.master)
-        if ans == True:
+        if ans:
             self.db.delete_sells(self.selid)
             return showinfo("Message",
                             "%s Has Been Successfully Deleted" % (self.selid),
@@ -818,7 +830,7 @@ class NewProduct(Frame):
             app2.rowconfigure(i, weight=1)
         for i in range(3):
             app2.columnconfigure(i, weight=1)
-        Purchase.add(app2, text=' Sales ')
+        note.add(app2, text=' Sales ')
         Label(app2,
               text="Sales Records",
               foreground="#3496ff",
@@ -829,7 +841,7 @@ class NewProduct(Frame):
                                                      pady=9)
         self.btn31 = Button(app2,
                             text="Edit Selling Records",
-                            command=lambda: self.sellsedit(None))
+                            command=lambda: self.sells_edit(None))
         self.btn31.grid(row=0, column=1, sticky=sty, pady=20)
         self.btn32 = Button(app2,
                             text="delete Selling Records",
@@ -841,7 +853,7 @@ class NewProduct(Frame):
                                    ("Cost Price", 25), ("Sold Price", 25),
                                    ("Quantity", 15), ("Profit", 25)))
         self.mlb22.grid(row=1, column=0, columnspan=3, sticky=sty)
-        self.mlb22.tree.bind('<Double-Button-1>', self.sellsedit)
+        self.mlb22.tree.bind('<Double-Button-1>', self.sells_edit)
         lf = Frame(app2)
         lf.grid(row=2, column=0, sticky=sty)
         Label(lf, text="Total Gain From Product  - ").grid(row=0,

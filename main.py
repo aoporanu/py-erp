@@ -1,6 +1,9 @@
 import subprocess
 import sys
 import os
+
+from constants import ICON, color, SEL_COLOR, FOREGROUND, saveico, NEW_ICO, NEW_USER_GROUP, SETTINGS_ICO
+
 try:
     import Tkinter as tk
 except:
@@ -27,7 +30,7 @@ import src.TableTree as tableTree
 from src.Cato_Opt import Category
 from src.NewCustomer import NewCustomer
 from src.NewInvoice import ADDInvoice
-from src.NewProduct import NewProduct, ProductVariant
+from src.NewProduct import NewProduct
 from src.NewSupplier import NewSupplier
 from src.PdfGenarator import pdf_document, nir_document
 from src.PurchaseLog import PurchaseLog
@@ -45,8 +48,7 @@ DB = InventoryDataBase()
 
 root = tk.Tk()
 root.title("FitoGest")
-# ICON = os.path.normpath('data/database_4.ico')
-# root.iconbitmap(ICON)
+# root.master.iconbitmap(ICON)
 root.minsize(1024, 768)
 root.grid()
 root.rowconfigure(0, weight=1)
@@ -54,9 +56,6 @@ for h in range(12):
     root.columnconfigure(h, weight=1)
 root.rowconfigure(2, weight=2)
 root.wm_state('normal')
-color = '#333333'
-SEL_COLOR = '#273f5c'
-FOREGROUND = "#cecece"
 root['background'] = color
 
 menubar = tk.Menu(root,
@@ -124,7 +123,6 @@ btnnote.grid(row=3, column=0, columnspan=8, sticky=N + S + E + W)
 btnnote.columnconfigure(0, weight=1)
 # btnnote.rowconfigure(0, weight=1)
 # print(btnnote.winfo_height())q
-saveico = os.path.normpath('data/floppy_disk_blue.png')
 saveico = PIL.Image.open(saveico).resize((32, 32), PIL.Image.ANTIALIAS)
 saveico = PIL.ImageTk.PhotoImage(image=saveico)
 Button(btnnote,
@@ -133,7 +131,6 @@ Button(btnnote,
        compound=TOP,
        image=saveico,
        width=15).grid(row=0, column=0, sticky=N + S + W + E)
-NEW_ICO = os.path.normpath('data/new_file.png')
 npico = PIL.Image.open(NEW_ICO).resize((32, 32), PIL.Image.ANTIALIAS)
 npico = PIL.ImageTk.PhotoImage(image=npico)
 productbtn = Button(btnnote,
@@ -142,7 +139,6 @@ productbtn = Button(btnnote,
                     image=npico,
                     compound=TOP,
                     width=15).grid(row=0, column=1, sticky=N + S + W + E)
-NEW_USER_GROUP = os.path.normpath('data/user_group_new.png')
 ncico = PIL.Image.open(NEW_USER_GROUP).resize((32, 32), PIL.Image.ANTIALIAS)
 ncico = PIL.ImageTk.PhotoImage(image=ncico)
 customerbtn = Button(btnnote,
@@ -151,7 +147,6 @@ customerbtn = Button(btnnote,
                      image=ncico,
                      compound=TOP,
                      width=15).grid(row=0, column=2, sticky=N + S + W + E)
-SETTINGS_ICO = os.path.normpath('data/settings_ico2.png')
 setting_ico = PIL.Image.open(SETTINGS_ICO).resize((32, 32),
                                                   PIL.Image.ANTIALIAS)
 setting_ico = PIL.ImageTk.PhotoImage(image=setting_ico)
@@ -1354,6 +1349,7 @@ def add2_purchase_table():
     lot_text.delete(0, END)
     pentru_factura.configure(state="readonly")
     supplier_combo_search.configure(state="DISABLED")
+    btn64['state'] = DISABLED
     return 1
 
 
@@ -1379,7 +1375,6 @@ def add2_inventory():
         return messagebox.showinfo("Eroare", "Lista de achizitii este goala")
     item = mlb21.tree.get_children()[-1]
     tup = mlb21.tree.item(item)
-    print(tup)
     pid = DB.sqldb.get_product_id(tup['values'][0])
     date = tup['values'][5]
     qty = round(float(tup['values'][4]))
@@ -1391,8 +1386,8 @@ def add2_inventory():
     supplier = tup['values'][8]
     for_factura = tup['values'][7]
     supplier_id = DB.get_supplier(supplier)
-    DB.sqldb.execute("""insert into purchase(purchase_id,purchase_date,supplier_id,for_invoice, cost_id) values("%s", 
-    "%s", 
+    DB.sqldb.execute("""insert into purchase(purchase_id,purchase_date,supplier_id,for_invoice, cost_id) values("%s",
+    "%s",
     "%s", "%s", "%s")""" % (
         pur_id, date, supplier_id[0], for_factura, costid))
     for item in mlb21.tree.get_children():
@@ -2354,13 +2349,13 @@ def a_d_d__product(id=False, modify=False):
     else:
         titlel = "Modificare Produs"
         index = mlb31.Select_index
-        tup = mlb31.get(index)
-        cur_item = mlb31.tree.focus()
-        arg = mlb31.tree.item(cur_item)
-        id = arg["values"][0]
         if index is None or index > mlb31.size():
             return messagebox.showinfo(title='Eroare',
                                        message='Nu ai ales nimic de modificat')
+        cur_item = mlb31.tree.focus()
+        arg = mlb31.tree.item(cur_item)
+        tup = mlb31.tree.item(cur_item)
+        id = arg["values"][0]
     root12 = tk.Toplevel(master=root)
     root12.title(titlel)
     root12.grid()
