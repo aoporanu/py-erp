@@ -15,7 +15,7 @@ except:
 
 from tkinter.filedialog import askopenfilename, N, S, E, W, HORIZONTAL, asksaveasfilename
 from tkinter.ttk import Style, Label, Frame, Combobox, Notebook, LabelFrame, Separator, Button, Entry, Spinbox, Labelframe
-from tkinter import DoubleVar, TOP, RIGHT, FLAT, LEFT, NORMAL, messagebox
+from tkinter import DoubleVar, TOP, RIGHT, FLAT, LEFT, NORMAL, messagebox, DISABLED
 import time as t
 
 import PIL.Image
@@ -38,6 +38,7 @@ from src.buttoncalender import CalendarButton, WORD, END
 from src.pcclass import InventoryDataBase
 from src.scroll_frame import SampleApp
 from src.UnitsOfMeasure import UnitsOfMeasure
+
 # from src.Graph import Graph
 
 # variable access by all
@@ -48,7 +49,7 @@ DB = InventoryDataBase()
 
 root = tk.Tk()
 root.title("FitoGest")
-# root.master.iconbitmap(ICON)
+# root.iconbitmap(ICON)
 root.minsize(1024, 768)
 root.grid()
 root.rowconfigure(0, weight=1)
@@ -122,7 +123,6 @@ btnnote = Notebook(root, style="r.TFrame")
 btnnote.grid(row=3, column=0, columnspan=8, sticky=N + S + E + W)
 btnnote.columnconfigure(0, weight=1)
 # btnnote.rowconfigure(0, weight=1)
-# print(btnnote.winfo_height())q
 saveico = PIL.Image.open(saveico).resize((32, 32), PIL.Image.ANTIALIAS)
 saveico = PIL.ImageTk.PhotoImage(image=saveico)
 Button(btnnote,
@@ -355,6 +355,7 @@ Amt_var = tk.DoubleVar()
 Amount = Label(Lf03, font=Fon1, textvariable=Amt_var)
 Amount.grid(row=0, column=1, sticky=N + E + S + W, padx=10, pady=10)
 
+
 # GST
 
 
@@ -490,7 +491,7 @@ def supplier_keys():
 def purchase_product_frame():
     """ Build the Purchase frame """
     global product_name_search, qty_text, cost_price_text, btn64, selling_price_text, tmp4, tmp5, category_combo, \
-        description_text, mlb21, supplier_combo_search_purchase, pentru_factura, lot_text
+        description_text, mlb21, supplier_combo_search_purchase, pentru_factura, lot_text, app6
     #     note purchase product
     upf = Frame(note)
     upf.grid(row=0, column=0, sticky=N + W + S + E)
@@ -579,7 +580,7 @@ def purchase_product_frame():
            command=lambda: delete_from_purchase_table()).grid(row=0,
                                                               column=1,
                                                               sticky=N + W +
-                                                              S + E,
+                                                                     S + E,
                                                               padx=10,
                                                               pady=5)
     btn65 = Button(lfp,
@@ -634,8 +635,8 @@ def purchase_product_frame():
     mlb21 = tableTree.MultiListbox(
         app6, (('Nume produs', 35), ("UM", 10), ("Pret achizitie", 25),
                ("Pret comercializare", 25), ("Cantitate", 15), ("Data", 35),
-               ("LOT", 25), ("Pentru factura", 35), ('Furnizor', 20)))
-    mlb21.grid(row=3, column=0, columnspan=1, rowspan=3, sticky=N + S + E + W)
+               ("LOT", 25), ("Pentru factura", 35), ('Furnizor', 20), ("Varianta", 11)))
+    mlb21.grid(row=4, column=0, columnspan=1, rowspan=3, sticky=N + S + E + W)
     NEXT_ICO = os.path.normpath('data/next.png')
     tmp3 = PIL.Image.open(NEXT_ICO).resize((70, 70), PIL.Image.ANTIALIAS)
     tmp3 = PIL.ImageTk.PhotoImage(image=tmp3)
@@ -720,7 +721,7 @@ def inventory_product_list():
            command=lambda: b_product__search(refresh=True)).grid(row=1,
                                                                  column=2,
                                                                  sticky=N + W +
-                                                                 S + E,
+                                                                        S + E,
                                                                  padx=5,
                                                                  pady=5)
     lf31 = LabelFrame(app2sub2, text="Optiuni Editare Produs")
@@ -804,6 +805,7 @@ def inventory_product_list():
 
 inventory_product_list()
 
+
 # page 4
 # listing
 
@@ -866,7 +868,7 @@ def customer_database_list():
            command=lambda: b_customer__search(refresh=True)).grid(row=1,
                                                                   column=2,
                                                                   sticky=N +
-                                                                  W + S + E,
+                                                                         W + S + E,
                                                                   padx=5,
                                                                   pady=5)
     lf42 = LabelFrame(df, text="Optiuni Editare Clienti")
@@ -903,7 +905,7 @@ def customer_database_list():
            command=lambda: a_d_d__customer(modify=True)).grid(row=1,
                                                               column=0,
                                                               sticky=N + W +
-                                                              E + S,
+                                                                     E + S,
                                                               padx=5,
                                                               pady=5)
     Button(lf42,
@@ -923,6 +925,7 @@ def customer_database_list():
 
 
 customer_database_list()
+
 
 # Page  5
 
@@ -975,10 +978,6 @@ def import_export():
              pady=10)
     Fon3 = Font(family='Times', size=24)
     Fon4 = Font(family='Times', size=16)
-    #    ir3 = C51.create_text(205, 280, text="Total Solution To Inventory \n                         Management", font=Fon4)
-    #    ir = C51.create_text(150, 50, text="     Inventory   Manager", font=Fon3)
-    #    ir1 = C51.create_text(220, 90, text="         Powered by", font=Fon4)
-    #    ir2 = C51.create_text(127, 215, text="Das \n      Enterprise", font=Fon3)
     lbl58 = Label(lf2, text="Importa Lista de Clienti din   ")
     lbl58.grid(row=4, column=1, sticky=N + E + S + W, padx=10, pady=10)
     entry52 = Entry(lf2, width=35)
@@ -1093,7 +1092,7 @@ def suppliers_frame():
            command=lambda: b_supplier_search(refresh=True)).grid(row=1,
                                                                  column=2,
                                                                  sticky=N + W +
-                                                                 S + E,
+                                                                        S + E,
                                                                  padx=5,
                                                                  pady=5)
     lf52 = Labelframe(ef, text="Optiuni editare Furnizori")
@@ -1130,7 +1129,7 @@ def suppliers_frame():
            command=lambda: add_supplier(modify=True)).grid(row=1,
                                                            column=0,
                                                            sticky=N + W + E +
-                                                           S,
+                                                                  S,
                                                            padx=5,
                                                            pady=5)
     mlb51 = tableTree.MultiListbox(app5, (("ID", 5), ("Nume", 40), ("RO", 12),
@@ -1139,6 +1138,7 @@ def suppliers_frame():
 
 
 suppliers_frame()
+
 
 # from Graph import Graph
 
@@ -1185,7 +1185,6 @@ def b_supplier_search(refresh=False):
 
 
 def ckeys():
-    # print(DB.categorylist)
     category_combo['values'] = DB.categorylist
     return None
 
@@ -1229,6 +1228,7 @@ def call_supplier_search(event):
 
 
 def special_purchase_search(event):
+    global variants_options_combo, variants_options
     """
 
     @param event:
@@ -1236,7 +1236,7 @@ def special_purchase_search(event):
     """
     inp = str(product_name_search.get())
     l = DB.sqldb.execute(
-        """SELECT cost,price,category_name,product_description FROM costs JOIN products USING (
+        """SELECT cost,price,category_name,product_description,product_id FROM costs JOIN products USING (
     product_id)
                 JOIN category USING (category_id) WHERE product_name =  "%s" """
         % (inp.title())).fetchone()
@@ -1269,6 +1269,21 @@ def special_purchase_search(event):
     category_combo.insert(0, str(category))
     description_text.insert(0.0, str(des))
 
+    variants = DB.sqldb.execute(""" select distinct(name), variant_id from product_variants
+    where product_variants.product_id="%s" """ % l[4]).fetchall()
+    if variants:
+        variants_label_frame = LabelFrame(app6, text="Variante pentru produs")
+        variants_label_frame.grid(row=3, column=0, sticky=N+S+E+W)
+        for j, i in enumerate(variants):
+            Label(variants_label_frame, text=i[0] + ': ').grid(row=j, column=0, padx=5, pady=5, sticky=N + S + E + W)
+            variants_options = DB.sqldb.execute(""" select value, modifier, option_id from variants_options where 
+            variant_id = "%s" """ %i[1]).fetchall()
+            if variants_options:
+                variants_options_combo = Combobox(variants_label_frame)
+                variants_options_combo.grid(row=j, column=1, padx=5, pady=5, sticky=N+S+E+W)
+                a = sorted(variants_options)
+                variants_options_combo['values'] = a
+
 
 def get_um_for_product(pid):
     """
@@ -1292,8 +1307,7 @@ def add2_purchase_table():
     cat = Filter(category_combo.get()).title()
     des = split_reconstruct(description_text.get(0.0, END).split(" ")).title()
     lot = Filter(lot_text.get()).title()
-    #    print('supplier_box')
-    #    print(Filter(supplier_combo_search_purchase.get()).title())
+    varianta = variants_options_combo.get()
     supplier = Filter(supplier_combo_search_purchase.get()).title()
     for_invoice = Filter(pentru_factura.get()).title()
     if len(qty.split()) == 0:
@@ -1338,7 +1352,7 @@ def add2_purchase_table():
     if costid is None:
         DB.add_cost(name, cost, price)
     um = get_um_for_product(pid)[1]
-    lopp = [name, um, cost, price, qty, date, lot, for_invoice, supplier]
+    lopp = [name, um, cost, price, qty, date, lot, for_invoice, supplier, varianta]
     mlb21.insert(END, lopp)
     product_name_search.delete(0, END)
     qty_text.delete(0, END)
@@ -1349,7 +1363,7 @@ def add2_purchase_table():
     lot_text.delete(0, END)
     pentru_factura.configure(state="readonly")
     supplier_combo_search.configure(state="DISABLED")
-    btn64['state'] = DISABLED
+    # btn64['state'] = DISABLED
     return 1
 
 
@@ -1402,13 +1416,14 @@ def add2_inventory():
         lot = tup['values'][6]
         for_factura = tup['values'][7]
         supplier = tup['values'][8]
+        varianta = None
+        if tup['values'][9]:
+            varianta = tup['values'][9]
         supplier_id = DB.get_supplier(supplier)
         um = get_um_for_product(pid)
 
         try:
-            # pur_id = DB.add_purchase(pid, costid, date, qty, lot, for_factura,
-            #                          supplier_id[0])
-            DB.add_products_to_purchase(pur_id, costid, date, qty, lot, pid)
+            DB.add_products_to_purchase(pur_id, costid, date, qty, lot, pid, varianta)
             tup_not_for.append(tup["values"])
         except ValueError:
             ans = messagebox.askokcancel(
@@ -1659,7 +1674,6 @@ def special__c_search(event):
     l = DB.sqldb.execute(
         """SELECT customer_address,phone_no FROM customers JOIN contacts USING (customer_id)
                  WHERE customer_name =  "%s" """ % st).fetchone()
-    # print(l)
     add_inner = l[0]
     phn = l[1]
     customer_address.delete(0.0, END)
@@ -2048,7 +2062,7 @@ def generate__invoice(product__list_forpdf, custup, invoicetup, detail):
     Currency = detail['curry']
 
     PDfCompany_Adress = Company_Adress + "\n" + \
-        Detail_top + "\n" + email + "\n" + phone
+                        Detail_top + "\n" + email + "\n" + phone
     pdfcust_address = cust_address + "\n" + cust_phone
     delegate = DB.sqldb.get_delegate_for(custup[0])
     pdf_document(delegate,

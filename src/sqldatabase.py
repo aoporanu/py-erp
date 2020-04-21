@@ -42,6 +42,7 @@ def new_database_create(conn):
                 product_id text not null references products(product_id),
                 qty_purchased int not null default 1,
                 lot text,
+                variant text,
                 purchased_date text not null default current_date);""")
 
     conn.execute("""CREATE TABLE IF NOT EXISTS suppliers(
@@ -595,7 +596,7 @@ class MyDatabase(object):
         row = self.cursor.execute("""select * from suppliers where id = "%s" """ % supplier).fetchone()
         return row
 
-    def add_products_to_purchase(self, pur_id, costid, date, qty, lot, pid):
+    def add_products_to_purchase(self, pur_id, costid, date, qty, lot, pid, variant):
         """
 
         @param pur_id:
@@ -604,14 +605,16 @@ class MyDatabase(object):
         @param qty:
         @param lot:
         @param pid:
+        @param variant
         @return:
         """
         self.cursor.execute(
-            """ INSERT INTO purchased_products(purchase_id,cost_id,purchased_qty,purchased_date,lot,product_id) VALUES (
+            """ INSERT INTO purchased_products(purchase_id,cost_id,purchased_qty,purchased_date,lot,product_id, variant
+            ) VALUES (
             "%s",
             "%s",%.2f,
-            "%s","%s","%s")""" % (
-                pur_id, costid, qty, date, lot, pid))
+            "%s","%s","%s","%s")""" % (
+                pur_id, costid, qty, date, lot, pid, variant))
         return pur_id
 
     def add_variant(self, PID, variant_name, variant_value, variant_modifier):

@@ -640,7 +640,7 @@ class InventoryDataBase(object):
         row = self.sqldb.execute(""" select * from suppliers where name = "%s" """ % supplier).fetchone()
         return row
 
-    def add_products_to_purchase(self, pur_id, costid, date, qty, lot, pid):
+    def add_products_to_purchase(self, pur_id, costid, date, qty, lot, pid, variant):
         """
 
         @param pur_id:
@@ -649,6 +649,7 @@ class InventoryDataBase(object):
         @param qty:
         @param lot:
         @param pid:
+        @param variant
         @return:
         """
-        return self.sqldb.add_products_to_purchase(pur_id, costid, date, qty, lot, pid)
+        return self.sqldb.add_products_to_purchase(pur_id, costid, date, qty, lot, pid, variant)
