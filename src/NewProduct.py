@@ -318,28 +318,29 @@ class NewProduct(Frame):
                     parent=self.master)
             PID = self.db.add_product(name, category, description, um)
         elif modify:
-            PID = tup[0]
-            previousname = tup[1]
-            previouscategory = tup[2]
-            pdescription = tup[3]
-            if previousname != name:
-                if vre is not None:
-                    return showinfo(title="Error",
-                                    message='Product Name is Already Listed',
-                                    parent=self.master)
-                s = askokcancel(
-                    "Name Mismatch",
-                    "Are You Sure You Want to Change\n\n%s to %s\n\n%s to %s\n\n%s to %s"
-                    % (previousname, name, previouscategory, category,
-                       pdescription, description),
-                    parent=self.master)
-                if not s:
-                    return False
+            print(tup)
+            PID = tup['values'][0]
+            # previousname = tup['values'][1]
+            # previouscategory = tup['values'][2]
+            # pdescription = tup['values'][3]
+            # if previousname != name:
+            #     if vre is not None:
+            #         return showinfo(title="Error",
+            #                         message='Product Name is Already Listed',
+            #                         parent=self.master)
+            #     s = askokcancel(
+            #         "Name Mismatch",
+            #         "Are You Sure You Want to Change\n\n%s to %s\n\n%s to %s\n\n%s to %s"
+            #         % (previousname, name, previouscategory, category,
+            #            pdescription, description),
+            #         parent=self.master)
+            #     if not s:
+            #         return False
             self.db.edit_product(PID, name, category, description, um)
         self.master.destroy()
-        return showinfo("ADDED", 'Saved Successfully')
+        return showinfo("Adaugat", 'Produsul a fost salvat')
 
-    def add2mlb15(self):
+    def add_to_cost_list_box(self):
         self.mlb_costs.delete(0, END)
         ins = self.mlb_costs.insert
         if self.modify:
@@ -389,7 +390,7 @@ class NewProduct(Frame):
             r = self.mlb_costs.get(i)
             pcostid = r[0]
             self.db.edit_costs(pcostid, PID, newcost, newprice)
-        self.add2mlb15()
+        self.add_to_cost_list_box()
         self.ncost.delete(0, END)
         self.nprice.delete(0, END)
 
@@ -404,7 +405,7 @@ class NewProduct(Frame):
         if ans:
             return showinfo("Message",
                             "%s Has Been Successfully Deleted" % (costid),
-                            parent=self.master), self.add2mlb15()
+                            parent=self.master), self.add_to_cost_list_box()
         else:
             return showinfo(
                 "Message",
@@ -458,7 +459,7 @@ class NewProduct(Frame):
         self.nprice.grid(row=1, column=1, sticky=sty, pady=5, padx=5)
         self.btn13.grid(row=2, column=1, sticky=sty, pady=5, padx=5)
         self.btn14.grid(row=2, column=0, sticky=sty, pady=5, padx=5)
-        self.add2mlb15()
+        self.add_to_cost_list_box()
 
     def mlb_variants_load(self):
         self.mlb_variants.delete(0, END)

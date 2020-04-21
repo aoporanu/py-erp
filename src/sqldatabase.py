@@ -115,6 +115,8 @@ def new_database_create(conn):
                 cnp TEXT NOT NULL,
                 car_no TEXT NOT NULL,
                 created_at TEXT NOT NULL DEFAULT CURRENT_DATE); """)
+
+    # conn.execute(""" ALTER TABLE purchase ADD COLUMN discount TEXT NOT NULL DEFAULT '-' """)
     if conn.execute("SELECT count(*) FROM details").fetchone()[0] == 0:
         conn.execute("INSERT INTO details VALUES('','','','','','','','Rs','logo.png',0,0,0)")
     conn.commit()
@@ -143,13 +145,25 @@ class MyDatabase(object):
         return self.cursor.execute(query)
 
     def get_cell(self, table_name, row_name, column_name, rowid):
-        print([table_name, row_name, column_name, rowid])
         sqldb.enable_callback_tracebacks(True)
         row = self.cursor.execute(
             """SELECT %s FROM %s WHERE %s = "%s" """ % (column_name, table_name, row_name, rowid)).fetchone()
         if row is None:
             return None
         return row[0]
+
+    def get_purchase_doc_for_invoice(self, for_factura):
+        """
+
+        @param for_factura:
+        @return:
+        """
+        row = self.cursor.execute(
+            """ select purchase_id from purchase where for_invoice="%s" """ % for_factura
+        ).fetchone()
+        if row:
+            return True
+        return None
 
     def set_cell(self, table_name, row_name, column_name, rowid, value):
         self.cursor.execute(
@@ -224,7 +238,7 @@ class MyDatabase(object):
 
     def edit_product(self, pid, attribute, value):
         """attribute -> name or 1 , description or 2, category_id or 3 """
-        dic = {1: "product_name", 2: "product_description", 3: "category_id"}
+        dic = {1: "product_name", 2: "product_description", 3: "category_id", 4: "um_id"}
         if type(attribute) == int:
             attribute = dic[attribute]
         row = self.cursor.execute("""SELECT %s FROM products WHERE product_id = "%s" """ % (attribute, pid))

@@ -2,7 +2,9 @@ import subprocess
 import sys
 import os
 
-from constants import ICON, color, SEL_COLOR, FOREGROUND, saveico, NEW_ICO, NEW_USER_GROUP, SETTINGS_ICO
+from constants import color, SEL_COLOR, FOREGROUND, saveico, NEW_ICO, NEW_USER_GROUP, SETTINGS_ICO, NEW_DOC, \
+    NEXT_ICO, SEARCH_ICO, VIEW_REFRESH_ICO
+
 
 try:
     import Tkinter as tk
@@ -15,7 +17,7 @@ except:
 
 from tkinter.filedialog import askopenfilename, N, S, E, W, HORIZONTAL, asksaveasfilename
 from tkinter.ttk import Style, Label, Frame, Combobox, Notebook, LabelFrame, Separator, Button, Entry, Spinbox, Labelframe
-from tkinter import DoubleVar, TOP, RIGHT, FLAT, LEFT, NORMAL, messagebox, DISABLED
+from tkinter import DoubleVar, TOP, RIGHT, FLAT, LEFT, NORMAL, messagebox
 import time as t
 
 import PIL.Image
@@ -455,7 +457,6 @@ Gtol = Label(Lf03, font=Fon, textvariable=Gtol_var, width=10)
 Gtol.grid(row=8, column=1, sticky=N + E + S + W, padx=10, pady=10)
 
 # Generate
-NEW_DOC = os.path.normpath('data/new_doc.png')
 genico = PIL.Image.open(NEW_DOC).resize((32, 32), PIL.Image.ANTIALIAS)
 genico = PIL.ImageTk.PhotoImage(image=genico)
 
@@ -491,7 +492,8 @@ def supplier_keys():
 def purchase_product_frame():
     """ Build the Purchase frame """
     global product_name_search, qty_text, cost_price_text, btn64, selling_price_text, tmp4, tmp5, category_combo, \
-        description_text, mlb21, supplier_combo_search_purchase, pentru_factura, lot_text, app6
+        description_text, product_purchase_listbox, supplier_combo_search_purchase, pentru_factura, lot_text, app6, \
+        discount_text, tva_entry, variant_name, variant_values
     #     note purchase product
     upf = Frame(note)
     upf.grid(row=0, column=0, sticky=N + W + S + E)
@@ -565,11 +567,11 @@ def purchase_product_frame():
            text="Adaugare",
            image=tmp4,
            compound=LEFT,
-           command=lambda: add2_purchase_table()).grid(row=0,
-                                                       column=0,
-                                                       sticky=N + E + S + W,
-                                                       padx=10,
-                                                       pady=5)
+           command=lambda: add_to_purchase_table()).grid(row=0,
+                                                         column=0,
+                                                         sticky=N + E + S + W,
+                                                         padx=10,
+                                                         pady=5)
     SYMBOL_REMOVE = os.path.normpath('data/symbol_remove.png')
     tmp5 = PIL.Image.open(SYMBOL_REMOVE).resize((25, 25), PIL.Image.ANTIALIAS)
     tmp5 = PIL.ImageTk.PhotoImage(image=tmp5)
@@ -632,12 +634,19 @@ def purchase_product_frame():
     Label(lfp, text="LOT   ").grid(row=6, column=4, sticky=E, padx=10, pady=5)
     lot_text = Entry(lfp)
     lot_text.grid(row=6, column=5, sticky=W + E, padx=10, pady=5)
-    mlb21 = tableTree.MultiListbox(
+    Label(lfp, text="Discount").grid(row=7, column=0, sticky=E, padx=10, pady=5)
+    discount_text = Entry(lfp)
+    discount_text.grid(row=7, column=1, sticky=W + E, padx=10, pady=5)
+    Label(lfp, text="TVA").grid(row=7, column=2, sticky=W + E, padx=10, pady=5)
+    tva_entry = Entry(lfp).grid(row=7, column=3, sticky=W + E, padx=10, pady=5)
+    variant_name = Entry(lfp).grid(row=7, column=4, sticky=W + E, padx=10, pady=5)
+    variant_values = Entry(lfp).grid(row=7, column=5, sticky=W + E, padx=10, pady=5)
+    product_purchase_listbox = tableTree.MultiListbox(
         app6, (('Nume produs', 35), ("UM", 10), ("Pret achizitie", 25),
                ("Pret comercializare", 25), ("Cantitate", 15), ("Data", 35),
-               ("LOT", 25), ("Pentru factura", 35), ('Furnizor', 20), ("Varianta", 11)))
-    mlb21.grid(row=4, column=0, columnspan=1, rowspan=3, sticky=N + S + E + W)
-    NEXT_ICO = os.path.normpath('data/next.png')
+               ("LOT", 25), ("Pentru factura", 35), ('Furnizor', 20), ("Discount", 8), ('Nume varianta', 8),
+               ('Valoare varianta', 13)))
+    product_purchase_listbox.grid(row=4, column=0, columnspan=1, rowspan=3, sticky=N + S + E + W)
     tmp3 = PIL.Image.open(NEXT_ICO).resize((70, 70), PIL.Image.ANTIALIAS)
     tmp3 = PIL.ImageTk.PhotoImage(image=tmp3)
     btn62 = Button(app6,
@@ -645,14 +654,13 @@ def purchase_product_frame():
                    width=35,
                    image=tmp3,
                    compound=LEFT,
-                   command=lambda: add2_inventory())
+                   command=lambda: add_to_inventory())
     btn62.grid(row=8, column=0, sticky=N + E + S, pady=10)
 
 
 purchase_product_frame()
 
 
-# Label(app6, background="Brown").grid(row=5, column=0, sticky=N + S + E + W)
 def inventory_product_list():
     """ Inventory frame """
     global h, product_search, tmp6, tmp7, tmp_modify, tmp_extra, uom_opt_event, mlb31
@@ -698,7 +706,6 @@ def inventory_product_list():
                         sticky=N + W + S + E,
                         padx=5,
                         pady=7)
-    SEARCH_ICO = os.path.normpath('data/search.png')
     tmp6 = PIL.Image.open(SEARCH_ICO).resize((20, 20), PIL.Image.ANTIALIAS)
     tmp6 = PIL.ImageTk.PhotoImage(image=tmp6)
     Button(lf3,
@@ -710,7 +717,6 @@ def inventory_product_list():
                                                      sticky=N + W + S + E,
                                                      padx=5,
                                                      pady=5)
-    VIEW_REFRESH_ICO = os.path.normpath('data/view_refresh.png')
     tmp7 = PIL.Image.open(VIEW_REFRESH_ICO).resize((20, 20),
                                                    PIL.Image.ANTIALIAS)
     tmp7 = PIL.ImageTk.PhotoImage(image=tmp7)
@@ -1236,10 +1242,12 @@ def special_purchase_search(event):
     """
     inp = str(product_name_search.get())
     l = DB.sqldb.execute(
-        """SELECT cost,price,category_name,product_description,product_id FROM costs JOIN products USING (
-    product_id)
+        """SELECT cost,price,category_name,product_description,product_id, variants_options.* FROM 
+        costs JOIN products USING (
+    product_id) join product_variants as p_v using (product_id) left join variants_options using(variant_id)
                 JOIN category USING (category_id) WHERE product_name =  "%s" """
         % (inp.title())).fetchone()
+    print(l)
     if l is None:
         l = DB.sqldb.execute(
             """SELECT category_name,product_description FROM  products
@@ -1269,20 +1277,25 @@ def special_purchase_search(event):
     category_combo.insert(0, str(category))
     description_text.insert(0.0, str(des))
 
-    variants = DB.sqldb.execute(""" select distinct(name), variant_id from product_variants
-    where product_variants.product_id="%s" """ % l[4]).fetchall()
-    if variants:
-        variants_label_frame = LabelFrame(app6, text="Variante pentru produs")
-        variants_label_frame.grid(row=3, column=0, sticky=N+S+E+W)
-        for j, i in enumerate(variants):
-            Label(variants_label_frame, text=i[0] + ': ').grid(row=j, column=0, padx=5, pady=5, sticky=N + S + E + W)
-            variants_options = DB.sqldb.execute(""" select value, modifier, option_id from variants_options where 
-            variant_id = "%s" """ %i[1]).fetchall()
-            if variants_options:
-                variants_options_combo = Combobox(variants_label_frame)
-                variants_options_combo.grid(row=j, column=1, padx=5, pady=5, sticky=N+S+E+W)
-                a = sorted(variants_options)
-                variants_options_combo['values'] = a
+    # variants = DB.sqldb.execute(""" select distinct(name), variant_id from product_variants
+    # where product_variants.product_id="%s" """ % l[4]).fetchall()
+    # if variants:
+    #     if len(variants) > 1:
+    #         variant_length = len(variants) - 1
+    #         for i in range(len(variants)):
+    #             product_purchase_listbox.lists.append(('Varianta', 10))
+    #     variants_label_frame = LabelFrame(app6, text="Variante pentru produs")
+    #     variants_label_frame.grid(row=3, column=0, sticky=N+S+E+W)
+    #     for j, i in enumerate(variants):
+    #         Label(variants_label_frame, text=i[0] + ': ').grid(row=j, column=0, padx=5, pady=5, sticky=N + S + E + W)
+    #         variants_options = DB.sqldb.execute(""" select value, modifier, option_id from variants_options where
+    #         variant_id = "%s" """ %i[1]).fetchall()
+    #         if variants_options:
+    #             variants_options_combo = Combobox(variants_label_frame)
+    #             variants_options_combo.grid(row=j, column=1, padx=5, pady=5, sticky=N+S+E+W)
+    #             variants_options_combo.delete(0, END)
+    #             a = sorted(variants_options)
+    #             variants_options_combo['values'] = a
 
 
 def get_um_for_product(pid):
@@ -1294,7 +1307,7 @@ def get_um_for_product(pid):
     return DB.sqldb.get_um_for_product(pid)
 
 
-def add2_purchase_table():
+def add_to_purchase_table():
     """
 
     @return:
@@ -1307,9 +1320,11 @@ def add2_purchase_table():
     cat = Filter(category_combo.get()).title()
     des = split_reconstruct(description_text.get(0.0, END).split(" ")).title()
     lot = Filter(lot_text.get()).title()
-    varianta = variants_options_combo.get()
+    discount = Filter(discount_text.get()).title()
     supplier = Filter(supplier_combo_search_purchase.get()).title()
     for_invoice = Filter(pentru_factura.get()).title()
+    var_name = Filter(variant_name.get()).title()
+    variant_value = Filter(variant_values.get()).title()
     if len(qty.split()) == 0:
         return messagebox.showinfo("Eroare",
                                    "Cantitatea introdusa este invalida",
@@ -1352,8 +1367,11 @@ def add2_purchase_table():
     if costid is None:
         DB.add_cost(name, cost, price)
     um = get_um_for_product(pid)[1]
-    lopp = [name, um, cost, price, qty, date, lot, for_invoice, supplier, varianta]
-    mlb21.insert(END, lopp)
+    cost = round(float(cost) - (float(cost) * (float(discount) / 100)), 2)
+    price = round(float(price) - (float(price) * (float(discount) / 100)), 2)
+    lopp = [name, um, cost, price, qty, date, lot, for_invoice, supplier, discount, var_name,
+            variant_value]
+    product_purchase_listbox.insert(END, lopp)
     product_name_search.delete(0, END)
     qty_text.delete(0, END)
     cost_price_text.delete(0, END)
@@ -1362,6 +1380,7 @@ def add2_purchase_table():
     description_text.delete(0.0, END)
     lot_text.delete(0, END)
     pentru_factura.configure(state="readonly")
+    discount_text.configure(state="readonly")
     supplier_combo_search.configure(state="DISABLED")
     # btn64['state'] = DISABLED
     return 1
@@ -1372,23 +1391,23 @@ def delete_from_purchase_table():
 
     @return:
     """
-    index = mlb21.Select_index
-    if index is None or index > mlb21.size():
+    index = product_purchase_listbox.Select_index
+    if index is None or index > product_purchase_listbox.size():
         return messagebox.showinfo('Eroare',
                                    'Selecteaza randul care trebuie sters')
-    mlb21.delete(index)
+    product_purchase_listbox.delete(index)
 
 
-def add2_inventory():
+def add_to_inventory():
     """
 
     @return:
     """
     tup_not_for = []
-    if not mlb21.tree.get_children():
+    if not product_purchase_listbox.tree.get_children():
         return messagebox.showinfo("Eroare", "Lista de achizitii este goala")
-    item = mlb21.tree.get_children()[-1]
-    tup = mlb21.tree.item(item)
+    item = product_purchase_listbox.tree.get_children()[-1]
+    tup = product_purchase_listbox.tree.item(item)
     pid = DB.sqldb.get_product_id(tup['values'][0])
     date = tup['values'][5]
     qty = round(float(tup['values'][4]))
@@ -1399,13 +1418,18 @@ def add2_inventory():
     pur_id = "PUR" + str(hash(s))
     supplier = tup['values'][8]
     for_factura = tup['values'][7]
+    discount = tup['values'][10]
     supplier_id = DB.get_supplier(supplier)
-    DB.sqldb.execute("""insert into purchase(purchase_id,purchase_date,supplier_id,for_invoice, cost_id) values("%s",
+    if DB.sqldb.get_purchase_doc_for_invoice(for_factura):
+        messagebox.showerror('Eroare', 'Deja exista achizitie pe numarul de factura ' + str(for_factura))
+        return 1
+    DB.sqldb.execute("""insert into purchase(purchase_id,purchase_date,supplier_id,for_invoice, cost_id, 
+    discount) values("%s",
     "%s",
-    "%s", "%s", "%s")""" % (
-        pur_id, date, supplier_id[0], for_factura, costid))
-    for item in mlb21.tree.get_children():
-        tup = mlb21.tree.item(item)
+    "%s", "%s", "%s", "%s")""" % (
+        pur_id, date, supplier_id[0], for_factura, costid, discount))
+    for item in product_purchase_listbox.tree.get_children():
+        tup = product_purchase_listbox.tree.item(item)
         name = tup['values'][0]
         cost = round(float(tup['values'][2]), 2)
         price = round(float(tup['values'][3]), 2)
@@ -1438,7 +1462,7 @@ def add2_inventory():
 
                 DB.sqldb.edit_purchase(pur_i_d, 2, qty)
     nir_document(tup_not_for, pur_id, supplier_id)
-    mlb21.delete(0, END)
+    product_purchase_listbox.delete(0, END)
     return messagebox.showinfo("Info", "Toate produsele au fost achizitionate")
 
 
