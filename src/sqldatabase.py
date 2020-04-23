@@ -115,6 +115,16 @@ def new_database_create(conn):
                 cnp TEXT NOT NULL,
                 car_no TEXT NOT NULL,
                 created_at TEXT NOT NULL DEFAULT CURRENT_DATE); """)
+    conn.execute(""" create table if not exists batches(
+                id text unique primary key not null,
+                name text not null,
+                batch_qty text not null,
+                from_qty text not null,
+                to_qty text not null,
+                option_id_from text not null references(variants_options.option_id),
+                option_id_to text not null references(variants_options.option_id),
+                created_at text not null default CURRENT_DATE
+    ); ")
 
     # conn.execute(""" ALTER TABLE purchase ADD COLUMN discount TEXT NOT NULL DEFAULT '-' """)
     if conn.execute("SELECT count(*) FROM details").fetchone()[0] == 0:
@@ -170,7 +180,7 @@ class MyDatabase(object):
             """UPDATE %s SET %s = %s  WHERE %s = "%s" """ % (table_name, column_name, value, row_name, rowid))
 
     def get_um_for_product(self, pid):
-        l = self.execute(""" select * from units_of_measure where id = (select um_id from products 
+        l = self.execute(""" select * from units_of_measure where id = (select um_id from products
         where product_id= "%s")""" % pid).fetchone()
         return l
 
@@ -307,7 +317,7 @@ class MyDatabase(object):
         return iid[0]
 
     def get_purchased_product_id(self, costid, date, qty):
-        row = self.cursor.execute("""select id from purchased_products where cost_id="%s" and qty = %.2f and 
+        row = self.cursor.execute("""select id from purchased_products where cost_id="%s" and qty = %.2f and
         purchase_date = "%s" """ % (costid, qty, date))
         id = row.fetchone()
         if id is None:
@@ -320,7 +330,7 @@ class MyDatabase(object):
         if self.get_purchase_id(costid, date, qty) is not None:
             raise ValueError("purchase already listed")
         self.cursor.execute(
-            """ INSERT INTO purchase (purchase_id,cost_id,QTY,purchase_date,lot,for_invoice,supplier_id, 
+            """ INSERT INTO purchase (purchase_id,cost_id,QTY,purchase_date,lot,for_invoice,supplier_id,
             product_id) VALUES ("%s",
             "%s",%.2f,
             "%s","%s","%s","%s","%s")""" % (
@@ -393,7 +403,7 @@ class MyDatabase(object):
     def add_new_customer(self, name, address, email, ro, cui, cnp):
         ctmid = """CTM""" + str(hash(hex(int(t.time() * 10000))))
         self.cursor.execute(
-            """INSERT INTO customers (customer_id,customer_name,customer_address,customer_email, delegate_id, 
+            """INSERT INTO customers (customer_id,customer_name,customer_address,customer_email, delegate_id,
             customer_cui, customer_cnp
             ) VALUES ("%s","%s",
             "%s","%s","%s","%s","%s")""" % (
@@ -505,8 +515,8 @@ class MyDatabase(object):
         return qty
 
     def get_cost_quantity(self, cost_id):
-        qtytup = list(self.cursor.execute(""" SELECT q,qty FROM (SELECT SUM(QTY) AS qty FROM sells WHERE cost_id = 
-        "%s") JOIN 
+        qtytup = list(self.cursor.execute(""" SELECT q,qty FROM (SELECT SUM(QTY) AS qty FROM sells WHERE cost_id =
+        "%s") JOIN
                                             (SELECT SUM(QTY) AS q FROM purchase WHERE cost_id = "%s") """ % (
             cost_id, cost_id)).fetchone())
         qty = 0.0
@@ -583,7 +593,7 @@ class MyDatabase(object):
         supplier_id = "SID" + str(hash(name + hex(int(t.time() * 10000))))
         if self.get_supplier_id(ro) or self.get_supplier_id(cui) is not None:
             raise Exception("Supplier already listed")
-        self.cursor.execute("""INSERT INTO suppliers(id, name, ro, cui, address, phone) VALUES("%s", "%s", "%s", "%s", 
+        self.cursor.execute("""INSERT INTO suppliers(id, name, ro, cui, address, phone) VALUES("%s", "%s", "%s", "%s",
         "%s", "%s")""" % (supplier_id, name, ro, cui, address, phone))
         return supplier_id
 
@@ -647,7 +657,7 @@ class MyDatabase(object):
         if self.get_variant_for_product(PID, variant_name, variant_value, variant_modifier) is not None:
             raise Exception("Produsul are deja varianta " + variant_name + " cu valoarea " + variant_value + " pentru produsul ales")
         option_id = "VAR_OPT-" + str(hash(variant_name + variant_value + hex(int(t.time() * 10000))))
-        self.cursor.execute(""" insert into variants_options(option_id, value, variant_id, modifier) values("%s", "%s", 
+        self.cursor.execute(""" insert into variants_options(option_id, value, variant_id, modifier) values("%s", "%s",
         "%s", "%s")""" % (option_id, variant_value, variant_id, variant_modifier))
 
         return [variant_id, option_id]
@@ -661,7 +671,7 @@ class MyDatabase(object):
         return pid[0]
 
     def get_variant_name_for_product(self, PID, variant_name):
-        row = self.cursor.execute(""" select variant_id from product_variants where product_id="%s" and 
+        row = self.cursor.execute(""" select variant_id from product_variants where product_id="%s" and
         name="%s" """ % (PID, variant_name))
         pid = row.fetchone()
         if pid is None:
@@ -669,7 +679,7 @@ class MyDatabase(object):
         return pid[0]
 
     def get_variant_for_product(self, pid, variant_name, variant_value, variant_modifier):
-        row = self.cursor.execute(""" select * from product_variants join variants_options using(variant_id) where 
+        row = self.cursor.execute(""" select * from product_variants join variants_options using(variant_id) where
         product_id="%s" and name="%s" and value="%s" and modifier = "%s" """ %(pid, variant_name,
                                                                                        variant_value, variant_modifier))
         pid = row.fetchone()
@@ -690,6 +700,6 @@ class MyDatabase(object):
         self.cursor.execute(""" update product_variants set variant_name="%s" where variant_id="%s" """ % variant_name)
         option_id = self.cursor.execute(""" select option_id from variants_options where variant_id="%s" """
                                         % variant_id).fetchone()
-        self.cursor.execute(""" update variants_options set value="%s", modifier="%s" where variant_id="%s" and 
+        self.cursor.execute(""" update variants_options set value="%s", modifier="%s" where variant_id="%s" and
         option_id="%s" """
                             %(variant_value, variant_modifier, variant_id, option_id))

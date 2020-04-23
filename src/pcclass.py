@@ -106,11 +106,18 @@ class InventoryDataBase(object):
         @return:
         """
         tup = tuple([likename] * 4)
-        row = self.execute(""" SELECT product_name FROM products  LEFT OUTER JOIN category USING (category_id)  WHERE
-                                 product_name LIKE "%%%s%%"   OR
-                                 product_id  LIKE  "%%%s%%"  OR
-                                 product_description LIKE  "%%%s%%" OR
-                                 category_name LIKE "%%%s%%" """ % tup)
+        row = self.execute(""" SELECT product_name FROM products
+                            JOIN
+                            purchased_products
+                            USING (product_id)
+                            LEFT OUTER JOIN 
+                            category 
+                            USING (
+                            category_id)  WHERE
+                            product_name LIKE "%%%s%%"   OR
+                            product_id  LIKE  "%%%s%%"  OR
+                            product_description LIKE  "%%%s%%" OR
+                            category_name LIKE "%%%s%%" """ % tup)
         return row
 
     def search_sales_invoice(self, like_name):

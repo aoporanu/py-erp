@@ -2,9 +2,8 @@ import subprocess
 import sys
 import os
 
-from constants import color, SEL_COLOR, FOREGROUND, saveico, NEW_ICO, NEW_USER_GROUP, SETTINGS_ICO, NEW_DOC, \
-    NEXT_ICO, SEARCH_ICO, VIEW_REFRESH_ICO
-
+from constants import color, SEL_COLOR, FOREGROUND, saveico, NEW_ICO, SETTINGS_ICO, NEXT_ICO, SEARCH_ICO, \
+    VIEW_REFRESH_ICO, ncico, tmp, tmp2, genico, EDIT_ADD, tmp4, tmp6, tmp7, tmp_extra, tmp_modify
 
 try:
     import Tkinter as tk
@@ -16,7 +15,8 @@ except:
     import tkinter.font as tkFont
 
 from tkinter.filedialog import askopenfilename, N, S, E, W, HORIZONTAL, asksaveasfilename
-from tkinter.ttk import Style, Label, Frame, Combobox, Notebook, LabelFrame, Separator, Button, Entry, Spinbox, Labelframe
+from tkinter.ttk import Style, Label, Frame, Combobox, Notebook, LabelFrame, Separator, Button, Entry, Spinbox, \
+    Labelframe
 from tkinter import DoubleVar, TOP, RIGHT, FLAT, LEFT, NORMAL, messagebox
 import time as t
 
@@ -141,7 +141,6 @@ productbtn = Button(btnnote,
                     image=npico,
                     compound=TOP,
                     width=15).grid(row=0, column=1, sticky=N + S + W + E)
-ncico = PIL.Image.open(NEW_USER_GROUP).resize((32, 32), PIL.Image.ANTIALIAS)
 ncico = PIL.ImageTk.PhotoImage(image=ncico)
 customerbtn = Button(btnnote,
                      text="Client nou",
@@ -308,8 +307,6 @@ Cartindeldbnfram.grid(row=9,
 Cartindeldbnfram.rowconfigure(0, weight=1)
 Cartindeldbnfram.columnconfigure(0, weight=1)
 Cartindeldbnfram.columnconfigure(1, weight=1)
-ADD_TO_CART = os.path.normpath('data/cart_add.png')
-tmp = PIL.Image.open(ADD_TO_CART).resize((25, 25), PIL.Image.ANTIALIAS)
 tmp = PIL.ImageTk.PhotoImage(image=tmp)
 Button(Cartindeldbnfram,
        text="Adaugare in cos",
@@ -320,8 +317,6 @@ Button(Cartindeldbnfram,
                                           sticky=E + W + N + S,
                                           padx=5,
                                           pady=5)
-REMOVE_FROM_CART = os.path.normpath('data/cart_remove.png')
-tmp2 = PIL.Image.open(REMOVE_FROM_CART).resize((25, 25), PIL.Image.ANTIALIAS)
 tmp2 = PIL.ImageTk.PhotoImage(image=tmp2)
 Button(Cartindeldbnfram,
        text="Stergere din cos",
@@ -457,7 +452,6 @@ Gtol = Label(Lf03, font=Fon, textvariable=Gtol_var, width=10)
 Gtol.grid(row=8, column=1, sticky=N + E + S + W, padx=10, pady=10)
 
 # Generate
-genico = PIL.Image.open(NEW_DOC).resize((32, 32), PIL.Image.ANTIALIAS)
 genico = PIL.ImageTk.PhotoImage(image=genico)
 
 butn_Gen = Button(Lf03,
@@ -560,8 +554,6 @@ def purchase_product_frame():
     editbtnfram.rowconfigure(0, weight=1)
     editbtnfram.columnconfigure(0, weight=1)
     editbtnfram.columnconfigure(1, weight=1)
-    EDIT_ADD = os.path.normpath('data/edit_add.png')
-    tmp4 = PIL.Image.open(EDIT_ADD).resize((25, 25), PIL.Image.ANTIALIAS)
     tmp4 = PIL.ImageTk.PhotoImage(image=tmp4)
     Button(editbtnfram,
            text="Adaugare",
@@ -639,8 +631,12 @@ def purchase_product_frame():
     discount_text.grid(row=7, column=1, sticky=W + E, padx=10, pady=5)
     Label(lfp, text="TVA").grid(row=7, column=2, sticky=W + E, padx=10, pady=5)
     tva_entry = Entry(lfp).grid(row=7, column=3, sticky=W + E, padx=10, pady=5)
-    variant_name = Entry(lfp).grid(row=7, column=4, sticky=W + E, padx=10, pady=5)
-    variant_values = Entry(lfp).grid(row=7, column=5, sticky=W + E, padx=10, pady=5)
+    variant_name = Entry(lfp)
+    variant_name.grid(row=7, column=4, sticky=W + E, padx=10, pady=5)
+    variant_name.insert(0, 'Nume varianta')
+    variant_values = Entry(lfp)
+    variant_values.grid(row=7, column=5, sticky=W + E, padx=10, pady=5)
+    variant_values.insert(0, 'Valoare varianta')
     product_purchase_listbox = tableTree.MultiListbox(
         app6, (('Nume produs', 35), ("UM", 10), ("Pret achizitie", 25),
                ("Pret comercializare", 25), ("Cantitate", 15), ("Data", 35),
@@ -663,7 +659,7 @@ purchase_product_frame()
 
 def inventory_product_list():
     """ Inventory frame """
-    global h, product_search, tmp6, tmp7, tmp_modify, tmp_extra, uom_opt_event, mlb31
+    global h, product_search, tmp6, tmp7, tmp_modify, tmp_extra, uom_opt_event, inventory_products_listbox
     # page 3
     # frame 3
     app2 = Frame(note)
@@ -706,7 +702,6 @@ def inventory_product_list():
                         sticky=N + W + S + E,
                         padx=5,
                         pady=7)
-    tmp6 = PIL.Image.open(SEARCH_ICO).resize((20, 20), PIL.Image.ANTIALIAS)
     tmp6 = PIL.ImageTk.PhotoImage(image=tmp6)
     Button(lf3,
            text="Cautare",
@@ -717,8 +712,6 @@ def inventory_product_list():
                                                      sticky=N + W + S + E,
                                                      padx=5,
                                                      pady=5)
-    tmp7 = PIL.Image.open(VIEW_REFRESH_ICO).resize((20, 20),
-                                                   PIL.Image.ANTIALIAS)
     tmp7 = PIL.ImageTk.PhotoImage(image=tmp7)
     Button(lf3,
            text="Reincarcare",
@@ -750,15 +743,13 @@ def inventory_product_list():
            text="Stergere Produs",
            image=tmp5,
            compound=LEFT,
-           command=lambda: remove__product(mlb31),
+           command=lambda: remove__product(inventory_products_listbox),
            width=20).grid(row=0,
                           column=1,
                           sticky=N + W + S + E,
                           padx=5,
                           pady=5)
 
-    tmp_modify = PIL.Image.open(SETTINGS_ICO).resize((20, 20),
-                                                     PIL.Image.ANTIALIAS)
     tmp_modify = PIL.ImageTk.PhotoImage(image=tmp_modify)
     Button(lf31,
            text="Modificare Produs",
@@ -770,8 +761,6 @@ def inventory_product_list():
                           sticky=N + W + S + E,
                           padx=5,
                           pady=5)
-    tmp_extra = PIL.Image.open(SETTINGS_ICO).resize((20, 20),
-                                                    PIL.Image.ANTIALIAS)
     tmp_extra = PIL.ImageTk.PhotoImage(image=tmp_extra)
     Button(lf31,
            text="Optiuni Categorie",
@@ -803,10 +792,10 @@ def inventory_product_list():
                           sticky=N + W + S + E,
                           padx=5,
                           pady=5)
-    mlb31 = tableTree.MultiListbox(
+    inventory_products_listbox = tableTree.MultiListbox(
         app2, (('ID', 5), ('Nume', 45), ('Categorie', 25), ('Descriere', 65),
                ("Unitate de masura", 10), ("Cantitate", 10)))
-    mlb31.grid(row=2, column=0, columnspan=2, sticky=N + S + E + W)
+    inventory_products_listbox.grid(row=2, column=0, columnspan=2, sticky=N + S + E + W)
 
 
 inventory_product_list()
@@ -818,7 +807,7 @@ inventory_product_list()
 
 def customer_database_list():
     """ Customer listing """
-    global h, customer_search, mlb41
+    global h, customer_search, customer_listbox
     app3 = Frame(note)
     app3.grid(row=0, column=0)
     app3.columnconfigure(0, weight=1)
@@ -898,11 +887,11 @@ def customer_database_list():
            width=20,
            image=tmp5,
            compound=LEFT,
-           command=lambda: remove__customer(mlb41)).grid(row=0,
-                                                         column=1,
-                                                         sticky=N + W + S + E,
-                                                         padx=5,
-                                                         pady=5)
+           command=lambda: remove__customer(customer_listbox)).grid(row=0,
+                                                                    column=1,
+                                                                    sticky=N + W + S + E,
+                                                                    padx=5,
+                                                                    pady=5)
     Button(lf42,
            text="Modificare Client",
            width=20,
@@ -924,10 +913,10 @@ def customer_database_list():
                                                      sticky=N + W + E + S,
                                                      padx=5,
                                                      pady=5)
-    mlb41 = tableTree.MultiListbox(app3, (('ID', 5), ('Nume Client', 40),
-                                          ('Telefon', 15), ('Adresa', 70),
-                                          ("Email", 30)))
-    mlb41.grid(row=2, column=0, columnspan=2, sticky=N + S + E + W, pady=10)
+    customer_listbox = tableTree.MultiListbox(app3, (('ID', 5), ('Nume Client', 40),
+                                                     ('Telefon', 15), ('Adresa', 70),
+                                                     ("Email", 30)))
+    customer_listbox.grid(row=2, column=0, columnspan=2, sticky=N + S + E + W, pady=10)
 
 
 customer_database_list()
@@ -1242,17 +1231,25 @@ def special_purchase_search(event):
     """
     inp = str(product_name_search.get())
     l = DB.sqldb.execute(
-        """SELECT cost,price,category_name,product_description,product_id, variants_options.* FROM 
+        """SELECT cost,price,category_name,product_description,products.product_id as prod_id,product_variants.name as 
+        variant_name,
+        purchased_products.lot
+        FROM
         costs JOIN products USING (
-    product_id) join product_variants as p_v using (product_id) left join variants_options using(variant_id)
-                JOIN category USING (category_id) WHERE product_name =  "%s" """
+    product_id) JOIN purchase on products.product_id = prod_id JOIN purchased_products using(purchase_id)
+                JOIN category USING (category_id) join product_variants using(product_id) join variants_options 
+                using(variant)id WHERE 
+                product_name LIKE "%s" """
         % (inp.title())).fetchone()
     print(l)
     if l is None:
         l = DB.sqldb.execute(
-            """SELECT category_name,product_description FROM  products
-                JOIN category USING (category_id) WHERE product_name =  "%s" """
+            """SELECT category_name,product_description,purchased_products.lot,product_variants.name as variant_name, 
+            discount FROM  products
+            jpin product_variants using(product_id)
+                JOIN category USING (category_id) WHERE product_name LIKE  "%s" """
             % (inp.title())).fetchone()
+        print(l)
         category = l[0]
         des = l[1]
         qty_text.delete(0, END)
@@ -1324,7 +1321,7 @@ def add_to_purchase_table():
     supplier = Filter(supplier_combo_search_purchase.get()).title()
     for_invoice = Filter(pentru_factura.get()).title()
     var_name = Filter(variant_name.get()).title()
-    variant_value = Filter(variant_values.get()).title()
+    var_value = Filter(variant_values.get()).title()
     if len(qty.split()) == 0:
         return messagebox.showinfo("Eroare",
                                    "Cantitatea introdusa este invalida",
@@ -1370,7 +1367,7 @@ def add_to_purchase_table():
     cost = round(float(cost) - (float(cost) * (float(discount) / 100)), 2)
     price = round(float(price) - (float(price) * (float(discount) / 100)), 2)
     lopp = [name, um, cost, price, qty, date, lot, for_invoice, supplier, discount, var_name,
-            variant_value]
+            var_value]
     product_purchase_listbox.insert(END, lopp)
     product_name_search.delete(0, END)
     qty_text.delete(0, END)
@@ -1382,6 +1379,8 @@ def add_to_purchase_table():
     pentru_factura.configure(state="readonly")
     discount_text.configure(state="readonly")
     supplier_combo_search.configure(state="DISABLED")
+    variant_name.delete(0, END)
+    variant_values.delete(0, END)
     # btn64['state'] = DISABLED
     return 1
 
@@ -1414,20 +1413,28 @@ def add_to_inventory():
     cost = round(float(tup['values'][2]), 2)
     price = round(float(tup['values'][3]), 2)
     costid = DB.sqldb.get_cost_id(pid, cost, price)
+    # introdu costul in baza de date
+    if costid is None:
+        costid = DB.sqldb.add_new_cost(pid, cost, price)
+        messagebox.showerror('Valoare inexistenta', 'Valoarea de achizitie ' + str(cost) + ' si valoarea de vanzare ' +
+                             str(price) + ' nu exista in baza de date. El a fost adaugat.')
     s = costid + date + str(qty) + hex(int(t.time() * 10000))
     pur_id = "PUR" + str(hash(s))
     supplier = tup['values'][8]
     for_factura = tup['values'][7]
     discount = tup['values'][10]
+    variant_name = tup['values'][11]
+    variant_value = tup['values'][12]
     supplier_id = DB.get_supplier(supplier)
+    # var_value =
     if DB.sqldb.get_purchase_doc_for_invoice(for_factura):
         messagebox.showerror('Eroare', 'Deja exista achizitie pe numarul de factura ' + str(for_factura))
         return 1
-    DB.sqldb.execute("""insert into purchase(purchase_id,purchase_date,supplier_id,for_invoice, cost_id, 
-    discount) values("%s",
+    DB.sqldb.execute("""insert into purchase(purchase_id,purchase_date,supplier_id,for_invoice, cost_id,
+    discount,variant_name,variant_value) values("%s",
     "%s",
-    "%s", "%s", "%s", "%s")""" % (
-        pur_id, date, supplier_id[0], for_factura, costid, discount))
+    "%s", "%s", "%s", "%s", "%s", "%s")""" % (
+        pur_id, date, supplier_id[0], for_factura, costid, discount, variant_name, variant_value))
     for item in product_purchase_listbox.tree.get_children():
         tup = product_purchase_listbox.tree.item(item)
         name = tup['values'][0]
@@ -1565,7 +1572,7 @@ def print__p_table(lists):
     """
     lists = list(lists)
     lists.sort()
-    mlb31.delete(0, END)
+    inventory_products_listbox.delete(0, END)
     for item in lists:
         tup = DB.sqldb.execute(
             """ SELECT product_id,product_name,category_name,product_description,
@@ -1587,7 +1594,7 @@ def print__p_table(lists):
                 colour = "Red"
             if float(qty) < 0:
                 bg = "Brown"
-            mlb31.insert(END, p, colour, bg)
+            inventory_products_listbox.insert(END, p, colour, bg)
     product_search.delete(0, END)
     return 1
 
@@ -1615,19 +1622,19 @@ def print__c_table(lists):
     """
     lists = list(lists)
     lists.sort()
-    mlb41.delete(0, END)
+    customer_listbox.delete(0, END)
     for item in lists:
         tup = DB.sqldb.execute(
             """SELECT customer_id,customer_name,phone_no,customer_address,customer_email
                        FROM customers JOIN contacts USING (customer_id)  WHERE customer_name = "%s" """
             % (item)).fetchall()
         for c in tup:
-            guiid = mlb41.insert(END, c, bg=None, tag="ta")
+            guiid = customer_listbox.insert(END, c, bg=None, tag="ta")
             tup1 = DB.sqldb.execute(
                 """SELECT invoice_id,invoice_no,invoice_date,paid
                            FROM invoices WHERE customer_id = "%s" ORDER BY invoice_no """
                 % (c[0])).fetchall()
-            mlb41.insert(
+            customer_listbox.insert(
                 END,
                 ("Invoice ID", "Invoice No", "Invoice Time Stamp", "Paid"),
                 parent=guiid,
@@ -1636,18 +1643,18 @@ def print__c_table(lists):
                 fg='Red',
                 tag="lo")
             for p in tup1:
-                mlb41.see(
-                    mlb41.insert(END,
-                                 p,
-                                 parent=guiid,
-                                 row_name="",
-                                 bg='White',
-                                 fg='Blue',
-                                 tag="lol"))
+                customer_listbox.see(
+                    customer_listbox.insert(END,
+                                            p,
+                                            parent=guiid,
+                                            row_name="",
+                                            bg='White',
+                                            fg='Blue',
+                                            tag="lol"))
             tup2 = DB.sqldb.execute(
                 """ select id, name, cnp, car_no from delegates where customer_id = "%s" order by
             id """ % (c[0])).fetchall()
-            mlb41.insert(
+            customer_listbox.insert(
                 END,
                 ("Delegate ID", "Delegate Name", "Delegate CNP", "# Auto"),
                 parent=guiid,
@@ -1656,15 +1663,15 @@ def print__c_table(lists):
                 fg="Green",
                 tag="lo")
             for d in tup2:
-                mlb41.see(
-                    mlb41.insert(END,
-                                 d,
-                                 parent=guiid,
-                                 row_name="",
-                                 bg="White",
-                                 fg="Brown",
-                                 tag="lol"))
-    mlb41.see("")
+                customer_listbox.see(
+                    customer_listbox.insert(END,
+                                            d,
+                                            parent=guiid,
+                                            row_name="",
+                                            bg="White",
+                                            fg="Brown",
+                                            tag="lol"))
+    customer_listbox.see("")
     customer_search.delete(0, END)
     return 1
 
@@ -1675,11 +1682,25 @@ def special__p_search(event):
     @param event:
     """
     st = str(product_name.get())
+    # st = st.split(' ')
+    # print(st)
     l = DB.sqldb.execute(
-        """SELECT product_description,price FROM costs JOIN products USING (product_id)
-                 WHERE product_name =  "%s" """ % st).fetchone()
+        """SELECT product_description,price,purchased_products.variant_names,
+        purchased_products.lot, discount FROM costs JOIN
+        products USING (product_id)
+        join product_variants using (product_id)
+        join variants_options using(variant_id)
+        join purchased_products USING (product_id) join purchase using (product_id)
+                 WHERE product_name LIKE  "%s"
+                 """ % st).fetchone()
+    print(l)
     des = l[0]
+    discount = l[4]
+    print(discount)
     price = l[1]
+    lot = l[4]
+    if discount is not '-':
+        price = round(float(price) - (float(price) * (float(discount) / 100)), 2)
     qty = 1.00
     product_detail.delete(0.0, END)
     product_detail.insert(0.0, des)
@@ -1993,9 +2014,9 @@ def category__opt():
 
 
 def d_click__on__list(event):
-    cur_item = mlb31.tree.focus()
-    index = int(mlb31.tree.identify_column(event.x)[1])
-    id = mlb31.tree.item(cur_item)
+    cur_item = inventory_products_listbox.tree.focus()
+    index = int(inventory_products_listbox.tree.identify_column(event.x)[1])
+    id = inventory_products_listbox.tree.item(cur_item)
     arg = id["values"][0]
 
     if index == 3:
@@ -2007,7 +2028,7 @@ def d_click__on__list(event):
 
 
 def d_click__on__c_list(event):
-    index = int(mlb41.tree.identify_column(event.x)[1])
+    index = int(customer_listbox.tree.identify_column(event.x)[1])
     if index == 5:
         return invoice_opt_event()
     elif 7 > index > 1:
@@ -2022,16 +2043,27 @@ def get_pdf_date(timestamp):
     return " ".join(p)
 
 
+def clear_input_event(event):
+    text = event.widget.get()
+    print(text)
+    if print(text == 'Nume varianta'):
+        event.widget.delete(0, END)
+    if print(text == 'Valoare varianta'):
+        event.widget.delete(0, END)
+
+
 product_search.bind('<Any-KeyRelease>', call__p_search)
 customer_search.bind('<Any-KeyRelease>', call__cu_search)
 customer_name.bind('<Any-KeyRelease>', call__cn_search)
 product_name.bind('<Any-KeyRelease>', call__pn_search)
 customer_name.bind('<<ComboboxSelected>>', special__c_search)
 product_name.bind('<<ComboboxSelected>>', special__p_search)
-mlb41.tree.bind('<Double-Button-1>', d_click__on__c_list)
-mlb31.tree.bind('<Double-Button-1>', d_click__on__list)
+customer_listbox.tree.bind('<Double-Button-1>', d_click__on__c_list)
+inventory_products_listbox.tree.bind('<Double-Button-1>', d_click__on__list)
 product_name_search.bind('<Any-KeyRelease>', call_purchase_search)
 product_name_search.bind('<<ComboboxSelected>>', special_purchase_search)
+variant_name.bind('<Enter>', clear_input_event)
+variant_values.bind('<Enter>', clear_input_event)
 
 
 def process_cart(invid):
@@ -2281,6 +2313,7 @@ entry20.bind('<Any-KeyRelease>', add_discount)
 
 def add_2_cart():
     product = Filter(str(product_name.get()))
+    print(product.split('-'))
     p_de = Filter(str(product_detail.get(0.0, END)))
     p_price = Filter(str(product_price.get()))
     qty = Filter(str(quantity.get()))
@@ -2302,14 +2335,16 @@ def add_2_cart():
         messagebox.showinfo("Eroare Intrare",
                             "Produsul nu poate fi adaugat fara cantitate")
         return 1
+
     try:
         qty = float(qty)
     except ValueError:
         messagebox.showinfo(
             "Eroare Intrare",
-            "Cantitatea prodului trebuie sa fie o valoare numerica")
+            "Cantitatea produsului trebuie sa fie o valoare numerica")
         return 1
-    PID = DB.sqldb.get_product_id(product)
+    print(product)
+    PID = DB.sqldb.get_product_id(product.split(' - ')[0])
     if PID is None:
         return messagebox.showinfo("Eroare Intrare",
                                    "ID-ul produsului nu exista")
@@ -2386,13 +2421,13 @@ def a_d_d__product(id=False, modify=False):
         titlel = "Create Produs"
     else:
         titlel = "Modificare Produs"
-        index = mlb31.Select_index
-        if index is None or index > mlb31.size():
+        index = inventory_products_listbox.Select_index
+        if index is None or index > inventory_products_listbox.size():
             return messagebox.showinfo(title='Eroare',
                                        message='Nu ai ales nimic de modificat')
-        cur_item = mlb31.tree.focus()
-        arg = mlb31.tree.item(cur_item)
-        tup = mlb31.tree.item(cur_item)
+        cur_item = inventory_products_listbox.tree.focus()
+        arg = inventory_products_listbox.tree.item(cur_item)
+        tup = inventory_products_listbox.tree.item(cur_item)
         id = arg["values"][0]
     root12 = tk.Toplevel(master=root)
     root12.title(titlel)
@@ -2414,12 +2449,12 @@ def a_d_d__customer(modify=False):
         titlel = "Creare client"
     else:
         titlel = "Modificare client"
-        index = mlb41.Select_index
-        if index is None or index > mlb41.size():
+        index = customer_listbox.Select_index
+        if index is None or index > customer_listbox.size():
             return messagebox.showinfo('Eroare',
                                        'Nu ai ales nimic ca sa modifici.')
-        cur_item = mlb41.tree.focus()
-        arg = mlb41.tree.item(cur_item)
+        cur_item = customer_listbox.tree.focus()
+        arg = customer_listbox.tree.item(cur_item)
         tup = arg["values"]
     root13 = tk.Toplevel(master=root)
     root13.title(titlel)
