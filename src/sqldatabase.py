@@ -63,9 +63,17 @@ def new_database_create(conn):
     conn.execute("""create table if not exists variants_options(
                 option_id TEXT UNIQUE PRIMARY KEY NOT NULL,
                 value TEXT NOT NULL,
-                variant_id text note null references product_variants(variant_id),
+                variant_id text not null references product_variants(variant_id),
                 modifier TEXT default '0',
                 created_on text not null default current_date);""")
+
+    conn.execute(""" create table if not exists product_variant_option(
+                id TEXT UNIQUE PRIMARY KEY NOT NULL,
+                product_id TEXT NOT NULL REFERENCES products(product_id),
+                variant_id TEXT NOT NULL REFERENCES products_variants(variant_id),
+                option_id TEXT NOT NULL REFERENCES variants_options(option_id),
+                created_on TEXT NOT NULL DEFAULT CURRENT_DATE
+                );""")
 
     conn.execute("""CREATE TABLE IF NOT EXISTS customers(
                  customer_id TEXT UNIQUE PRIMARY KEY NOT NULL,
@@ -115,18 +123,16 @@ def new_database_create(conn):
                 cnp TEXT NOT NULL,
                 car_no TEXT NOT NULL,
                 created_at TEXT NOT NULL DEFAULT CURRENT_DATE); """)
-    conn.execute(""" create table if not exists batches(
+    conn.execute(""" create table if not exists `batches`(
                 id text unique primary key not null,
                 name text not null,
                 batch_qty text not null,
-                from_qty text not null,
-                to_qty text not null,
-                option_id_from text not null references(variants_options.option_id),
-                option_id_to text not null references(variants_options.option_id),
+                purchase_id text not null references purchase(purchase_id),
+                product_id text not null references purchased_products(product_id),
+                expiry_date text not null default CURRENT_DATE,
                 created_at text not null default CURRENT_DATE
-    ); ")
+    ); """)
 
-    # conn.execute(""" ALTER TABLE purchase ADD COLUMN discount TEXT NOT NULL DEFAULT '-' """)
     if conn.execute("SELECT count(*) FROM details").fetchone()[0] == 0:
         conn.execute("INSERT INTO details VALUES('','','','','','','','Rs','logo.png',0,0,0)")
     conn.commit()
@@ -488,6 +494,18 @@ class MyDatabase(object):
                 sell_id, inv_id, sold, qty, costid))
         return sell_id
 
+    def get_lots_for_product(self, product_name):
+        """
+
+        @param product_name:
+        @return:
+        """
+        product = self.get_product_id(product_name)
+        print(product)
+        lots = self.cursor.execute("""select * from `batches` where product_id= "%s" """ % product).fetchall()
+        print(lots)
+        return lots
+
     def edit_sells(self, sell_id, attribute, value):
         """""""""attribute -> invoice_id or 1 , sold_price or 2,QTY or 3 ,cost_id or 4 """""""""
         dic = {1: """invoice_id""", 2: """sold_price""", 3: """QTY""", 4: """cost_id"""}
@@ -620,7 +638,7 @@ class MyDatabase(object):
         row = self.cursor.execute("""select * from suppliers where id = "%s" """ % supplier).fetchone()
         return row
 
-    def add_products_to_purchase(self, pur_id, costid, date, qty, lot, pid, variant):
+    def add_products_to_purchase(self, pur_id, costid, date, qty, lot, pid, variant, expiry_date):
         """
 
         @param pur_id:
@@ -630,6 +648,7 @@ class MyDatabase(object):
         @param lot:
         @param pid:
         @param variant
+        @param expiry_date
         @return:
         """
         self.cursor.execute(
@@ -639,6 +658,9 @@ class MyDatabase(object):
             "%s",%.2f,
             "%s","%s","%s","%s")""" % (
                 pur_id, costid, qty, date, lot, pid, variant))
+        lot_id = "LOT-" + str(lot)
+        self.cursor.execute("""insert into `batches`(id, name, batch_qty, purchase_id, product_id, expiry_date, variant) 
+        values ("%s", "%s", "%s", "%s", "%s", "%s", "%s")""" % (lot_id, lot, qty, pur_id, pid, expiry_date, variant))
         return pur_id
 
     def add_variant(self, PID, variant_name, variant_value, variant_modifier):

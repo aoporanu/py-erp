@@ -1,4 +1,5 @@
 import os
+from tkinter import N, W, S, E
 
 import PIL.Image
 import PIL.ImageTk
@@ -31,3 +32,8 @@ tmp6 = PIL.Image.open(SEARCH_ICO).resize((20, 20), PIL.Image.ANTIALIAS)
 tmp7 = PIL.Image.open(VIEW_REFRESH_ICO).resize((20, 20), PIL.Image.ANTIALIAS)
 tmp_modify = PIL.Image.open(SETTINGS_ICO).resize((20, 20), PIL.Image.ANTIALIAS)
 tmp_extra = PIL.Image.open(SETTINGS_ICO).resize((20, 20), PIL.Image.ANTIALIAS)
+sty = N + W + S + E
+
+
+def cmp(a, b):
+    return (a > b) - (a < b)

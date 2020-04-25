@@ -5,9 +5,9 @@ from tkinter import *
 from tkinter.ttk import *
 
 from PIL import ImageTk, Image
-from imath import cmp
 from tkcalendar import Calendar
 
+from constants import cmp
 from src.Cython.proWrd1 import Filter
 
 
@@ -45,21 +45,22 @@ class CalendarButton(Frame):
         self.datevar.set(st)
 
     def coor(self, event):
-        try:
-            w = int(str(self.rootc1).split(".")[1])
-        except(AttributeError):
-            return 0
+        # print(self.rootc1)
+        # try:
+        #     w = int(str(self.rootc1).split(".")[1])
+        # except AttributeError:
+        #     return 0
         f = event.widget
         try:
             c = int(str(f).split(".")[1])
-        except(ValueError):
+        except ValueError:
             return 0
         if cmp(c, w) != 0:
             self.rootc1.destroy()
             self.rootc1.unbind_all('<Button-1>')
             try:
                 self.btn['state'] = NORMAL
-            except(TclError):
+            except TclError:
                 print("calenbutt")
 
     def get_time_tuple(self, stamp=None):
@@ -86,9 +87,9 @@ class CalendarButton(Frame):
         self.min = int(Filter(self._m.get()))
         self.sec = int(Filter(self._s.get()))
         if date is not None:
-            self.month = int(date.split('/')[0])
-            self.day = int(date.split('/')[1])
-            self.year = int(date.split('/')[2])
+            self.month = int(date.split('.')[1])
+            self.day = int(date.split('.')[0])
+            self.year = int(date.split('.')[2])
         self.update()
         self.rootc1.destroy()
         self.btn['state'] = NORMAL
@@ -107,7 +108,7 @@ class CalendarButton(Frame):
         if w < 260:
             w = 260
         self.rootc1 = Toplevel()
-        if sys.platform is "win32":
+        if sys.platform == "win32":
             self.rootc1.wm_attributes("-alpha", 'gray98')
         self.rootc1.bind_all('<Button-1>', self.coor, "+")
         self.rootc1.title('Ttk Calendar')
@@ -123,7 +124,7 @@ class CalendarButton(Frame):
         self.rootc1.overrideredirect(1)
         self.rootc1.focus_set()
         self.rootc1.geometry('%sx220+%d+%d' % (w, x, y))
-        ttkcal = Calendar(self.rootc1, firstweekday="monday")
+        ttkcal = Calendar(self.rootc1, firstweekday="monday", locale="ro_RO")
         ttkcal.grid(row=0, column=0, columnspan=6, sticky=N + S + E + W)
         ttkcal.bind('<Button-1>', self.coor)
         Label(self.rootc1, text="Hour", width=15, background="grey99").grid(row=1, column=0, sticky=N + S + E + W)

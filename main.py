@@ -2,8 +2,8 @@ import subprocess
 import sys
 import os
 
-from constants import color, SEL_COLOR, FOREGROUND, saveico, NEW_ICO, SETTINGS_ICO, NEXT_ICO, SEARCH_ICO, \
-    VIEW_REFRESH_ICO, ncico, tmp, tmp2, genico, EDIT_ADD, tmp4, tmp6, tmp7, tmp_extra, tmp_modify
+from src.constants import color, SEL_COLOR, FOREGROUND, saveico, NEW_ICO, SETTINGS_ICO, NEXT_ICO,\
+    ncico, tmp, tmp2, genico, tmp4, tmp5, tmp6, tmp_modify, tmp_extra, tmp7
 
 try:
     import Tkinter as tk
@@ -15,16 +15,13 @@ except:
     import tkinter.font as tkFont
 
 from tkinter.filedialog import askopenfilename, N, S, E, W, HORIZONTAL, asksaveasfilename
-from tkinter.ttk import Style, Label, Frame, Combobox, Notebook, LabelFrame, Separator, Button, Entry, Spinbox, \
-    Labelframe
+from tkinter.ttk import Style, Label, Frame, Combobox, Notebook, LabelFrame, Separator, Button, Entry, Spinbox, Labelframe
 from tkinter import DoubleVar, TOP, RIGHT, FLAT, LEFT, NORMAL, messagebox
 import time as t
 
 import PIL.Image
 import PIL.ImageTk
 from reportlab import xrange
-
-# DONE supplier multilistbox
 
 from src.Cython.proWrd1 import Filter
 
@@ -46,7 +43,7 @@ from src.UnitsOfMeasure import UnitsOfMeasure
 # variable access by all
 
 DB = InventoryDataBase()
-
+var_string = ''
 # Window
 
 root = tk.Tk()
@@ -196,7 +193,7 @@ lbl0.grid(row=0, column=0, sticky=N + E + S + W, pady=10, padx=5)
 
 customer_name = Combobox(Lf01,
                          postcommand=lambda: customer_name__search(),
-                         width=35)
+                         width=35, height=10)
 customer_name.grid(row=0, column=1, sticky=N + E + S + W, pady=8, padx=10)
 
 # Phone
@@ -230,7 +227,7 @@ lbl6.grid(row=0, column=0, sticky=N + E + S + W, padx=5, pady=10)
 
 product_name = Combobox(Lf02,
                         postcommand=lambda: product_name__search(),
-                        width=40)
+                        width=40, height=10)
 product_name.grid(row=0, column=1, sticky=N + E + W + S, padx=5, pady=10)
 
 # Product Detail
@@ -248,6 +245,13 @@ product_detail.configure(highlightthickness=1,
                          highlightbackground="Grey",
                          relief=FLAT)
 
+# QTY
+lbl11 = Label(Lf02, text="Cantitate")
+lbl11.grid(row=3, column=0, sticky=N + E, padx=5, pady=10)
+
+quantity = Entry(Lf02, justify=RIGHT)
+quantity.grid(row=3, column=1, sticky=N + E + S + W, padx=5, pady=10)
+
 # Product Price
 
 lbl9 = Label(Lf02, text="Pret Unitar")
@@ -256,12 +260,30 @@ lbl9.grid(row=4, column=0, sticky=N + E, padx=5, pady=10)
 product_price = Entry(Lf02, justify=RIGHT)
 product_price.grid(row=4, column=1, sticky=N + E + S + W, padx=5, pady=10)
 
-# QTY
-lbl11 = Label(Lf02, text="Cantitate")
-lbl11.grid(row=3, column=0, sticky=N + E, padx=5, pady=10)
+lbl10 = Label(Lf02, text="Lot")
+lbl10.grid(row=5, column=0, sticky=N + E, padx=5, pady=10)
 
-quantity = Entry(Lf02, justify=RIGHT)
-quantity.grid(row=3, column=1, sticky=N + E + S + W, padx=5, pady=10)
+
+def lot_search():
+    if product_name.get() == '':
+        return messagebox.showerror('Eroare produs',
+                                    'Alege un produs de mai sus pentru a vedea in ce loturi este prins', parent=root)
+    lots = DB.sqldb.get_lots_for_product(product_name.get())
+    for i in lots:
+        # variants_combo['values'] = (*variants_combo['values'], v[1])
+
+        lot["values"] = (*lot["values"], i[1])
+        var_combo["values"] = (*var_combo["values"], i[7])
+
+
+lot = Combobox(Lf02, postcommand=lambda: lot_search(), width=40)
+lot.grid(row=5, column=1, sticky=N + E, padx=5, pady=10)
+
+var_label = Label(Lf02, text="Variante")
+var_label.grid(row=6, column=0, sticky=N + E, padx=5, pady=10)
+
+var_combo = Combobox(Lf02, width=40)
+var_combo.grid(row=6, column=1, sticky=N + E, padx=5, pady=10)
 
 # invoice option
 
@@ -470,7 +492,7 @@ butn_Gen.grid(row=9,
 
 mlb = tableTree.MultiListbox(dframe, (("ID Pret", 20), ('Produs', 35),
                                       ('Descriere', 45), ("Cantitate", 6),
-                                      ("Pret Unitar", 9), ("LOT", 35)))
+                                      ("Pret Unitar", 9), ("LOT", 35), ("Varianta", 40)))
 mlb.grid(row=0, column=0, sticky=N + S + E + W, padx=10)
 
 
@@ -487,7 +509,7 @@ def purchase_product_frame():
     """ Build the Purchase frame """
     global product_name_search, qty_text, cost_price_text, btn64, selling_price_text, tmp4, tmp5, category_combo, \
         description_text, product_purchase_listbox, supplier_combo_search_purchase, pentru_factura, lot_text, app6, \
-        discount_text, tva_entry, variant_name, variant_values
+        discount_text, tva_entry, btn66, variants_frame
     #     note purchase product
     upf = Frame(note)
     upf.grid(row=0, column=0, sticky=N + W + S + E)
@@ -549,8 +571,12 @@ def purchase_product_frame():
                                                 pady=5)
     selling_price_text = Entry(lfp)
     selling_price_text.grid(row=3, column=3, sticky=W + E, padx=10, pady=5)
+    variants_frame = Frame(lfp)
+    variants_frame.grid(row=0, column=0, sticky=N + E + S + W, padx=0, pady=0, columnspan=6)
+    variants_frame.rowconfigure(0, weight=1)
+    variants_frame.columnconfigure(1, weight=1)
     editbtnfram = Frame(lfp)
-    editbtnfram.grid(row=5, column=3, sticky=N + E + S + W, padx=0, pady=0)
+    editbtnfram.grid(row=10, column=3, sticky=N + E + S + W, padx=0, pady=0, columnspan=3)
     editbtnfram.rowconfigure(0, weight=1)
     editbtnfram.columnconfigure(0, weight=1)
     editbtnfram.columnconfigure(1, weight=1)
@@ -577,11 +603,11 @@ def purchase_product_frame():
                                                                      S + E,
                                                               padx=10,
                                                               pady=5)
-    btn65 = Button(lfp,
+    btn65 = Button(editbtnfram,
                    text=" Jurnal achizitii",
                    width=20,
                    command=lambda: ipurlog())
-    btn65.grid(row=5, column=2, sticky=N + S + E + W, padx=10, pady=5)
+    btn65.grid(row=0, column=2, sticky=N + S + E + W, padx=10, pady=5)
     Label(lfp, text="Categorie ").grid(row=1,
                                        column=4,
                                        sticky=E,
@@ -611,14 +637,14 @@ def purchase_product_frame():
                                            pady=5)
     pentru_factura = Entry(lfp)
     pentru_factura.grid(row=6, column=1, sticky=W + E, padx=5, pady=5)
-    Label(lfp, text="Furnizor").grid(row=6,
+    Label(lfp, text="Furnizor").grid(row=5,
                                      column=2,
                                      sticky=E,
                                      padx=10,
                                      pady=5)
     supplier_combo_search_purchase = Combobox(
         lfp, values=supplier_keys(), postcommand=lambda: supplier_keys())
-    supplier_combo_search_purchase.grid(row=6,
+    supplier_combo_search_purchase.grid(row=5,
                                         column=3,
                                         sticky=N + E + W + S,
                                         padx=10,
@@ -629,20 +655,17 @@ def purchase_product_frame():
     Label(lfp, text="Discount").grid(row=7, column=0, sticky=E, padx=10, pady=5)
     discount_text = Entry(lfp)
     discount_text.grid(row=7, column=1, sticky=W + E, padx=10, pady=5)
-    Label(lfp, text="TVA").grid(row=7, column=2, sticky=W + E, padx=10, pady=5)
-    tva_entry = Entry(lfp).grid(row=7, column=3, sticky=W + E, padx=10, pady=5)
-    variant_name = Entry(lfp)
-    variant_name.grid(row=7, column=4, sticky=W + E, padx=10, pady=5)
-    variant_name.insert(0, 'Nume varianta')
-    variant_values = Entry(lfp)
-    variant_values.grid(row=7, column=5, sticky=W + E, padx=10, pady=5)
-    variant_values.insert(0, 'Valoare varianta')
+    Label(lfp, text="TVA").grid(row=6, column=2, sticky=W + E, padx=10, pady=5)
+    tva_entry = Entry(lfp).grid(row=6, column=3, sticky=W + E, padx=10, pady=5)
+    Label(lfp, text="Data expirare").grid(row=7, column=2, sticky=W + E, padx=10, pady=5)
+    btn66 = CalendarButton(lfp)
+    btn66.grid(row=7, column=3, sticky=W + E, padx=10, pady=5)
     product_purchase_listbox = tableTree.MultiListbox(
         app6, (('Nume produs', 35), ("UM", 10), ("Pret achizitie", 25),
                ("Pret comercializare", 25), ("Cantitate", 15), ("Data", 35),
-               ("LOT", 25), ("Pentru factura", 35), ('Furnizor', 20), ("Discount", 8), ('Nume varianta', 8),
-               ('Valoare varianta', 13)))
-    product_purchase_listbox.grid(row=4, column=0, columnspan=1, rowspan=3, sticky=N + S + E + W)
+               ("LOT", 25), ("Pentru factura", 35), ('Furnizor', 20), ("Discount", 8), ("Expira pe", 21),
+               ('Varianta', 21)))
+    product_purchase_listbox.grid(row=3, column=0, columnspan=1, rowspan=3, sticky=N + S + E + W)
     tmp3 = PIL.Image.open(NEXT_ICO).resize((70, 70), PIL.Image.ANTIALIAS)
     tmp3 = PIL.ImageTk.PhotoImage(image=tmp3)
     btn62 = Button(app6,
@@ -1223,7 +1246,7 @@ def call_supplier_search(event):
 
 
 def special_purchase_search(event):
-    global variants_options_combo, variants_options
+    global variants_options_combo, variants_options, variants_combo
     """
 
     @param event:
@@ -1235,29 +1258,43 @@ def special_purchase_search(event):
         variant_name,
         purchased_products.lot
         FROM
-        costs JOIN products USING (
-    product_id) JOIN purchase on products.product_id = prod_id JOIN purchased_products using(purchase_id)
-                JOIN category USING (category_id) join product_variants using(product_id) join variants_options 
-                using(variant)id WHERE 
+        costs JOIN products USING (product_id) JOIN purchase on products.product_id = prod_id
+        JOIN batches USING (purchase_id) 
+                JOIN purchased_products using(purchase_id)
+                JOIN category USING (category_id) 
+                join product_variants using(product_id) 
+                join variants_options using(variant_id) WHERE 
                 product_name LIKE "%s" """
         % (inp.title())).fetchone()
-    print(l)
+    product_variants_options_for_product(inp)
     if l is None:
         l = DB.sqldb.execute(
-            """SELECT category_name,product_description,purchased_products.lot,product_variants.name as variant_name, 
-            discount FROM  products
-            jpin product_variants using(product_id)
+            """SELECT 
+            category_name,
+            product_description,
+            cost,
+            price
+            from products
+            join product_variants using (product_id)
+            JOIN variants_options using (variant_id)
+            JOIN costs USING (product_id)
                 JOIN category USING (category_id) WHERE product_name LIKE  "%s" """
             % (inp.title())).fetchone()
-        print(l)
+        product_variants_options_for_product(inp)
         category = l[0]
         des = l[1]
+        cost = l[2]
+        price = l[3]
         qty_text.delete(0, END)
         qty_text.insert(0, "1.0")
         category_combo.delete(0, END)
         description_text.delete(0.0, END)
         category_combo.insert(0, str(category))
         description_text.insert(0.0, str(des))
+        cost_price_text.delete(0, END)
+        cost_price_text.insert(0, str(cost))
+        selling_price_text.delete(0, END)
+        selling_price_text.insert(0, str(price))
         return 1
     cost = l[0]
     price = l[1]
@@ -1274,25 +1311,33 @@ def special_purchase_search(event):
     category_combo.insert(0, str(category))
     description_text.insert(0.0, str(des))
 
-    # variants = DB.sqldb.execute(""" select distinct(name), variant_id from product_variants
-    # where product_variants.product_id="%s" """ % l[4]).fetchall()
-    # if variants:
-    #     if len(variants) > 1:
-    #         variant_length = len(variants) - 1
-    #         for i in range(len(variants)):
-    #             product_purchase_listbox.lists.append(('Varianta', 10))
-    #     variants_label_frame = LabelFrame(app6, text="Variante pentru produs")
-    #     variants_label_frame.grid(row=3, column=0, sticky=N+S+E+W)
-    #     for j, i in enumerate(variants):
-    #         Label(variants_label_frame, text=i[0] + ': ').grid(row=j, column=0, padx=5, pady=5, sticky=N + S + E + W)
-    #         variants_options = DB.sqldb.execute(""" select value, modifier, option_id from variants_options where
-    #         variant_id = "%s" """ %i[1]).fetchall()
-    #         if variants_options:
-    #             variants_options_combo = Combobox(variants_label_frame)
-    #             variants_options_combo.grid(row=j, column=1, padx=5, pady=5, sticky=N+S+E+W)
-    #             variants_options_combo.delete(0, END)
-    #             a = sorted(variants_options)
-    #             variants_options_combo['values'] = a
+
+def make_dict(event):
+    global var_string
+    if var_string != '':
+        var_string += ':' + event.widget.get()
+    else:
+        var_string = event.widget.get()
+
+
+def product_variants_options_for_product(inp):
+    global variants_combo, variant_var, var_string
+    var_string = ''
+    variant_var = dict()
+    variants = DB.sqldb.execute(
+        """ select * from product_variants where product_id = "%s" """ % DB.sqldb.get_product_id(
+            inp.title())).fetchall()
+    if variants:
+        for j, i in enumerate(variants):
+            options = DB.sqldb.execute(
+                """ select * from variants_options where variant_id = "%s" """ % i[0]).fetchall()
+            # variants_frame adaugare la variants_frame
+            label = Label(variants_frame, text=str(i[1])).grid(row=j, column=1, sticky=N + E + S + W, padx=5, pady=10)
+            variants_combo = Combobox(variants_frame, width=40)
+            variants_combo.grid(row=j, column=1, sticky=N + E + S + E, padx=5, pady=10)
+            variants_combo.bind('<<ComboboxSelected>>', make_dict)
+            for v in options:
+                variants_combo['values'] = (*variants_combo['values'], v[1])
 
 
 def get_um_for_product(pid):
@@ -1320,8 +1365,7 @@ def add_to_purchase_table():
     discount = Filter(discount_text.get()).title()
     supplier = Filter(supplier_combo_search_purchase.get()).title()
     for_invoice = Filter(pentru_factura.get()).title()
-    var_name = Filter(variant_name.get()).title()
-    var_value = Filter(variant_values.get()).title()
+    expiry_date = Filter(btn66.get()).title()
     if len(qty.split()) == 0:
         return messagebox.showinfo("Eroare",
                                    "Cantitatea introdusa este invalida",
@@ -1364,10 +1408,10 @@ def add_to_purchase_table():
     if costid is None:
         DB.add_cost(name, cost, price)
     um = get_um_for_product(pid)[1]
+    varianta = var_string
     cost = round(float(cost) - (float(cost) * (float(discount) / 100)), 2)
     price = round(float(price) - (float(price) * (float(discount) / 100)), 2)
-    lopp = [name, um, cost, price, qty, date, lot, for_invoice, supplier, discount, var_name,
-            var_value]
+    lopp = [name, um, cost, price, qty, date, lot, for_invoice, supplier, discount, expiry_date, var_string]
     product_purchase_listbox.insert(END, lopp)
     product_name_search.delete(0, END)
     qty_text.delete(0, END)
@@ -1379,9 +1423,6 @@ def add_to_purchase_table():
     pentru_factura.configure(state="readonly")
     discount_text.configure(state="readonly")
     supplier_combo_search.configure(state="DISABLED")
-    variant_name.delete(0, END)
-    variant_values.delete(0, END)
-    # btn64['state'] = DISABLED
     return 1
 
 
@@ -1419,22 +1460,21 @@ def add_to_inventory():
         messagebox.showerror('Valoare inexistenta', 'Valoarea de achizitie ' + str(cost) + ' si valoarea de vanzare ' +
                              str(price) + ' nu exista in baza de date. El a fost adaugat.')
     s = costid + date + str(qty) + hex(int(t.time() * 10000))
-    pur_id = "PUR" + str(hash(s))
+    pur_id = "PUR-" + str(hash(s))
     supplier = tup['values'][8]
     for_factura = tup['values'][7]
-    discount = tup['values'][10]
-    variant_name = tup['values'][11]
-    variant_value = tup['values'][12]
+    discount = tup['values'][9]
+    expiry_date = tup['values'][10]
     supplier_id = DB.get_supplier(supplier)
-    # var_value =
+    var_value = tup['values'][11]
     if DB.sqldb.get_purchase_doc_for_invoice(for_factura):
         messagebox.showerror('Eroare', 'Deja exista achizitie pe numarul de factura ' + str(for_factura))
         return 1
     DB.sqldb.execute("""insert into purchase(purchase_id,purchase_date,supplier_id,for_invoice, cost_id,
-    discount,variant_name,variant_value) values("%s",
+    discount) values("%s",
     "%s",
-    "%s", "%s", "%s", "%s", "%s", "%s")""" % (
-        pur_id, date, supplier_id[0], for_factura, costid, discount, variant_name, variant_value))
+    "%s", "%s", "%s", "%s")""" % (
+        pur_id, date, supplier_id[0], for_factura, costid, discount))
     for item in product_purchase_listbox.tree.get_children():
         tup = product_purchase_listbox.tree.item(item)
         name = tup['values'][0]
@@ -1448,13 +1488,13 @@ def add_to_inventory():
         for_factura = tup['values'][7]
         supplier = tup['values'][8]
         varianta = None
-        if tup['values'][9]:
-            varianta = tup['values'][9]
+        if tup['values'][11]:
+            varianta = var_string
         supplier_id = DB.get_supplier(supplier)
         um = get_um_for_product(pid)
 
         try:
-            DB.add_products_to_purchase(pur_id, costid, date, qty, lot, pid, varianta)
+            DB.add_products_to_purchase(pur_id, costid, date, qty, lot, pid, varianta, expiry_date)
             tup_not_for.append(tup["values"])
         except ValueError:
             ans = messagebox.askokcancel(
@@ -1594,7 +1634,27 @@ def print__p_table(lists):
                 colour = "Red"
             if float(qty) < 0:
                 bg = "Brown"
-            inventory_products_listbox.insert(END, p, colour, bg)
+            guiid = inventory_products_listbox.insert(END, p, colour, bg)
+            tup1 = DB.sqldb.execute(
+                """ select variant_id, name from product_variants where product_id = "%s" """ % p[0]).fetchall()
+            inventory_products_listbox.insert(END, ('ID Varianta', 'Nume varianta'), parent=guiid, row_name='',
+                                              bg="grey93", fg="Green", tag="lo")
+            if tup1:
+                for v in tup1:
+                    inventory_products_listbox.see(
+                        inventory_products_listbox.insert(END, v, parent=guiid, row_name="", bg='grey93', fg='Red',
+                                                          tag="lo"))
+                    tup2 = DB.sqldb.execute("""select option_id, value from variants_options where variant_id = "%s" 
+                    """ % v[0]).fetchall()
+                    opt_id = inventory_products_listbox.insert(END, ('ID Optiune', 'Nume optiune'), parent=guiid,
+                                                               row_name='',
+                                                               bg="grey93", fg="Blue", tag="lo")
+                    if tup2:
+                        for opt in tup2:
+                            inventory_products_listbox.see(
+                                inventory_products_listbox.insert(END, opt, parent=opt_id, bg="White", fg="Red",
+                                                                  tag="lo"))
+
     product_search.delete(0, END)
     return 1
 
@@ -1682,26 +1742,17 @@ def special__p_search(event):
     @param event:
     """
     st = str(product_name.get())
-    # st = st.split(' ')
-    # print(st)
     l = DB.sqldb.execute(
-        """SELECT product_description,price,purchased_products.variant_names,
-        purchased_products.lot, discount FROM costs JOIN
-        products USING (product_id)
+        """SELECT product_description,
+        price FROM costs 
+        JOIN products USING (product_id)
         join product_variants using (product_id)
-        join variants_options using(variant_id)
-        join purchased_products USING (product_id) join purchase using (product_id)
+        join purchase using (product_id)
                  WHERE product_name LIKE  "%s"
                  """ % st).fetchone()
-    print(l)
     des = l[0]
-    discount = l[4]
-    print(discount)
     price = l[1]
-    lot = l[4]
-    if discount is not '-':
-        price = round(float(price) - (float(price) * (float(discount) / 100)), 2)
-    qty = 1.00
+    qty = quantity.get()
     product_detail.delete(0.0, END)
     product_detail.insert(0.0, des)
     product_price.delete(0, END)
@@ -2042,16 +2093,6 @@ def get_pdf_date(timestamp):
     del p[3]
     return " ".join(p)
 
-
-def clear_input_event(event):
-    text = event.widget.get()
-    print(text)
-    if print(text == 'Nume varianta'):
-        event.widget.delete(0, END)
-    if print(text == 'Valoare varianta'):
-        event.widget.delete(0, END)
-
-
 product_search.bind('<Any-KeyRelease>', call__p_search)
 customer_search.bind('<Any-KeyRelease>', call__cu_search)
 customer_name.bind('<Any-KeyRelease>', call__cn_search)
@@ -2062,8 +2103,6 @@ customer_listbox.tree.bind('<Double-Button-1>', d_click__on__c_list)
 inventory_products_listbox.tree.bind('<Double-Button-1>', d_click__on__list)
 product_name_search.bind('<Any-KeyRelease>', call_purchase_search)
 product_name_search.bind('<<ComboboxSelected>>', special_purchase_search)
-variant_name.bind('<Enter>', clear_input_event)
-variant_values.bind('<Enter>', clear_input_event)
 
 
 def process_cart(invid):
@@ -2141,17 +2180,17 @@ def generate__invoice(product__list_forpdf, custup, invoicetup, detail):
     fileline = "Factura-" + invoi_num + ".pdf"
 
     try:
-        if sys.platform is "win32":
+        if sys.platform == "win32":
             os.startfile(fileline)
         else:
             opener = "open" if sys.platform == "darwin" else "xdg-open"
             subprocess.call([opener, fileline])
-    except:
+    except FileExistsError:
         fileline = askopenfilename(filetypes=(('Microsoft Word Document File',
                                                "*.docx"),
                                               ("Portable Document File",
                                                "*.pdf")))
-        if sys.platform is "win32":
+        if sys.platform == "win32":
             os.startfile(fileline)
         else:
             opener = "open" if sys.platform == "darwin" else "xdg-open"
@@ -2160,11 +2199,11 @@ def generate__invoice(product__list_forpdf, custup, invoicetup, detail):
 
 
 def transfer():
-    Invoi_num = invoice__maintain()
+    invoi_num = invoice__maintain()
     detail = DB.sqldb.get_company_details
-    if Invoi_num is None:
+    if invoi_num is None:
         return 1
-    alooas = DB.sqldb.get_invoice_id(Invoi_num)
+    alooas = DB.sqldb.get_invoice_id(invoi_num)
     if alooas is not None:
         return messagebox.showinfo(
             "Eroare",
@@ -2191,9 +2230,9 @@ def transfer():
     discount = str(Discount_var.get())
     amount = str(Amt_var.get())
     Grand_total = str(Gtol_var.get())
-    invid = DB.add_invoice(ctmid, Invoi_num, Grand_total, invoice__date2)
+    invid = DB.add_invoice(ctmid, invoi_num, Grand_total, invoice__date2)
     Product_List_forpdf = process_cart(invid)
-    invoicetup = (invoice__date2, Invoi_num, Grand_total, amount, discount)
+    invoicetup = (invoice__date2, invoi_num, Grand_total, amount, discount)
     generate__invoice(Product_List_forpdf, custup, invoicetup, detail)
     Discount_var.set(0.0)
     Amt_var.set(0.0)
@@ -2313,10 +2352,11 @@ entry20.bind('<Any-KeyRelease>', add_discount)
 
 def add_2_cart():
     product = Filter(str(product_name.get()))
-    print(product.split('-'))
     p_de = Filter(str(product_detail.get(0.0, END)))
     p_price = Filter(str(product_price.get()))
     qty = Filter(str(quantity.get()))
+    lot_var = lot.get()
+    variant_str = var_combo.get()
     if len(product) == 0:
         messagebox.showinfo("Eroare Intrare",
                             "Numele produsului trebuie sa fie completat")
@@ -2343,7 +2383,6 @@ def add_2_cart():
             "Eroare Intrare",
             "Cantitatea produsului trebuie sa fie o valoare numerica")
         return 1
-    print(product)
     PID = DB.sqldb.get_product_id(product.split(' - ')[0])
     if PID is None:
         return messagebox.showinfo("Eroare Intrare",
@@ -2356,10 +2395,10 @@ def add_2_cart():
         r = mlb.get(ITEM)
         if costid == r[0]:
             newqty = float(r[3]) + float(qty)
-            mlb.set_value(ITEM, "QTY", newqty)
+            mlb.set_value(ITEM, "Cantitate", newqty)
             boo = True
     if not boo:
-        tup = (costid, product, p_de, float(qty), p_price)
+        tup = (costid, product, p_de, float(qty), p_price, lot_var, variant_str)
         mlb.insert(END, tup)
     a = float(p_price) * float(qty)
     amount = float(Amt_var.get())

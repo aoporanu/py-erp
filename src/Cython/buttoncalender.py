@@ -1,6 +1,6 @@
 from tkinter import TclError, NORMAL
 
-from imath import cmp
+from constants import cmp
 from tkcalendar import Calendar
 import calendar
 from tkinter import *

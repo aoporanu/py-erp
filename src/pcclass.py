@@ -52,7 +52,6 @@ class InventoryDataBase(object):
         """
         l = self.execute("SELECT category_name FROM category")
         a = sorted(l)
-        # print(a)
         return a
 
     def get_supplier_names(self):
@@ -62,7 +61,6 @@ class InventoryDataBase(object):
         """
         l = self.execute("SELECT name FROM suppliers")
         a = sorted(l)
-        # print(a)
         return a
 
     def getinvoiceno(self):
@@ -110,6 +108,8 @@ class InventoryDataBase(object):
                             JOIN
                             purchased_products
                             USING (product_id)
+                            LEFT JOIN product_variants USING (product_id)
+                            LEFT JOIN variants_options USING (variant_id)
                             LEFT OUTER JOIN 
                             category 
                             USING (
@@ -647,7 +647,7 @@ class InventoryDataBase(object):
         row = self.sqldb.execute(""" select * from suppliers where name = "%s" """ % supplier).fetchone()
         return row
 
-    def add_products_to_purchase(self, pur_id, costid, date, qty, lot, pid, variant):
+    def add_products_to_purchase(self, pur_id, costid, date, qty, lot, pid, variant, expiry_date):
         """
 
         @param pur_id:
@@ -659,4 +659,4 @@ class InventoryDataBase(object):
         @param variant
         @return:
         """
-        return self.sqldb.add_products_to_purchase(pur_id, costid, date, qty, lot, pid, variant)
+        return self.sqldb.add_products_to_purchase(pur_id, costid, date, qty, lot, pid, variant, expiry_date)
