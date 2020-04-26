@@ -39,7 +39,7 @@ pexpect==4.7.0
 Pillow==6.2.0
 prettytable==0.7.2
 progress==1.5
-psutil==5.6.3
+psutil==5.6.6
 ptyprocess==0.6.0
 py2exe==0.9.2.2
 pycairo==1.18.2
