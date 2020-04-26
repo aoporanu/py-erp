@@ -388,8 +388,10 @@ def get_cgst():
     return DB.sqldb.get_company_details['cgst']
 
 
-def tax_update():
+def tax_update(a, b, c):
     """ UPDATE TAX """
+    print(tax_update.__code__.co_varnames)
+    print(Amt_var)
     sgst_var.set(round(get_sgst() * (Amt_var.get() / 100), 2))
     cgst_var.set(round(get_cgst() * (Amt_var.get() / 100), 2))
     subtol_var.set(round(sgst_var.get() + cgst_var.get() + Amt_var.get(), 2))
@@ -399,6 +401,7 @@ def tax_update():
     Gtol_var.set(subtol_var.get())
 
 
+# DONE Amt_var is empty
 Amt_var.trace('w', tax_update)
 
 Label(Lf03, text="Adaos @ " + str(get_sgst()) + "% : ",
@@ -2204,6 +2207,7 @@ def transfer():
     if invoi_num is None:
         return 1
     alooas = DB.sqldb.get_invoice_id(invoi_num)
+    print(alooas)
     if alooas is not None:
         return messagebox.showinfo(
             "Eroare",
@@ -2401,6 +2405,8 @@ def add_2_cart():
         tup = (costid, product, p_de, float(qty), p_price, lot_var, variant_str)
         mlb.insert(END, tup)
     a = float(p_price) * float(qty)
+    print(p_price)
+    print(Amt_var.get())
     amount = float(Amt_var.get())
     amount += a
     Amt_var.set(amount)

@@ -369,8 +369,6 @@ class MyDatabase(object):
         return iid[0]
 
     def add_phone(self, phone, ctmid):
-        # print(hex(int(t.time()) * 10000))
-        # print(hash(str(phone) + ctmid + str(hex(int(t.time() * 10000)))))
         phnid = """PHN""" + str(hash(str(phone) + ctmid + hex(int(t.time() * 10000))))
         if self.get_phone_id(phone) is not None:
             raise Exception("""Phone Number already listed""")
@@ -501,9 +499,7 @@ class MyDatabase(object):
         @return:
         """
         product = self.get_product_id(product_name)
-        print(product)
         lots = self.cursor.execute("""select * from `batches` where product_id= "%s" """ % product).fetchall()
-        print(lots)
         return lots
 
     def edit_sells(self, sell_id, attribute, value):
@@ -658,7 +654,7 @@ class MyDatabase(object):
             "%s",%.2f,
             "%s","%s","%s","%s")""" % (
                 pur_id, costid, qty, date, lot, pid, variant))
-        lot_id = "LOT-" + str(lot)
+        lot_id = "LOT-" + str(hex(int(t.time()))) + str(lot)
         self.cursor.execute("""insert into `batches`(id, name, batch_qty, purchase_id, product_id, expiry_date, variant) 
         values ("%s", "%s", "%s", "%s", "%s", "%s", "%s")""" % (lot_id, lot, qty, pur_id, pid, expiry_date, variant))
         return pur_id
