@@ -12,6 +12,7 @@ def new_database_create(conn):
                  product_id TEXT UNIQUE PRIMARY KEY NOT NULL,
                  product_name TEXT NOT NULL UNIQUE,
                  product_description TEXT,
+                 product_tva TEXT,
                  um_id TEXT NOT NULL REFERENCES units_of_measure(id),
                  category_id TEXT NOT NULL REFERENCES category(category_id)); """)
 

@@ -1255,7 +1255,9 @@ def special_purchase_search(event):
     """
     inp = str(product_name_search.get())
     l = DB.sqldb.execute(
-        """SELECT cost,price,category_name,product_description,products.product_id as prod_id,product_variants.name as 
+        """SELECT
+        cost,price,category_name,product_description,products.product_id as
+        prod_id, product_variants.name as 
         variant_name,
         purchased_products.lot
         FROM
@@ -1274,7 +1276,8 @@ def special_purchase_search(event):
             category_name,
             product_description,
             cost,
-            price
+            price,
+            tva
             from products
             join product_variants using (product_id)
             JOIN variants_options using (variant_id)
@@ -1286,6 +1289,7 @@ def special_purchase_search(event):
         des = l[1]
         cost = l[2]
         price = l[3]
+        tva = l[4]
         qty_text.delete(0, END)
         qty_text.insert(0, "1.0")
         category_combo.delete(0, END)
@@ -1296,11 +1300,14 @@ def special_purchase_search(event):
         cost_price_text.insert(0, str(cost))
         selling_price_text.delete(0, END)
         selling_price_text.insert(0, str(price))
+        tva_entry.delete(0, END)
+        tva_entry.insert(0, str(tva))
         return 1
     cost = l[0]
     price = l[1]
     category = l[2]
     des = l[3]
+    tva = l[4]
     qty_text.delete(0, END)
     cost_price_text.delete(0, END)
     selling_price_text.delete(0, END)
@@ -1311,9 +1318,15 @@ def special_purchase_search(event):
     selling_price_text.insert(0, str(price))
     category_combo.insert(0, str(category))
     description_text.insert(0.0, str(des))
+    tva_entry.delete(0, END)
+    tva_entry.insert(0, str(tva))
 
 
 def make_dict(event):
+    """
+
+    @param event
+    """
     global var_string
     if var_string != '':
         var_string += ':' + event.widget.get()
@@ -1322,9 +1335,12 @@ def make_dict(event):
 
 
 def product_variants_options_for_product(inp):
+    """
+
+    @param inp
+    """
     global variants_combo, variant_var, var_string
     var_string = ''
-    variant_var = dict()
     variants = DB.sqldb.execute(
         """ select * from product_variants where product_id = "%s" """ % DB.sqldb.get_product_id(
             inp.title())).fetchall()
