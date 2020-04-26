@@ -168,6 +168,12 @@ class MyDatabase(object):
             return None
         return row[0]
 
+    def get_expiration_date_for_lot(self, lot_name):
+        row = self.cursor.execute(""" SELECT expiry_date FROM `batches` WHERE name LIKE "%s" """ % lot_name).fetchone()
+        if row is None:
+            return None
+        return row
+
     def get_purchase_doc_for_invoice(self, for_factura):
         """
 
@@ -673,7 +679,8 @@ class MyDatabase(object):
             self.cursor.execute(""" insert into product_variants(variant_id, name, product_id) values("%s", "%s", "%s")
         """ % (variant_id, variant_name, PID))
         if self.get_variant_for_product(PID, variant_name, variant_value, variant_modifier) is not None:
-            raise Exception("Produsul are deja varianta " + variant_name + " cu valoarea " + variant_value + " pentru produsul ales")
+            raise Exception(
+                "Produsul are deja varianta " + variant_name + " cu valoarea " + variant_value + " pentru produsul ales")
         option_id = "VAR_OPT-" + str(hash(variant_name + variant_value + hex(int(t.time() * 10000))))
         self.cursor.execute(""" insert into variants_options(option_id, value, variant_id, modifier) values("%s", "%s",
         "%s", "%s")""" % (option_id, variant_value, variant_id, variant_modifier))
@@ -698,8 +705,8 @@ class MyDatabase(object):
 
     def get_variant_for_product(self, pid, variant_name, variant_value, variant_modifier):
         row = self.cursor.execute(""" select * from product_variants join variants_options using(variant_id) where
-        product_id="%s" and name="%s" and value="%s" and modifier = "%s" """ %(pid, variant_name,
-                                                                                       variant_value, variant_modifier))
+        product_id="%s" and name="%s" and value="%s" and modifier = "%s" """ % (pid, variant_name,
+                                                                                variant_value, variant_modifier))
         pid = row.fetchone()
         if pid is None:
             return pid
@@ -707,7 +714,7 @@ class MyDatabase(object):
 
     def get_variant_id_for_product(self, PID, variant_name):
         row = self.cursor.execute(""" select variant_id from product_variants where product_id="%s" and name="%s" """
-                                  %(PID, variant_name))
+                                  % (PID, variant_name))
         pid = row.fetchone()
         if pid is None:
             return pid
@@ -720,4 +727,22 @@ class MyDatabase(object):
                                         % variant_id).fetchone()
         self.cursor.execute(""" update variants_options set value="%s", modifier="%s" where variant_id="%s" and
         option_id="%s" """
-                            %(variant_value, variant_modifier, variant_id, option_id))
+                            % (variant_value, variant_modifier, variant_id, option_id))
+
+    def deplete_qty(self, product_lot, product_qty, product_name, variant):
+        """
+
+        @param product_lot:
+        @param product_qty:
+        @param product_name
+        """
+        # """SELECT %s FROM %s WHERE %s = "%s" """ % (column_name, table_name, row_name, rowid)).fetchone()
+
+        qty = self.cursor.execute(""" select batch_qty from `batches` where name = "%s" and variant = "%s" """ % (
+            product_lot, variant)).fetchone()
+        if int(qty[0]) < 1:
+            return 'Quantity not available'
+
+        self.cursor.execute(
+            """ update `batches` set batch_qty = batch_qty - "%s" where name= "%s" and variant= "%s" """ % (
+                int(product_qty), product_lot, variant))

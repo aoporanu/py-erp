@@ -660,3 +660,12 @@ class InventoryDataBase(object):
         @return:
         """
         return self.sqldb.add_products_to_purchase(pur_id, costid, date, qty, lot, pid, variant, expiry_date)
+
+    def deplete_qty(self, product_lot, product_qty, product_name, variant):
+        """
+
+        @param product_lot:
+        @param product_qty:
+        """
+        return self.sqldb.deplete_qty(product_lot, product_qty, product_name, variant)
+

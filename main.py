@@ -390,8 +390,6 @@ def get_cgst():
 
 def tax_update(a, b, c):
     """ UPDATE TAX """
-    print(tax_update.__code__.co_varnames)
-    print(Amt_var)
     sgst_var.set(round(get_sgst() * (Amt_var.get() / 100), 2))
     cgst_var.set(round(get_cgst() * (Amt_var.get() / 100), 2))
     subtol_var.set(round(sgst_var.get() + cgst_var.get() + Amt_var.get(), 2))
@@ -2125,13 +2123,17 @@ def process_cart(invid):
         product_price2 = float(r['values'][4])
         product_amount = product_qty * product_price2
         product_info = product_name2 + ' ' + product_description
+        product_lot = r['values'][5]
+        product_variant = r['values'][6]
+        expiry_date = DB.sqldb.get_expiration_date_for_lot(product_lot)
         listsw = [
             i, product_info, product_qty, product_price2,
-            str(product_amount)
+            str(product_amount), product_variant, expiry_date
         ]
         lik.append(listsw)
         sold_price = product_price2 - discount_per_product
         DB.add_sells(costid, sold_price, invid, product_qty)
+        DB.deplete_qty(product_lot, product_qty, product_name2, product_variant)
         i += 1
     mlb.delete(0, END)
     return lik
@@ -2207,7 +2209,6 @@ def transfer():
     if invoi_num is None:
         return 1
     alooas = DB.sqldb.get_invoice_id(invoi_num)
-    print(alooas)
     if alooas is not None:
         return messagebox.showinfo(
             "Eroare",
@@ -2405,8 +2406,6 @@ def add_2_cart():
         tup = (costid, product, p_de, float(qty), p_price, lot_var, variant_str)
         mlb.insert(END, tup)
     a = float(p_price) * float(qty)
-    print(p_price)
-    print(Amt_var.get())
     amount = float(Amt_var.get())
     amount += a
     Amt_var.set(amount)

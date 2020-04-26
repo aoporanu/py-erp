@@ -13,7 +13,6 @@ S = 's'
 class Table:
     def __init__(self, master, origin, **options):
         print(options)
-        # type: (canvas, tuple, object) -> Table
         self.master = master
         try:
             self.tablewidth = options['Width']
