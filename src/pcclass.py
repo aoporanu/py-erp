@@ -105,11 +105,6 @@ class InventoryDataBase(object):
         """
         tup = tuple([likename] * 4)
         row = self.execute(""" SELECT product_name FROM products
-                            JOIN
-                            purchased_products
-                            USING (product_id)
-                            LEFT JOIN product_variants USING (product_id)
-                            LEFT JOIN variants_options USING (variant_id)
                             LEFT OUTER JOIN 
                             category 
                             USING (
@@ -213,7 +208,7 @@ class InventoryDataBase(object):
         costid = self.sqldb.add_new_cost(PID, cost, price)
         return costid
 
-    def add_product(self, name, category, description, um):
+    def add_product(self, name, category, description, um, tva):
         """
 
         @param name:
@@ -225,7 +220,8 @@ class InventoryDataBase(object):
         name = name.title()
         category = category.title()
         um = um.title()
-        return self.sqldb.add_product(name, description, category, um)
+        tva = tva.title()
+        return self.sqldb.add_product(name, description, category, um, tva)
 
     def edit_product(self, PID, name, category, description, um):
         """

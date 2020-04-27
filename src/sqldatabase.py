@@ -134,6 +134,8 @@ def new_database_create(conn):
                 created_at text not null default CURRENT_DATE
     ); """)
 
+    # conn.execute(""" alter table products add tva text default '9'""")
+
     if conn.execute("SELECT count(*) FROM details").fetchone()[0] == 0:
         conn.execute("INSERT INTO details VALUES('','','','','','','','Rs','logo.png',0,0,0)")
     conn.commit()
@@ -159,6 +161,8 @@ class MyDatabase(object):
         self.connection.close()
 
     def execute(self, query):
+        sqldb.enable_callback_tracebacks(True)
+        print(query)
         return self.cursor.execute(query)
 
     def get_cell(self, table_name, row_name, column_name, rowid):
@@ -202,6 +206,51 @@ class MyDatabase(object):
         row = l.fetchone()
         return row
 
+    def print_p_table_get_products(self, item):
+        stmt = ""
+        l = self.execute(""" SELECT product_id,product_name,category_name,product_description,
+        units_of_measure.name FROM
+        products
+                        JOIN category USING (category_id) join units_of_measure on products.um_id=units_of_measure.id
+                        WHERE
+                        product_name LIKE
+                        "%s" """ % item).fetchall()
+        print(l)
+        return l
+
+    def get_products(self, inp):
+        l = self.execute("""SELECT
+        cost,price,category_name,product_description,products.product_id as
+        prod_id, product_variants.name as 
+        variant_name,
+        purchased_products.lot,
+        tva
+        FROM
+        costs JOIN products USING (product_id) JOIN purchase on products.product_id = prod_id
+        JOIN batches USING (purchase_id) 
+                JOIN purchased_products using(purchase_id)
+                JOIN category USING (category_id) 
+                join product_variants using(product_id) 
+                join variants_options using(variant_id) WHERE 
+                product_name LIKE "%s" """
+                         % inp).fetchone()
+        return l
+
+    def get_products_if_first_is_none(self, inp):
+        l = self.execute("""SELECT 
+            category_name,
+            product_description,
+            cost,
+            price,
+            tva
+            from products
+            join product_variants using (product_id)
+            JOIN variants_options using (variant_id)
+            JOIN costs USING (product_id)
+                JOIN category USING (category_id) WHERE product_name LIKE  "%s"
+                         """ % inp).fetchone()
+        return l
+
     def add_category(self, category):
         catid = "CAT" + str(hash(category + hex(int(t.time() * 10000))))
         self.cursor.execute(
@@ -242,7 +291,7 @@ class MyDatabase(object):
             return pid
         return pid[0]
 
-    def add_product(self, name, description, category, um):
+    def add_product(self, name, description, category, um, tva):
         prod_id = "PDT" + str(hash(name + hex(int(t.time() * 10000))))
         catid = self.getcategory_id(category)
         umid = self.get_um_id(um)
@@ -253,10 +302,10 @@ class MyDatabase(object):
         if self.get_product_id(name) is not None:
             raise Exception("Product already listed")
         self.cursor.execute(
-            """INSERT INTO products (product_id,product_name,product_description,category_id, um_id) VALUES ("%s",
+            """INSERT INTO products (product_id,product_name,product_description,category_id, um_id, tva) VALUES ("%s",
             "%s","%s",
-            "%s", "%s")""" % (
-                prod_id, name, description, catid, umid))
+            "%s", "%s", "%s")""" % (
+                prod_id, name, description, catid, umid, tva))
         return prod_id
 
     def edit_product(self, pid, attribute, value):
@@ -747,3 +796,10 @@ class MyDatabase(object):
         self.cursor.execute(
             """ update `batches` set batch_qty = batch_qty - "%s" where name= "%s" and variant= "%s" """ % (
                 int(product_qty), product_lot, variant))
+
+    def insert_to_purchase(self, costid, date, discount, for_factura, pur_id, supplier_id):
+        self.cursor.execute("""insert into purchase(purchase_id,purchase_date,supplier_id,for_invoice, cost_id,
+        discount) values("%s",
+        "%s",
+        "%s", "%s", "%s", "%s")""" % (
+            pur_id, date, supplier_id[0], for_factura, costid, discount))

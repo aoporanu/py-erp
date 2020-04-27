@@ -194,18 +194,21 @@ class NewProduct(Frame):
                          sticky=sty,
                          padx=10,
                          pady=10)
-
+        Label(app, text="TVA").grid(row=7, column=0, sticky=E)
+        self.entry8 = Entry(app, width=35)
+        self.entry8.grid(row=7, column=1, columnspan=2, sticky=sty, padx=10,
+                         pady=10)
         btn = Button(app,
                      text='save',
                      width=12,
                      command=lambda: self.save(modify, self.tup),
                      style='new.TButton')
-        btn.grid(row=7, column=1, sticky=sty, padx=10, pady=10)
+        btn.grid(row=8, column=1, sticky=sty, padx=10, pady=10)
         copy = Button(app,
                       text='save As Copy',
                       command=lambda: self.save(False, self.tup),
                       style='new.TButton')
-        copy.grid(row=7, column=2, sticky=sty, padx=10, pady=10)
+        copy.grid(row=8, column=2, sticky=sty, padx=10, pady=10)
         keys = self.db.sqldb.execute(
             "SELECT category_name FROM category").fetchall()
         _keys_um = self.db.sqldb.execute(
@@ -225,7 +228,6 @@ class NewProduct(Frame):
                 """ SELECT product_name,category_name,product_description FROM
             products
                         JOIN category USING (category_id) join units_of_measure on products.um_id=units_of_measure.id 
-                        join costs using(product_id)
                         WHERE product_id = "%s" """ % tup['values'][0]).fetchone()
             # print(d)
             name = d[0]
@@ -296,6 +298,7 @@ class NewProduct(Frame):
         category = Filter(self.entry.get()).title()
         description = Filter(self.text.get(0.0, END)).title()
         um = Filter(self.entry7.get()).title()
+        tva = Filter(self.entry8.get()).title()
         if len(name.split()) == 0:
             return showinfo(title="Error",
                             message='Product Name Must Be Specified',
@@ -316,7 +319,7 @@ class NewProduct(Frame):
                     message=
                     'Product Name is Already Listed Change Name To save As Copy',
                     parent=self.master)
-            PID = self.db.add_product(name, category, description, um)
+            PID = self.db.add_product(name, category, description, um, tva)
         elif modify:
             print(tup)
             PID = tup['values'][0]

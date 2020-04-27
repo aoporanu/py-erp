@@ -1,9 +1,8 @@
-import subprocess
 import sys
 import os
 
-from src.constants import color, SEL_COLOR, FOREGROUND, saveico, NEW_ICO, SETTINGS_ICO, NEXT_ICO,\
-    ncico, tmp, tmp2, genico, tmp4, tmp5, tmp6, tmp_modify, tmp_extra, tmp7
+from src.constants import color, SEL_COLOR, FOREGROUND, saveico, NEW_ICO, SETTINGS_ICO, NEXT_ICO, \
+    ncico, tmp, tmp2, genico, tmp4, tmp6, tmp7, tmp_modify, tmp_extra
 
 try:
     import Tkinter as tk
@@ -15,7 +14,8 @@ except:
     import tkinter.font as tkFont
 
 from tkinter.filedialog import askopenfilename, N, S, E, W, HORIZONTAL, asksaveasfilename
-from tkinter.ttk import Style, Label, Frame, Combobox, Notebook, LabelFrame, Separator, Button, Entry, Spinbox, Labelframe
+from tkinter.ttk import Style, Label, Frame, Combobox, Notebook, LabelFrame, Separator, Button, Entry, Spinbox, \
+    Labelframe
 from tkinter import DoubleVar, TOP, RIGHT, FLAT, LEFT, NORMAL, messagebox
 import time as t
 
@@ -657,7 +657,8 @@ def purchase_product_frame():
     discount_text = Entry(lfp)
     discount_text.grid(row=7, column=1, sticky=W + E, padx=10, pady=5)
     Label(lfp, text="TVA").grid(row=6, column=2, sticky=W + E, padx=10, pady=5)
-    tva_entry = Entry(lfp).grid(row=6, column=3, sticky=W + E, padx=10, pady=5)
+    tva_entry = Entry(lfp)
+    tva_entry.grid(row=6, column=3, sticky=W + E, padx=10, pady=5)
     Label(lfp, text="Data expirare").grid(row=7, column=2, sticky=W + E, padx=10, pady=5)
     btn66 = CalendarButton(lfp)
     btn66.grid(row=7, column=3, sticky=W + E, padx=10, pady=5)
@@ -1254,42 +1255,16 @@ def special_purchase_search(event):
     @return:
     """
     inp = str(product_name_search.get())
-    l = DB.sqldb.execute(
-        """SELECT
-        cost,price,category_name,product_description,products.product_id as
-        prod_id, product_variants.name as 
-        variant_name,
-        purchased_products.lot
-        FROM
-        costs JOIN products USING (product_id) JOIN purchase on products.product_id = prod_id
-        JOIN batches USING (purchase_id) 
-                JOIN purchased_products using(purchase_id)
-                JOIN category USING (category_id) 
-                join product_variants using(product_id) 
-                join variants_options using(variant_id) WHERE 
-                product_name LIKE "%s" """
-        % (inp.title())).fetchone()
+    l = DB.sqldb.get_products(inp.title())
     product_variants_options_for_product(inp)
     if l is None:
-        l = DB.sqldb.execute(
-            """SELECT 
-            category_name,
-            product_description,
-            cost,
-            price,
-            tva
-            from products
-            join product_variants using (product_id)
-            JOIN variants_options using (variant_id)
-            JOIN costs USING (product_id)
-                JOIN category USING (category_id) WHERE product_name LIKE  "%s" """
-            % (inp.title())).fetchone()
+        l = DB.sqldb.get_products_if_first_is_none(inp.title())
         product_variants_options_for_product(inp)
         category = l[0]
         des = l[1]
         cost = l[2]
         price = l[3]
-        tva = l[4]
+        tva = l[7]
         qty_text.delete(0, END)
         qty_text.insert(0, "1.0")
         category_combo.delete(0, END)
@@ -1307,7 +1282,7 @@ def special_purchase_search(event):
     price = l[1]
     category = l[2]
     des = l[3]
-    tva = l[4]
+    tva = l[7]
     qty_text.delete(0, END)
     cost_price_text.delete(0, END)
     selling_price_text.delete(0, END)
@@ -1320,6 +1295,9 @@ def special_purchase_search(event):
     description_text.insert(0.0, str(des))
     tva_entry.delete(0, END)
     tva_entry.insert(0, str(tva))
+    tva_entry.configure(state='readonly')
+    cost_price_text.configure(state="readonly")
+    selling_price_text.configure(state="readonly")
 
 
 def make_dict(event):
@@ -1439,7 +1417,7 @@ def add_to_purchase_table():
     lot_text.delete(0, END)
     pentru_factura.configure(state="readonly")
     discount_text.configure(state="readonly")
-    supplier_combo_search.configure(state="DISABLED")
+    supplier_combo_search.configure(state="readonly")
     return 1
 
 
@@ -1487,11 +1465,7 @@ def add_to_inventory():
     if DB.sqldb.get_purchase_doc_for_invoice(for_factura):
         messagebox.showerror('Eroare', 'Deja exista achizitie pe numarul de factura ' + str(for_factura))
         return 1
-    DB.sqldb.execute("""insert into purchase(purchase_id,purchase_date,supplier_id,for_invoice, cost_id,
-    discount) values("%s",
-    "%s",
-    "%s", "%s", "%s", "%s")""" % (
-        pur_id, date, supplier_id[0], for_factura, costid, discount))
+    DB.sqldb.insert_to_purchase(costid, date, discount, for_factura, pur_id, supplier_id)
     for item in product_purchase_listbox.tree.get_children():
         tup = product_purchase_listbox.tree.item(item)
         name = tup['values'][0]
@@ -1629,16 +1603,10 @@ def print__p_table(lists):
     """
     lists = list(lists)
     lists.sort()
+    # print(lists)
     inventory_products_listbox.delete(0, END)
     for item in lists:
-        tup = DB.sqldb.execute(
-            """ SELECT product_id,product_name,category_name,product_description,
-        units_of_measure.name FROM
-        products
-                        JOIN category USING (category_id) join units_of_measure on products.um_id=units_of_measure.id
-                        WHERE
-                        product_name =
-                        "%s" """ % item).fetchall()
+        tup = DB.sqldb.print_p_table_get_products(item)
         for p in tup:
             p = list(p)
             qty = float(DB.sqldb.get_quantity(p[0]))
@@ -1902,6 +1870,10 @@ def call__cu_search(event):
 
 
 def customer__search():
+    """
+
+    @return:
+    """
     inp = str(customer_search.get())
     if inp == " ":
         inp = ""
@@ -1918,10 +1890,18 @@ def customer__search():
 
 
 def call__c_search(event):
+    """
+
+    @param event:
+    """
     category__search()
 
 
 def category__search():
+    """
+
+    @return:
+    """
     inp = str(category_combo.get())
     if inp == " ":
         inp = ""
@@ -1930,6 +1910,10 @@ def category__search():
 
 
 def product__search():
+    """
+
+    @return:
+    """
     inp = str(product_search.get())
     if inp == " ":
         inp = ""
@@ -1938,10 +1922,19 @@ def product__search():
 
 
 def call__p_search(event):
+    """
+
+    @param event:
+    """
     product__search()
 
 
 def add(obj, l):
+    """
+
+    @param obj:
+    @param l:
+    """
     l = list(l)
     l.sort()
     obj["value"] = ""
@@ -1949,6 +1942,10 @@ def add(obj, l):
 
 
 def ask_db_file():
+    """
+
+    @return:
+    """
     fname = askopenfilename(filetypes=(('Fisier FitoGest', "*.ic"),
                                        ('All File', "*.*")))
     try:
@@ -1967,6 +1964,11 @@ def ask_db_file():
 
 
 def export(objentry1):
+    """
+
+    @param objentry1:
+    @return:
+    """
     from src.ImportExport import ExportCsv
     ans = messagebox.askokcancel(
         "Avertisment", "2 fisiere vor fi exportate in acest dosar ?")
@@ -2082,6 +2084,11 @@ def category__opt():
 
 
 def d_click__on__list(event):
+    """
+
+    @param event:
+    @return:
+    """
     cur_item = inventory_products_listbox.tree.focus()
     index = int(inventory_products_listbox.tree.identify_column(event.x)[1])
     id = inventory_products_listbox.tree.item(cur_item)
@@ -2096,6 +2103,11 @@ def d_click__on__list(event):
 
 
 def d_click__on__c_list(event):
+    """
+
+    @param event:
+    @return:
+    """
     index = int(customer_listbox.tree.identify_column(event.x)[1])
     if index == 5:
         return invoice_opt_event()
@@ -2106,11 +2118,17 @@ def d_click__on__c_list(event):
 
 
 def get_pdf_date(timestamp):
+    """
+
+    @param timestamp:
+    @return:
+    """
     p = timestamp.split()
     del p[3]
     return " ".join(p)
 
-product_search.bind('<Any-KeyRelease>', call__p_search)
+
+# product_search.bind('<Any-KeyRelease>', call__p_search)
 customer_search.bind('<Any-KeyRelease>', call__cu_search)
 customer_name.bind('<Any-KeyRelease>', call__cn_search)
 product_name.bind('<Any-KeyRelease>', call__pn_search)
@@ -2123,6 +2141,11 @@ product_name_search.bind('<<ComboboxSelected>>', special_purchase_search)
 
 
 def process_cart(invid):
+    """
+
+    @param invid:
+    @return:
+    """
     no_of_product = 0
     for item in mlb.tree.get_children():
         tup = mlb.tree.item(item)
@@ -2180,7 +2203,10 @@ def generate__invoice(product__list_forpdf, custup, invoicetup, detail):
     PDfCompany_Adress = Company_Adress + "\n" + \
                         Detail_top + "\n" + email + "\n" + phone
     pdfcust_address = cust_address + "\n" + cust_phone
-    delegate = DB.sqldb.get_delegate_for(custup[0])
+    try:
+        delegate = DB.sqldb.get_delegate_for(custup[0])
+    except ValueError as e:
+        messagebox.showerror("Eroare delegat", e.__cause__)
     pdf_document(delegate,
                  pic_add="logo.png",
                  inv_no=str(invoi_num),
@@ -2205,7 +2231,7 @@ def generate__invoice(product__list_forpdf, custup, invoicetup, detail):
             os.startfile(fileline)
         else:
             opener = "open" if sys.platform == "darwin" else "xdg-open"
-            subprocess.call([opener, fileline])
+            os.subprocess.call([opener, fileline])
     except FileExistsError:
         fileline = askopenfilename(filetypes=(('Microsoft Word Document File',
                                                "*.docx"),
@@ -2215,11 +2241,15 @@ def generate__invoice(product__list_forpdf, custup, invoicetup, detail):
             os.startfile(fileline)
         else:
             opener = "open" if sys.platform == "darwin" else "xdg-open"
-            subprocess.call([opener, fileline])
+            os.subprocess.call([opener, fileline])
     return None
 
 
 def transfer():
+    """
+
+    @return:
+    """
     invoi_num = invoice__maintain()
     detail = DB.sqldb.get_company_details
     if invoi_num is None:
@@ -2352,6 +2382,11 @@ def remove_from_cart():
 
 
 def add_discount(event):
+    """
+
+    @param event:
+    @return:
+    """
     paid = Filter(entry20.get())
     if len(paid) == 0:
         return 1
@@ -2372,6 +2407,10 @@ entry20.bind('<Any-KeyRelease>', add_discount)
 
 
 def add_2_cart():
+    """
+
+    @return:
+    """
     product = Filter(str(product_name.get()))
     p_de = Filter(str(product_detail.get(0.0, END)))
     p_price = Filter(str(product_price.get()))
@@ -2466,6 +2505,11 @@ def pre_inv():
 
 
 def make_sure_path_exist(path):
+    """
+
+    @param path:
+    @return:
+    """
     import os
     filepath = os.getcwd()
     if not os.path.exists(filepath + os.path.sep + path):
@@ -2476,6 +2520,12 @@ def make_sure_path_exist(path):
 
 
 def a_d_d__product(id=False, modify=False):
+    """
+
+    @param id:
+    @param modify:
+    @return:
+    """
     tup = []
     if not modify:
         titlel = "Create Produs"
@@ -2504,6 +2554,11 @@ def a_d_d__product(id=False, modify=False):
 
 
 def a_d_d__customer(modify=False):
+    """
+
+    @param modify:
+    @return:
+    """
     tup = []
     if not modify:
         titlel = "Creare client"
