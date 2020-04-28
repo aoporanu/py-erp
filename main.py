@@ -1731,10 +1731,9 @@ def special__p_search(event):
         """SELECT product_description,
         price FROM costs 
         JOIN products USING (product_id)
-        join product_variants using (product_id)
-        join purchase using (product_id)
                  WHERE product_name LIKE  "%s"
                  """ % st).fetchone()
+    print(type(l))
     des = l[0]
     price = l[1]
     qty = quantity.get()
@@ -1744,6 +1743,21 @@ def special__p_search(event):
     product_price.insert(0, price)
     quantity.delete(0, END)
     quantity.insert(0, qty)
+    product_id = DB.sqldb.get_product_id(st)
+    print(product_id)
+    l_purchase = DB.sqldb.execute(""" select * from purchase where product_id = "%s" """ % product_id).fetchall()
+    if l_purchase is not None:
+        print()
+        # i don't know what to do with the purchase
+    else:
+        messagebox.showerror('Achizitie nerealizata', 'Nu a fost efectuata achizitie pe sku-ul ales')
+    l_variants = DB.sqldb.execute(""" select * from product_variants where product_id = "%s" """ % st).fetchall()
+    if l_variants is not None:
+        print()
+        # l.append(l_variants)
+        # add to variants combo
+    else:
+        messagebox.showerror('Variante', 'Nu sunt variante pentru produsul ales')
 
 
 def special__c_search(event):
