@@ -7,7 +7,7 @@ from tkinter.ttk import *
 from PIL import ImageTk, Image
 from tkcalendar import Calendar
 
-from constants import cmp
+from .const import cmp
 from src.Cython.proWrd1 import Filter
 
 
@@ -45,11 +45,6 @@ class CalendarButton(Frame):
         self.datevar.set(st)
 
     def coor(self, event):
-        # print(self.rootc1)
-        # try:
-        #     w = int(str(self.rootc1).split(".")[1])
-        # except AttributeError:
-        #     return 0
         f = event.widget
         try:
             c = int(str(f).split(".")[1])
