@@ -1744,9 +1744,9 @@ def special__p_search(event):
     quantity.delete(0, END)
     quantity.insert(0, qty)
     product_id = DB.sqldb.get_product_id(st)
-    print(product_id)
+    # print(product_id)
     l_purchase = DB.sqldb.execute(""" select * from purchase where product_id = "%s" """ % product_id).fetchall()
-    print(l_purchase)
+    # print(l_purchase)
     if l_purchase is not None:
         print()
         # i don't know what to do with the purchase
@@ -2466,10 +2466,10 @@ def add_2_cart():
     if costid is None:
         # @FIXME
         costid = DB.get_cost_id_with_lot(PID, '', lot_var)
-        print('costid')
-        print(costid)
-        for i in costid:
-            print('costid: ' + i)
+        # print('costid')
+        # print(costid)
+        # for i in costid:
+            # print('costid: ' + i)
         # Inseamna ca costul nu exista, a avut discount, discountul a fost trecut in lot si trebuie cautat cu join pe
         # lot
         return messagebox.showinfo("Eroare", "Produsul nu este in inventar")

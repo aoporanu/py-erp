@@ -206,14 +206,16 @@ class MyDatabase(object):
 
     def print_p_table_get_products(self, item):
         stmt = ""
-        l = self.execute(""" SELECT product_id,product_name,category_name,product_description,
+        l = self.execute(""" SELECT products.product_id,product_name,category_name,product_description,
         units_of_measure.name FROM
         products
-                        JOIN category USING (category_id) join units_of_measure on products.um_id=units_of_measure.id
+                        JOIN category USING (category_id) 
+                        join units_of_measure on products.um_id=units_of_measure.id
+                        JOIN `batches` ON batches.product_id=products.product_id
                         WHERE
                         product_name LIKE
                         "%s" """ % item).fetchall()
-        print(l)
+        # print(l)
         return l
 
     def get_products(self, inp):
@@ -576,6 +578,7 @@ class MyDatabase(object):
     def get_quantity(self, pid):
         row = self.cursor.execute("""SELECT cost_id FROM costs WHERE product_id = "%s" """ % pid)
         l = row.fetchall()
+        # print(l)
         qty = 0.0
         for i in l:
             i = i[0]
@@ -583,15 +586,15 @@ class MyDatabase(object):
         return qty
 
     def get_cost_quantity(self, cost_id):
-        qtytup = list(self.cursor.execute(""" SELECT q,qty FROM (SELECT SUM(QTY) AS qty FROM sells WHERE cost_id =
-        "%s") JOIN
-                                            (SELECT SUM(QTY) AS q FROM purchase WHERE cost_id = "%s") """ % (
+        qtytup = list(self.cursor.execute("""SELECT q,qty FROM (SELECT SUM(QTY) AS qty FROM sells WHERE cost_id = 
+        "%s") JOIN (SELECT SUM(purchased_qty) AS q FROM purchased_products WHERE cost_id = "%s") """ % (
             cost_id, cost_id)).fetchone())
         qty = 0.0
         if qtytup[0] is None:
             qtytup[0] = 0.0
         if qtytup[1] is None:
             qtytup[1] = 0.0
+        # print('qtytup: ')
         qty += (qtytup[0] - qtytup[1])
         return float(qty)
 
