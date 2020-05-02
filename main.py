@@ -1358,6 +1358,8 @@ def add_to_purchase_table():
     des = split_reconstruct(description_text.get(0.0, END).split(" ")).title()
     lot = Filter(lot_text.get()).title()
     discount = Filter(discount_text.get()).title()
+    if discount == '':
+        discount = 0.0
     supplier = Filter(supplier_combo_search_purchase.get()).title()
     for_invoice = Filter(pentru_factura.get()).title()
     expiry_date = Filter(btn66.get()).title()
