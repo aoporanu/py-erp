@@ -258,7 +258,7 @@ class InventoryDataBase(object):
             return self.sqldb.delete_product(PID)
         return False
 
-    def add_cost(self, name, cost, price):
+    def add_cost(self, name, lot, cost, price):
         """
 
         @param name:
@@ -270,7 +270,7 @@ class InventoryDataBase(object):
         cost = round(float(cost), 2)
         price = round(float(price), 2)
         PID = self.sqldb.get_product_id(name)
-        return self.sqldb.add_new_cost(PID, cost, price)
+        return self.sqldb.add_new_cost(PID, lot, cost, price)
 
     def edit_costs(self, costid, PID, cost, price):
         """
@@ -535,25 +535,35 @@ class InventoryDataBase(object):
                                     """ % invid)
         return row
 
-    def get_any_cost_id(self, PID, price):
+    def get_any_cost_id(self, PID, lot, price):
         """
 
         @param PID:
         @param price:
         @return:
         """
-        costid = self.execute("""SELECT cost_id FROM costs WHERE product_id = "%s"
-                                    AND price = %.2f """ % (PID, price))
+        costid = self.execute("""SELECT cost_id FROM costs WHERE product_id = "%s" AND `batch_id`="%s"
+                                    AND price = %.2f """ % (PID, lot, price))
         for i in costid:
             qty = self.sqldb.get_cost_quantity(i)
             if qty > 0:
                 return i
-        costid = self.execute("""SELECT cost_id FROM costs WHERE product_id = "%s" """ % (PID))
+        costid = self.execute("""SELECT cost_id FROM costs WHERE product_id = "%s" """ % PID)
         for i in costid:
             qty = self.sqldb.get_cost_quantity(i)
             if qty > 0:
                 return i
         return None
+
+    def get_cost_id_with_lot(self, PID, price, lot):
+        """
+
+        @param PID:
+        @param price:
+        @param lot:
+        """
+        costid = self.execute(""" SELECT cost_id from costs where product_id = "%s" and batch_id="%s" """ % (PID, lot))
+        return costid
 
     def edit_invoice_with_paid(self, invid, ctmid, paid, no, date):
         """

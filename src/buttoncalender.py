@@ -7,7 +7,7 @@ from tkinter.ttk import *
 from PIL import ImageTk, Image
 from tkcalendar import Calendar
 
-from constants import cmp
+from .const import cmp
 from src.Cython.proWrd1 import Filter
 
 

@@ -1,7 +1,7 @@
 from tkinter.ttk import Frame, Label
 from tkinter.messagebox import showinfo, askokcancel
 
-from constants import sty
+from const import sty
 
 class Batch(Frame):
     def __init(self, master, modify, db):

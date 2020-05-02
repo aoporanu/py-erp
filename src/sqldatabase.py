@@ -161,8 +161,6 @@ class MyDatabase(object):
         self.connection.close()
 
     def execute(self, query):
-        sqldb.enable_callback_tracebacks(True)
-        print(query)
         return self.cursor.execute(query)
 
     def get_cell(self, table_name, row_name, column_name, rowid):
@@ -328,21 +326,21 @@ class MyDatabase(object):
             return True
         return False
 
-    def get_cost_id(self, pid, cost, price):
+    def get_cost_id(self, pid, lot, cost, price):
         row = self.cursor.execute(
-            """SELECT cost_id FROM costs WHERE product_id = "%s" AND cost = %f AND price = %f """ % (pid, cost, price))
+            """SELECT cost_id FROM costs WHERE product_id = "%s" AND `batch_id`="%s" AND cost = %f AND price = %f """ % (pid, lot, cost, price))
         iid = row.fetchone()
         if iid is None:
             return iid
         return iid[0]
 
-    def add_new_cost(self, pid, cost, price):
+    def add_new_cost(self, pid, lot, cost, price):
         s = str(pid) + str(cost) + str(price) + hex(int(t.time() * 10000))
         costid = "CST" + str(hash(s))
-        if self.get_cost_id(pid, cost, price) is not None:
+        if self.get_cost_id(pid, lot, cost, price) is not None:
             raise Exception("""cost already listed""")
-        self.cursor.execute("""INSERT INTO costs (cost_id,product_id,cost,price) VALUES ("%s","%s",%.2f,%.2f)""" % (
-            costid, pid, cost, price))
+        self.cursor.execute("""INSERT INTO costs (cost_id,product_id,batch_id,cost,price) VALUES ("%s","%s","%s",%.2f,%.2f)""" % (
+            costid, pid, lot, cost, price))
         return costid
 
     def edit_cost(self, costid, attribute, value):

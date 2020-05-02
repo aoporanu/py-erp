@@ -1,7 +1,7 @@
 import sys
 import os
 
-from src.constants import color, SEL_COLOR, FOREGROUND, saveico, NEW_ICO, SETTINGS_ICO, NEXT_ICO, \
+from src.const import color, SEL_COLOR, FOREGROUND, saveico, NEW_ICO, SETTINGS_ICO, NEXT_ICO, \
     ncico, tmp, tmp2, genico, tmp4, tmp6, tmp7, tmp_modify, tmp_extra
 
 try:
@@ -1399,9 +1399,9 @@ def add_to_purchase_table():
         if not aut:
             return 0
         pid = DB.add_product(name, cat, des)
-    costid = DB.sqldb.get_cost_id(pid, cost, price)
+    costid = DB.sqldb.get_cost_id(pid, lot, cost, price)
     if costid is None:
-        DB.add_cost(name, cost, price)
+        DB.add_cost(name, lot, cost, price)
     um = get_um_for_product(pid)[1]
     varianta = var_string
     cost = round(float(cost) - (float(cost) * (float(discount) / 100)), 2)
@@ -1448,10 +1448,11 @@ def add_to_inventory():
     qty = round(float(tup['values'][4]))
     cost = round(float(tup['values'][2]), 2)
     price = round(float(tup['values'][3]), 2)
-    costid = DB.sqldb.get_cost_id(pid, cost, price)
+    lot = tup['values'][6]
+    costid = DB.sqldb.get_cost_id(pid, lot, cost, price)
     # introdu costul in baza de date
     if costid is None:
-        costid = DB.sqldb.add_new_cost(pid, cost, price)
+        costid = DB.sqldb.add_new_cost(pid, lot, cost, price)
         messagebox.showerror('Valoare inexistenta', 'Valoarea de achizitie ' + str(cost) + ' si valoarea de vanzare ' +
                              str(price) + ' nu exista in baza de date. El a fost adaugat.')
     s = costid + date + str(qty) + hex(int(t.time() * 10000))
@@ -1461,7 +1462,6 @@ def add_to_inventory():
     discount = tup['values'][9]
     expiry_date = tup['values'][10]
     supplier_id = DB.get_supplier(supplier)
-    var_value = tup['values'][11]
     if DB.sqldb.get_purchase_doc_for_invoice(for_factura):
         messagebox.showerror('Eroare', 'Deja exista achizitie pe numarul de factura ' + str(for_factura))
         return 1
@@ -1474,8 +1474,7 @@ def add_to_inventory():
         qty = round(float(tup['values'][4]))
         date = tup['values'][5]
         pid = DB.sqldb.get_product_id(name)
-        costid = DB.sqldb.get_cost_id(pid, cost, price)
-        lot = tup['values'][6]
+        costid = DB.sqldb.get_cost_id(pid, lot, cost, price)
         for_factura = tup['values'][7]
         supplier = tup['values'][8]
         varianta = None
@@ -1733,7 +1732,6 @@ def special__p_search(event):
         JOIN products USING (product_id)
                  WHERE product_name LIKE  "%s"
                  """ % st).fetchone()
-    print(type(l))
     des = l[0]
     price = l[1]
     qty = quantity.get()
@@ -1746,6 +1744,7 @@ def special__p_search(event):
     product_id = DB.sqldb.get_product_id(st)
     print(product_id)
     l_purchase = DB.sqldb.execute(""" select * from purchase where product_id = "%s" """ % product_id).fetchall()
+    print(l_purchase)
     if l_purchase is not None:
         print()
         # i don't know what to do with the purchase
@@ -2457,12 +2456,20 @@ def add_2_cart():
             "Eroare Intrare",
             "Cantitatea produsului trebuie sa fie o valoare numerica")
         return 1
-    PID = DB.sqldb.get_product_id(product.split(' - ')[0])
+    PID = DB.sqldb.get_product_id(product)
     if PID is None:
         return messagebox.showinfo("Eroare Intrare",
                                    "ID-ul produsului nu exista")
-    costid = DB.get_any_cost_id(PID, p_price)
+    costid = DB.get_any_cost_id(PID, lot_var, p_price)
     if costid is None:
+        # @FIXME
+        costid = DB.get_cost_id_with_lot(PID, '', lot_var)
+        print('costid')
+        print(costid)
+        for i in costid:
+            print('costid: ' + i)
+        # Inseamna ca costul nu exista, a avut discount, discountul a fost trecut in lot si trebuie cautat cu join pe
+        # lot
         return messagebox.showinfo("Eroare", "Produsul nu este in inventar")
     boo = False
     for ITEM in xrange(int(mlb.size())):
