@@ -1,10 +1,8 @@
 from tkinter import *
-from src.TableTree import MultiListbox
+from src.MultiListbox import MultiListbox
 from tkinter.ttk import *
 from tkinter.messagebox import showinfo
 from tkinter.messagebox import askokcancel
-
-from reportlab import xrange
 
 from src.Cython.proWrd1 import Filter, InvoiceSplit
 

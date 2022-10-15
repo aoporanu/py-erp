@@ -13,19 +13,18 @@ try:
 except:
     import tkinter.font as tkFont
 
-from tkinter.filedialog import askopenfilename, N, S, E, W, HORIZONTAL, asksaveasfilename
+from tkinter.filedialog import askopenfilename, asksaveasfilename
 from tkinter.ttk import Style, Label, Frame, Combobox, Notebook, LabelFrame, Separator, Button, Entry, Spinbox, \
     Labelframe
-from tkinter import DoubleVar, TOP, RIGHT, FLAT, LEFT, NORMAL, messagebox
+from tkinter import DoubleVar, TOP, RIGHT, FLAT, LEFT, NORMAL, messagebox, N, W, S, E, HORIZONTAL
 import time as t
 
 import PIL.Image
 import PIL.ImageTk
-from reportlab import xrange
 
 from src.Cython.proWrd1 import Filter
 
-import src.TableTree as tableTree
+import src.MultiListbox as tableTree
 from src.Cato_Opt import Category
 from src.NewCustomer import NewCustomer
 from src.NewInvoice import ADDInvoice
@@ -122,7 +121,7 @@ btnnote = Notebook(root, style="r.TFrame")
 btnnote.grid(row=3, column=0, columnspan=8, sticky=N + S + E + W)
 btnnote.columnconfigure(0, weight=1)
 # btnnote.rowconfigure(0, weight=1)
-saveico = PIL.Image.open(saveico).resize((32, 32), PIL.Image.ANTIALIAS)
+saveico = PIL.Image.open(saveico).resize((32, 32), PIL.Image.Resampling.LANCZOS)
 saveico = PIL.ImageTk.PhotoImage(image=saveico)
 Button(btnnote,
        text="Salvare",
@@ -130,7 +129,7 @@ Button(btnnote,
        compound=TOP,
        image=saveico,
        width=15).grid(row=0, column=0, sticky=N + S + W + E)
-npico = PIL.Image.open(NEW_ICO).resize((32, 32), PIL.Image.ANTIALIAS)
+npico = PIL.Image.open(NEW_ICO).resize((32, 32), PIL.Image.Resampling.LANCZOS)
 npico = PIL.ImageTk.PhotoImage(image=npico)
 productbtn = Button(btnnote,
                     text="Produs Nou",
@@ -146,7 +145,7 @@ customerbtn = Button(btnnote,
                      compound=TOP,
                      width=15).grid(row=0, column=2, sticky=N + S + W + E)
 setting_ico = PIL.Image.open(SETTINGS_ICO).resize((32, 32),
-                                                  PIL.Image.ANTIALIAS)
+                                                  PIL.Image.Resampling.LANCZOS)
 setting_ico = PIL.ImageTk.PhotoImage(image=setting_ico)
 Button(btnnote,
        text="Editare detalii firma",
@@ -592,7 +591,7 @@ def purchase_product_frame():
                                                          padx=10,
                                                          pady=5)
     SYMBOL_REMOVE = os.path.normpath('data/symbol_remove.png')
-    tmp5 = PIL.Image.open(SYMBOL_REMOVE).resize((25, 25), PIL.Image.ANTIALIAS)
+    tmp5 = PIL.Image.open(SYMBOL_REMOVE).resize((25, 25), PIL.Image.Resampling.LANCZOS)
     tmp5 = PIL.ImageTk.PhotoImage(image=tmp5)
     Button(editbtnfram,
            text="Stergere",
@@ -668,7 +667,7 @@ def purchase_product_frame():
                ("LOT", 25), ("Pentru factura", 35), ('Furnizor', 20), ("Discount", 8), ("Expira pe", 21),
                ('Varianta', 21)))
     product_purchase_listbox.grid(row=3, column=0, columnspan=1, rowspan=3, sticky=N + S + E + W)
-    tmp3 = PIL.Image.open(NEXT_ICO).resize((70, 70), PIL.Image.ANTIALIAS)
+    tmp3 = PIL.Image.open(NEXT_ICO).resize((70, 70), PIL.Image.Resampling.LANCZOS)
     tmp3 = PIL.ImageTk.PhotoImage(image=tmp3)
     btn62 = Button(app6,
                    text="Terminare achizitie",
@@ -709,9 +708,9 @@ def inventory_product_list():
     app2sub2.rowconfigure(0, weight=1)
     lf3 = LabelFrame(app2sub2, text="Optiuni cautare produs")
     lf3.grid(row=0, column=0, sticky=N + S + W + E, padx=2, pady=10)
-    for h in xrange(1, 3):
+    for h in range(1, 3):
         lf3.columnconfigure(h, weight=1)
-    for h in xrange(2):
+    for h in range(2):
         lf3.rowconfigure(h, weight=1)
     Label(lf3, text="Termen de cautare").grid(row=0,
                                               column=0,
@@ -856,7 +855,7 @@ def customer_database_list():
     lf41.grid(row=0, column=0, sticky=N + S + W + E, padx=2, pady=0)
     lf41.columnconfigure(1, weight=1)
     lf41.columnconfigure(2, weight=1)
-    for h in xrange(2):
+    for h in range(2):
         lf41.rowconfigure(h, weight=1)
     Label(lf41, text="Termen de cautare").grid(row=0,
                                                column=0,
@@ -895,7 +894,7 @@ def customer_database_list():
     lf42.grid(row=0, column=1, sticky=N + W + S + E, padx=2, pady=0)
     lf42.columnconfigure(0, weight=1)
     lf42.columnconfigure(1, weight=1)
-    for h in xrange(2):
+    for h in range(2):
         lf42.rowconfigure(h, weight=1)
     Button(lf42,
            text="Adaugare Client",
@@ -1080,7 +1079,7 @@ def suppliers_frame():
     lf51.grid(row=0, column=0, sticky=N + S + W + E, padx=2, pady=0)
     lf51.columnconfigure(1, weight=1)
     lf51.columnconfigure(2, weight=1)
-    for h in xrange(2):
+    for h in range(2):
         lf51.rowconfigure(h, weight=1)
     Label(lf51, text="Termen de cautare").grid(row=0,
                                                column=0,
@@ -1119,7 +1118,7 @@ def suppliers_frame():
     lf52.grid(row=0, column=1, sticky=N + W + S + E, padx=2, pady=0)
     lf52.columnconfigure(0, weight=1)
     lf52.rowconfigure(0, weight=1)
-    for h in xrange(2):
+    for h in range(2):
         lf52.rowconfigure(h, weight=1)
     Button(lf52,
            text="Adaugare Furnizor",
@@ -2474,7 +2473,7 @@ def add_2_cart():
         # lot
         return messagebox.showinfo("Eroare", "Produsul nu este in inventar")
     boo = False
-    for ITEM in xrange(int(mlb.size())):
+    for ITEM in range(int(mlb.size())):
         r = mlb.get(ITEM)
         if costid == r[0]:
             newqty = float(r[3]) + float(qty)

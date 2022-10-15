@@ -1,5 +1,5 @@
 from Tkinter import *
-from TableTree import MultiListbox
+from MultiListbox import MultiListbox
 from ttk import *
 from tkMessageBox import showinfo
 from tkMessageBox import askokcancel

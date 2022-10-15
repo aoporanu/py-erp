@@ -5,7 +5,7 @@ from tkinter.ttk import *
 
 from src.Cython.buttoncalender import CalendarButton
 from src.Cython.proWrd1 import Filter
-from src.TableTree import MultiListbox
+from src.MultiListbox import MultiListbox
 
 sty = N + W + S + E
 

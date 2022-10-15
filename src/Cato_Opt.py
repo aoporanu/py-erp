@@ -2,7 +2,7 @@ import tkinter as tk
 from tkinter import N, W, S, E, END
 
 from src.Cython.proWrd1 import Filter
-from src.TableTree import MultiListbox
+from src.MultiListbox import MultiListbox
 from tkinter.ttk import *
 from tkinter.messagebox import showinfo
 from tkinter.messagebox import askokcancel

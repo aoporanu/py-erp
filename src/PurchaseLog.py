@@ -1,7 +1,7 @@
 from tkinter import *
 from tkinter.messagebox import showinfo
 from tkinter.ttk import *
-from src.TableTree import MultiListbox
+from src.MultiListbox import MultiListbox
 from src.pcclass import InventoryDataBase
 
 sty = N + S + E + W

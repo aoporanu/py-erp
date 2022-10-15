@@ -3,8 +3,8 @@ from tkinter.messagebox import showinfo, askokcancel
 from tkinter.ttk import Frame, Label, Button, Entry
 
 from src.Cython.proWrd1 import Filter
-from src.TableTree import MultiListbox
-import src.TableTree as tableTree
+from src.MultiListbox import MultiListbox
+import src.MultiListbox as tableTree
 
 
 class NewUnitOfMeasure():
